@@ -9,6 +9,7 @@ firebase.json
 .env
 .env.local
 .env.*.local
+*.pem
 
 # Log files
 npm-debug.log*

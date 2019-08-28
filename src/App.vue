@@ -11,6 +11,12 @@
           </v-list-item-icon>
           <v-list-item-title v-text="item.title"></v-list-item-title>
         </v-list-item>
+        <v-list-item v-if="isAuthenticated" @click="userSignOut">
+          <v-list-item-action>
+            <v-icon>mdi-exit-to-app</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>Sign Out</v-list-item-content>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
@@ -34,6 +40,10 @@
           <v-icon left dark>{{ item.icon }}</v-icon>
           {{ item.title }}
         </v-btn>
+        <v-btn v-if="isAuthenticated" text @click="userSignOut">
+          <v-icon left>mdi-exit-to-app</v-icon>
+          Sign Out
+        </v-btn>
       </v-toolbar-items>
     </v-app-bar>
 
@@ -48,12 +58,29 @@ export default {
   data () {
     return {
       appTitle: 'BDTek v3',
-      sidebar: false,
-      menuItems: [
-        { title: 'Home', path: '/home', icon: 'home' },
-        { title: 'Sign Up', path: '/signup', icon: 'face' },
-        { title: 'Sign In', path: '/signin', icon: 'lock_open' }
-      ]
+      sidebar: false
+    }
+  },
+  computed: {
+    isAuthenticated () {
+      return this.$store.getters.isAuthenticated
+    },
+    menuItems () {
+      if (this.isAuthenticated) {
+        return [
+          { title: 'Home', path: '/home', icon: 'mdi-home' }
+        ]
+      } else {
+        return [
+          { title: 'Sign Up', path: '/signup', icon: 'mdi-face' },
+          { title: 'Sign In', path: '/signin', icon: 'mdi-lock-open' }
+        ]
+      }
+    }
+  },
+  methods: {
+    userSignOut () {
+      this.$store.dispatch('userSignOut')
     }
   }
 }
