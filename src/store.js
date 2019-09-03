@@ -11,7 +11,8 @@ export default new Vuex.Store({
     user: null,
     error: null,
     loading: false,
-    books: []
+    books: [],
+    currentBook: {}
   },
   mutations: {
     setUser (state, payload) {
@@ -25,6 +26,9 @@ export default new Vuex.Store({
     },
     setBooks (state, payload) {
       state.books = payload
+    },
+    setCurrentBook (state, payload) {
+      state.currentBook = payload
     }
   },
   actions: {
@@ -58,6 +62,7 @@ export default new Vuex.Store({
     },
     autoSignIn ({ commit }, payload) {
       commit('setUser', { email: payload.email, uid: payload.uid })
+      router.push('/home')
       this.dispatch('fetchBooks', payload)
     },
     userSignOut ({ commit }) {

@@ -17,10 +17,17 @@
         :items="books"
         :items-per-page="40"
         :search="search"
-        item-key="uid"
         show-select
+        item-key="uid"
         fixed-header
         multi-sort
+        class="elevation-1"
+        :footer-props="{
+          showFirstLastPage: true,
+          itemsPerPageOptions: [20, 50, 100, 200, -1]
+        }"
+        group-by="series"
+        :sort-by="['series', 'volume']"
       >
 
         <template v-slot:item.actions="{ item }">
@@ -40,34 +47,52 @@
           </v-icon>
         </template>
       </v-data-table>
+        <v-dialog v-model="dialog">
+          <template v-slot:activator="{ on }">
+            <v-btn
+              fab
+              color="primary"
+              dark
+              absolute
+              top
+              right
+              v-on="on"
+            ><v-icon>mdi-plus</v-icon>
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ formTitle }}</span>
+            </v-card-title>
+
+            <v-card-text>
+              <v-container>
+                <book-editor></book-editor>
+              </v-container>
+            </v-card-text>
+
+            <v-card-actions>
+              <div class="flex-grow-1"></div>
+              <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
+              <v-btn color="blue darken-1" text @click="save">Save</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
   </v-card>
 </template>
 
 <script>
+import BookEditor from '@/components/BookEditor'
 export default {
+  components: {
+    BookEditor: BookEditor
+  },
   data () {
     return {
       search: '',
       alert: false,
+      dialog: false,
       editedIndex: -1,
-      editedItem: {
-        uid: '',
-        title: '',
-        series: '',
-        volume: '',
-        author: '',
-        published: '',
-        publisher: ''
-      },
-      defaultItem: {
-        uid: '',
-        title: '',
-        series: '',
-        volume: '',
-        author: '',
-        published: '',
-        publisher: ''
-      },
       headers: [
         {
           value: 'uid',
@@ -82,15 +107,11 @@ export default {
         }, {
           value: 'volume',
           text: '#',
-          width: '5em'
+          width: '7em'
         }, {
           value: 'author',
           text: 'Author(s)',
           width: '15em'
-        }, {
-          value: 'published',
-          text: 'Published',
-          width: '10em'
         }, {
           value: 'publisher',
           text: 'Publisher',
@@ -111,6 +132,7 @@ export default {
   },
   methods: {
     editItem (item) {
+      this.$store.commit('setCurrentBook', item)
       this.editedIndex = this.books.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialog = true
@@ -131,9 +153,9 @@ export default {
 
     save () {
       if (this.editedIndex > -1) {
-        Object.assign(this.desserts[this.editedIndex], this.editedItem)
+        Object.assign(this.books[this.editedIndex], this.editedItem)
       } else {
-        this.desserts.push(this.editedItem)
+        this.books.push(this.editedItem)
       }
       this.close()
     }
@@ -147,6 +169,9 @@ export default {
     },
     books () {
       return this.$store.state.books
+    },
+    currentBook () {
+      return this.$store.state.currentBook
     },
     formTitle () {
       return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
