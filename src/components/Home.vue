@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <v-row>
-      <v-col cols="12" md="12" lg="10" offset-lg="1" xl="8" offset-xl="2">
+      <v-col cols="12" xl="10" offset-xl="1">
         <v-card>
           <v-card-title>
             <div class="flex-grow-1"></div>
@@ -18,13 +18,13 @@
               loading-text="Loading... Please wait"
               :headers="headers"
               :items="books"
-              :items-per-page="40"
+              :items-per-page="100"
               :search="search"
               show-select
               item-key="uid"
               fixed-header
               multi-sort
-              mobile-breakpoint="900"
+              :mobile-breakpoint="900"
               class="elevation-1"
               :footer-props="{
                 showFirstLastPage: true,
@@ -53,7 +53,7 @@
                 <template v-slot:activator="{ on }">
                   <v-btn
                     fab
-                    color="primary"
+                    class="blue-grey lighten-1"
                     dark
                     fixed
                     bottom
@@ -63,14 +63,15 @@
                   </v-btn>
                 </template>
                 <v-card>
-                  <v-banner 
+                  <v-banner
                   style="top:0px"
                   sticky
-                  single-line>
+                  single-line
+                  class="blue-grey lighten-1  white--text">
                     {{ formTitle }}
                     <template v-slot:actions>
-                      <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-                      <v-btn color="blue darken-1" text @click="save">Save</v-btn>
+                      <v-btn class="white--text" text @click="close">Cancel</v-btn>
+                      <v-btn class="white--text" text @click="save">Save</v-btn>
                     </template>
                   </v-banner>
                   <v-card-text>
@@ -140,32 +141,22 @@ export default {
   created () {
   },
   methods: {
-    editItem (item) {
-      this.$store.commit('setCurrentBook', item)
-      this.editedIndex = this.books.indexOf(item)
-      this.editedItem = Object.assign({}, item)
+    editItem (book) {
+      this.$store.commit('setCurrentBook', book)
       this.dialog = true
     },
 
-    deleteItem (item) {
-      const index = this.books.indexOf(item)
-      confirm('Are you sure you want to delete this item?') && this.books.splice(index, 1)
+    deleteItem (book) {
+      confirm('Are you sure you want to delete this item?') && this.$store.dispatch('deleteCurrentBook',book)
     },
 
     close () {
       this.dialog = false
-      setTimeout(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-      }, 300)
+      this.$store.dispatch('clearCurrentBook')
     },
 
     save () {
-      if (this.editedIndex > -1) {
-        Object.assign(this.books[this.editedIndex], this.editedItem)
-      } else {
-        this.books.push(this.editedItem)
-      }
+      this.$store.dispatch('saveCurrentBook')
       this.close()
     }
   },
@@ -183,7 +174,7 @@ export default {
       return this.$store.state.currentBook
     },
     formTitle () {
-      return this.editedIndex === -1 ? 'New Book' : this.currentBook.title
+      return this.currentBook.title === "" ? 'New Book' : this.currentBook.title
     }
   },
   watch: {

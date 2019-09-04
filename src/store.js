@@ -13,7 +13,20 @@ export default new Vuex.Store({
     loading: false,
     books: [],
     series: [],
-    currentBook: {}
+    currentBook: {},
+    defaultBook: {
+      uid: '',
+      title: '',
+      series: '',
+      author: '',
+      dataAdded: '',
+      edition: '',
+      published: '',
+      published: '',
+      computedOrder: '',
+      detailsURL: '',
+      imageURL: ''
+    },
   },
   mutations: {
     setUser (state, payload) {
@@ -30,12 +43,12 @@ export default new Vuex.Store({
     },
     setSeries (state, payload) {
       if (payload.length > 1) {
-        payload.sort();
+        payload.sort()
       }
       state.series = payload
     },
     setCurrentBook (state, payload) {
-      state.currentBook = payload
+      state.currentBook = Object.assign({}, payload)
     }
   },
   actions: {
@@ -91,13 +104,33 @@ export default new Vuex.Store({
           }
           booksArray.push(booksObject[key])
           if (seriesArray.indexOf(booksObject[key]['series']) === -1) {
-            seriesArray.push(booksObject[key]['series']);
+            seriesArray.push(booksObject[key]['series'])
           }
         })
         commit('setBooks', booksArray)
         commit('setSeries', seriesArray)
         commit('setLoading', false)
       })
+    },
+    deleteCurrentBook ({ commit }, book) {
+      if (book !== undefined && book.uid !== undefined && book.uid !== "") {
+        commit('setLoading', true)
+        firebase.database().ref(`bd/${this.state.user.uid}/${book.uid}`).remove().then(function() {
+            console.log("Remove succeeded.")
+          })
+          .catch(function(error) {
+            console.log("Remove failed: " + error.message)
+          })
+          .finally(function() {
+            commit('setLoading', false)
+          });
+      }
+    },
+    clearCurrentBook ({ commit }) {
+      commit('setCurrentBook', this.defaultBook)
+    },
+    saveCurrentBook ({ commit }) {
+      console.log("saveCurrentBook")
     }
   },
   getters: {

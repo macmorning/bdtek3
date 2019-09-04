@@ -1,8 +1,8 @@
 <template>
   <v-app>
-    <v-app-bar app>
+    <v-app-bar app class="blue-grey lighten-1">
       <v-toolbar-title>
-        <router-link to="/" tag="span" style="cursor: pointer">
+        <router-link to="/" tag="span" style="cursor: pointer"  class="white--text">
           {{ appTitle }}
         </router-link>
       </v-toolbar-title>
@@ -10,13 +10,14 @@
       <v-toolbar-items>
         <v-btn
           text
+          class="white--text"
           v-for="item in menuItems"
           :key="item.title"
           :to="item.path">
           <v-icon left dark>{{ item.icon }}</v-icon>
           {{ item.title }}
         </v-btn>
-        <v-btn v-if="isAuthenticated" text @click="userSignOut">
+        <v-btn v-if="isAuthenticated" class="white--text" text @click="userSignOut">
           <v-icon left>mdi-exit-to-app</v-icon>
           Sign Out
         </v-btn>

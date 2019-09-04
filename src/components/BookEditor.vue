@@ -74,6 +74,7 @@
         </v-col>
         <v-col cols="12" md="6" lg="4">
             <v-img
+            :v-if="editedItem.imageURL"
             :src="editedItem.imageURL"
             position="center"
             contain
