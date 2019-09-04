@@ -12,6 +12,7 @@ export default new Vuex.Store({
     error: null,
     loading: false,
     books: [],
+    series: [],
     currentBook: {}
   },
   mutations: {
@@ -26,6 +27,12 @@ export default new Vuex.Store({
     },
     setBooks (state, payload) {
       state.books = payload
+    },
+    setSeries (state, payload) {
+      if (payload.length > 1) {
+        payload.sort();
+      }
+      state.series = payload
     },
     setCurrentBook (state, payload) {
       state.currentBook = payload
@@ -75,6 +82,7 @@ export default new Vuex.Store({
 
       firebase.database().ref(`bd/${payload.uid}`).limitToFirst(500).once('value').then(function (snapshot) {
         let booksArray = []
+        let seriesArray = []
         let booksObject = snapshot.val()
         Object.keys(booksObject).forEach((key) => {
           // rattrage de données au cas où le livre aurait été créé sans l'attribut uid
@@ -82,8 +90,12 @@ export default new Vuex.Store({
             booksObject[key]['uid'] = key
           }
           booksArray.push(booksObject[key])
+          if (seriesArray.indexOf(booksObject[key]['series']) === -1) {
+            seriesArray.push(booksObject[key]['series']);
+          }
         })
         commit('setBooks', booksArray)
+        commit('setSeries', seriesArray)
         commit('setLoading', false)
       })
     }

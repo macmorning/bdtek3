@@ -15,13 +15,54 @@
                     <v-text-field v-model="editedItem.volume" label="Author"></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="editedItem.published" label="Published"></v-text-field>
+                  <v-menu
+                    v-model="publishedMenu"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    transition="scale-transition"
+                    offset-y
+                    full-width
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-text-field
+                        v-model="editedItem.published"
+                        label="Published"
+                        prepend-icon="mdi-calendar"
+                        readonly
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker v-model="editedItem.published" @input="publishedMenu = false"></v-date-picker>
+                  </v-menu>
                 </v-col>
                 <v-col cols="12" md="6">
                     <v-text-field v-model="editedItem.publisher" label="Publisher"></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
                     <v-text-field v-model="editedItem.edition" label="Edition"></v-text-field>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-menu
+                    v-model="dateAddedMenu"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    transition="scale-transition"
+                    offset-y
+                    full-width
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-text-field
+                        v-model="editedItem.dateAdded"
+                        label="Added"
+                        prepend-icon="mdi-calendar"
+                        readonly
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker v-model="editedItem.dateAdded" @input="dateAddedMenu = false"></v-date-picker>
+                  </v-menu>
                 </v-col>
                 <v-col cols="12" md="6">
                     <v-text-field v-model="editedItem.detailsURL" label="External link" append-outer-icon="mdi-link-variant" @click:append-outer="openDetails"></v-text-field>
@@ -47,14 +88,16 @@
 export default {
   data: function () {
     return {
+      publishedMenu: false,
+      dateAddedMenu: false
     }
   },
   methods: {
     openDetails () {
-        window.open(this.$store.state.currentBook.detailsURL, '_blank');
+      window.open(this.$store.state.currentBook.detailsURL, '_blank')
     },
     openImage () {
-        window.open(this.$store.state.currentBook.imageURL, '_blank');
+      window.open(this.$store.state.currentBook.imageURL, '_blank')
     }
   },
   computed: {

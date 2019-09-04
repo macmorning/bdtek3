@@ -1,37 +1,13 @@
 <template>
   <v-app>
-    <v-navigation-drawer v-model="sidebar" app>
-      <v-list>
-        <v-list-item
-          v-for="item in menuItems"
-          :key="item.title"
-          :to="item.path">
-          <v-list-item-icon>
-            <v-icon v-text="item.icon"></v-icon>
-          </v-list-item-icon>
-          <v-list-item-title v-text="item.title"></v-list-item-title>
-        </v-list-item>
-        <v-list-item v-if="isAuthenticated" @click="userSignOut">
-          <v-list-item-action>
-            <v-icon>mdi-exit-to-app</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>Sign Out</v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-
     <v-app-bar app>
-      <span class="hidden-sm-and-up">
-        <v-app-bar-nav-icon @click="sidebar = !sidebar">
-        </v-app-bar-nav-icon>
-      </span>
       <v-toolbar-title>
         <router-link to="/" tag="span" style="cursor: pointer">
           {{ appTitle }}
         </router-link>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-items class="hidden-xs-only">
+      <v-toolbar-items>
         <v-btn
           text
           v-for="item in menuItems"
@@ -57,8 +33,7 @@
 export default {
   data () {
     return {
-      appTitle: 'BDTek v3',
-      sidebar: false
+      appTitle: 'BDTek v3'
     }
   },
   computed: {
