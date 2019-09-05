@@ -20,7 +20,6 @@
               :items="books"
               :items-per-page="100"
               :search="search"
-              show-select
               item-key="uid"
               fixed-header
               multi-sort
@@ -32,7 +31,7 @@
               }"
               group-by="series"
               :sort-by="['series', 'volume']"
-            >
+            ><!--               show-select -->
 
               <template v-slot:item.actions="{ item }">
                 <a class="mr-2" :href="item.detailsURL" target="_blank"><v-icon>mdi-link-variant</v-icon></a>
@@ -147,17 +146,19 @@ export default {
     },
 
     deleteItem (book) {
-      confirm('Are you sure you want to delete this item?') && this.$store.dispatch('deleteCurrentBook',book)
+      confirm('Are you sure you want to delete this item?') && this.$store.dispatch('deleteCurrentBook', book)
     },
 
     close () {
       this.dialog = false
-      this.$store.dispatch('clearCurrentBook')
+      setTimeout(() => {
+        this.$store.dispatch('clearCurrentBook')
+      }, 300)
     },
 
     save () {
+      this.dialog = false
       this.$store.dispatch('saveCurrentBook')
-      this.close()
     }
   },
   computed: {
@@ -174,15 +175,10 @@ export default {
       return this.$store.state.currentBook
     },
     formTitle () {
-      return this.currentBook.title === "" ? 'New Book' : this.currentBook.title
+      return this.currentBook.title === '' ? 'New Book' : this.currentBook.title
     }
   },
   watch: {
-    books (value) {
-      if (value) {
-        console.log(value)
-      }
-    },
     error (value) {
       if (value) {
         this.alert = true

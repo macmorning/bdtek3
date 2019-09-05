@@ -12,7 +12,7 @@
                     <v-text-field v-model="editedItem.volume" label="Volume"></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
-                    <v-text-field v-model="editedItem.volume" label="Author"></v-text-field>
+                    <v-text-field v-model="editedItem.author" label="Author"></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
                   <v-menu
@@ -102,21 +102,8 @@ export default {
     }
   },
   computed: {
-    error () {
-      return this.$store.state.error
-    },
-    isLoading () {
-      return this.$store.state.loading
-    },
     editedItem () {
       return this.$store.state.currentBook
-    }
-  },
-  watch: {
-    editedItem (value) {
-      if (value) {
-        console.log(value)
-      }
     }
   }
 }
