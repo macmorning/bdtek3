@@ -1,18 +1,10 @@
 <template>
-  <v-container fluid>
-    <v-layout row wrap>
-      <v-flex xs12 class="text-xs-center" mt-5>
-        <h1>Sign In</h1>
-      </v-flex>
-      <v-flex xs12 sm6 offset-sm3 mt-3>
+  <v-row>
+    <v-col cols="12" lg="8" offset-lg="2" xl="6" offset-xl="3">
+      <v-card style="opacity:.8">
         <form @submit.prevent="userSignIn">
-          <v-layout column>
-            <v-flex>
-              <v-alert type="error" dismissible v-model="alert">
-                {{ error }}
-              </v-alert>
-            </v-flex>
-            <v-flex>
+          <v-row>
+            <v-col cols="10" offset="1">
               <v-text-field
                 name="email"
                 label="Email"
@@ -20,8 +12,8 @@
                 type="email"
                 v-model="email"
                 required></v-text-field>
-            </v-flex>
-            <v-flex>
+            </v-col>
+            <v-col cols="10" offset="1">
               <v-text-field
                 name="password"
                 label="Password"
@@ -29,15 +21,15 @@
                 type="password"
                 v-model="password"
                 required></v-text-field>
-            </v-flex>
-            <v-flex class="text-xs-center" mt-5>
+            </v-col>
+            <v-col cols="10" offset="1">
               <v-btn color="primary" type="submit" :disabled="isLoading">Sign In</v-btn>
-            </v-flex>
-          </v-layout>
+            </v-col>
+          </v-row>
         </form>
-      </v-flex>
-    </v-layout>
-  </v-container>
+      </v-card>
+    </v-col>
+  </v-row>
 </template>
 
 <script>

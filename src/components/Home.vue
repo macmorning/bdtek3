@@ -2,7 +2,7 @@
   <v-container fluid>
     <v-row>
       <v-col cols="12" xl="10" offset-xl="1">
-        <v-card>
+        <v-card style="opacity:.8">
           <v-card-title>
             <div class="flex-grow-1"></div>
               <v-text-field
@@ -48,7 +48,7 @@
                 </v-icon>
               </template>
             </v-data-table>
-              <v-dialog v-model="dialog" fullscreen hide-overlay>
+              <v-dialog v-model="dialog">
                 <template v-slot:activator="{ on }">
                   <v-btn
                     fab
@@ -67,10 +67,10 @@
                   sticky
                   single-line
                   class="blue-grey lighten-1  white--text">
+                  <v-btn class="white--text" text @click="close"><v-icon left>mdi-arrow-left-bold</v-icon></v-btn>
                     {{ formTitle }}
                     <template v-slot:actions>
-                      <v-btn class="white--text" text @click="close">Cancel</v-btn>
-                      <v-btn class="white--text" text @click="save">Save</v-btn>
+                      <v-btn class="white--text" text @click="save"><v-icon left>mdi-floppy</v-icon>Save</v-btn>
                     </template>
                   </v-banner>
                   <v-card-text>
@@ -157,7 +157,6 @@ export default {
     },
 
     save () {
-      this.dialog = false
       this.$store.dispatch('saveCurrentBook')
     }
   },

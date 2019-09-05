@@ -25,8 +25,25 @@
     </v-app-bar>
 
     <v-content>
-      <router-view></router-view>
+      <router-view id="root" :style="{'background-position': 'center','background-size': 'cover','background-attachment': 'fixed','min-height': '100%','background-image':'url(/img/' + imgNumber + '.png)'}"></router-view>
     </v-content>
+    <v-snackbar
+      v-model="error"
+      top
+      multi-line
+      color="error"
+      :timeout="6000"
+    >
+      {{ error }}
+    </v-snackbar>
+    <v-snackbar
+      v-model="success"
+      top
+      color="success"
+      :timeout="3000"
+    >
+      {{ success }}
+    </v-snackbar>
   </v-app>
 </template>
 
@@ -34,10 +51,17 @@
 export default {
   data () {
     return {
-      appTitle: 'BDTek v3'
+      appTitle: 'BDTek v3',
+      maxImgNum: 10
     }
   },
   computed: {
+    error () {
+      return this.$store.state.error
+    },
+    success () {
+      return this.$store.state.success
+    },
     isAuthenticated () {
       return this.$store.getters.isAuthenticated
     },
@@ -52,6 +76,9 @@ export default {
           { title: 'Sign In', path: '/signin', icon: 'mdi-lock-open' }
         ]
       }
+    },
+    imgNumber () {
+      return (Math.floor(Math.random() * Math.floor(this.maxImgNum))).toString().padStart(2, "0")
     }
   },
   methods: {
