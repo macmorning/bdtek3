@@ -1,10 +1,12 @@
 <template>
-  <v-row>
-    <v-col cols="12" lg="8" offset-lg="2" xl="6" offset-xl="3">
-      <v-card style="opacity:.8">
-        <form @submit.prevent="userSignIn">
-          <v-row>
-            <v-col cols="10" offset="1">
+  <v-layout align-center justify-center>
+    <v-flex xs12 sm8 md4 xl2>
+      <v-card class="elevation-12 text-center">
+        <v-avatar class="blue-grey lighten-1">
+          <v-icon class="white--text" top>mdi-lock</v-icon>
+        </v-avatar>
+        <v-card-text>
+          <v-form>
               <v-text-field
                 name="email"
                 label="Email"
@@ -12,8 +14,6 @@
                 type="email"
                 v-model="email"
                 required></v-text-field>
-            </v-col>
-            <v-col cols="10" offset="1">
               <v-text-field
                 name="password"
                 label="Password"
@@ -21,15 +21,15 @@
                 type="password"
                 v-model="password"
                 required></v-text-field>
-            </v-col>
-            <v-col cols="10" offset="1">
-              <v-btn color="primary" type="submit" :disabled="isLoading">Sign In</v-btn>
-            </v-col>
-          </v-row>
-        </form>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" type="submit"  @click="userSignIn" :disabled="isLoading">Sign In</v-btn>
+        </v-card-actions>
       </v-card>
-    </v-col>
-  </v-row>
+    </v-flex>
+  </v-layout>
 </template>
 
 <script>

@@ -4,10 +4,9 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 
 const routerOptions = [
-  { path: '/', component: 'Landing' },
+  { path: '/', component: 'Home', meta: { requiresAuth: true } },
   { path: '/signin', component: 'Signin' },
   { path: '/signup', component: 'Signup' },
-  { path: '/home', component: 'Home', meta: { requiresAuth: true } },
   { path: '*', component: 'Notfound' }
 ]
 

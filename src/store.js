@@ -69,18 +69,28 @@ export default new Vuex.Store({
 
       if (pos > -1 && state.books[pos].uid === book.uid) {
         delete state.books.splice(pos, 1)
-      }      
+      }
     },
     addBook (state, payload) {
-      state.books.push(payload)
+      let pos = state.books.map(function (e) { return e.uid }).indexOf(payload.key)
+      console.log(payload.key + " / " + pos)
+      if (pos === -1) {
+        state.books.push(payload)
+      }
     },
     updateBook (state, payload) {
       // trouver la position du livre modifié dans le tableau des livres actuel
       let pos = state.books.map(function (e) { return e.uid }).indexOf(payload.key)
       let book = payload.val()
       if (pos > -1 && state.books[pos].uid === book.uid) {
-        state.books[pos] = Object.assign( state.books[pos], book )
+        state.books[pos] = Object.assign(state.books[pos], book)
       }
+    },
+    resetBooks (state) {
+      state.currentBook = {}
+      state.books = []
+      state.publishers = []
+      state.series = []
     }
   },
   actions: {
@@ -90,7 +100,7 @@ export default new Vuex.Store({
         .then(firebaseUser => {
           commit('setUser', { email: firebaseUser.user.email })
           commit('setLoading', false)
-          router.push('/home')
+          router.push('/')
         })
         .catch(error => {
           commit('setError', error.message)
@@ -105,7 +115,7 @@ export default new Vuex.Store({
           commit('setLoading', false)
           commit('setError', null)
           this.dispatch('initBooks', firebaseUser.user)
-          router.push('/home')
+          router.push('/')
         })
         .catch(error => {
           commit('setError', error.message)
@@ -114,13 +124,14 @@ export default new Vuex.Store({
     },
     autoSignIn ({ commit }, payload) {
       commit('setUser', { email: payload.email, uid: payload.uid })
-      router.push('/home')
+      router.push('/')
       this.dispatch('initBooks', payload)
     },
     userSignOut ({ commit }) {
       firebase.auth().signOut()
+      commit('resetBooks')
       commit('setUser', null)
-      router.push('/')
+      router.push('/Signin')
     },
     initBooks ({ commit }, payload) {
       commit('setLoading', true)
@@ -146,7 +157,7 @@ export default new Vuex.Store({
       if (book !== undefined && book.uid !== undefined && book.uid !== '') {
         commit('setLoading', true)
         firebase.database().ref(`bd/${this.state.user.uid}/${book.uid}`).remove().then(() => {
-            commit('setSuccess', 'Book removed')
+          commit('setSuccess', 'Book removed')
         })
           .catch((error) => {
             commit('setError', 'Book not removed: ' + error.message)
@@ -165,7 +176,7 @@ export default new Vuex.Store({
         commit('setLoading', true)
         book.computedOrderField = (book.series ? book.series + (book.volume ? '_' + book.volume.toString().padStart(4, '0') : '') : '') + '_' + book.title
         firebase.database().ref(`bd/${this.state.user.uid}/${book.uid}`).update(book).then(() => {
-            commit('setSuccess', 'Book saved')
+          commit('setSuccess', 'Book saved')
         })
           .catch((error) => {
             commit('setError', 'Book not saved: ' + error.message)

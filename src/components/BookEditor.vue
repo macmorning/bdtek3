@@ -3,6 +3,9 @@
         <v-col cols="12" lg="8">
             <v-row>
                 <v-col cols="12" lg="6">
+                    <v-text-field v-model="editedItem.uid" label="ISBN"></v-text-field>
+                </v-col>
+                <v-col cols="12" lg="6">
                     <v-text-field v-model="editedItem.title" label="Title"></v-text-field>
                 </v-col>
                 <v-col cols="12" lg="6">

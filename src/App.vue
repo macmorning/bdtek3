@@ -28,7 +28,7 @@
       <router-view id="root" :style="{'background-position': 'center','background-size': 'cover','background-attachment': 'fixed','min-height': '100%','background-image':'url(/img/' + imgNumber + '.png)'}"></router-view>
     </v-content>
     <v-snackbar
-      v-model="error"
+      v-model="snackError"
       top
       multi-line
       color="error"
@@ -37,7 +37,7 @@
       {{ error }}
     </v-snackbar>
     <v-snackbar
-      v-model="success"
+      v-model="snackSuccess"
       top
       color="success"
       :timeout="3000"
@@ -52,7 +52,9 @@ export default {
   data () {
     return {
       appTitle: 'BDTek v3',
-      maxImgNum: 10
+      maxImgNum: 10,
+      snackSuccess: false,
+      snackError: false
     }
   },
   computed: {
@@ -68,7 +70,7 @@ export default {
     menuItems () {
       if (this.isAuthenticated) {
         return [
-          { title: 'Home', path: '/home', icon: 'mdi-home' }
+          { title: 'Home', path: '/', icon: 'mdi-home' }
         ]
       } else {
         return [
@@ -78,8 +80,32 @@ export default {
       }
     },
     imgNumber () {
-      return (Math.floor(Math.random() * Math.floor(this.maxImgNum))).toString().padStart(2, "0")
+      return (Math.floor(Math.random() * Math.floor(this.maxImgNum))).toString().padStart(2, '0')
     }
+  },
+  watch: {
+    error (value) {
+      this.snackError = false
+      if (value) {
+        this.snackError = true
+      }
+    },
+    success (value) {
+      this.snackSuccess = false
+      if (value) {
+        this.snackSuccess = true
+      }
+    },
+    snackError (value) {
+      if (!value) {
+        this.$store.commit('setError', null)
+      }
+    },
+    snackSuccess (value) {
+      if (!value) {
+        this.$store.commit('setSuccess', null)
+      }
+    },
   },
   methods: {
     userSignOut () {
