@@ -8,6 +8,10 @@ import router from '@/router'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
+  data () {
+    return {
+    }
+  },
   state: {
     user: null,
     error: null,
@@ -16,20 +20,7 @@ export default new Vuex.Store({
     books: [],
     series: [],
     publishers: [],
-    currentBook: {},
-    defaultBook: {
-      uid: '',
-      title: '',
-      series: '',
-      author: '',
-      dataAdded: '',
-      edition: '',
-      published: '',
-      publisher: '',
-      computedOrderField: '',
-      detailsURL: '',
-      imageURL: ''
-    }
+    currentBook: {}
   },
   mutations: {
     setUser (state, payload) {
@@ -73,7 +64,6 @@ export default new Vuex.Store({
     },
     addBook (state, payload) {
       let pos = state.books.map(function (e) { return e.uid }).indexOf(payload.key)
-      console.log(payload.key + " / " + pos)
       if (pos === -1) {
         state.books.push(payload)
       }
@@ -84,6 +74,9 @@ export default new Vuex.Store({
       let book = payload.val()
       if (pos > -1 && state.books[pos].uid === book.uid) {
         state.books[pos] = Object.assign(state.books[pos], book)
+      }
+      if (state.currentBook['uid'] === book['uid']) {
+        state.currentBook = book
       }
     },
     resetBooks (state) {
@@ -168,23 +161,45 @@ export default new Vuex.Store({
       }
     },
     clearCurrentBook ({ commit }) {
-      commit('setCurrentBook', this.defaultBook)
+      commit('setCurrentBook', {})
     },
-    saveCurrentBook ({ commit }) {
-      let book = this.state.currentBook
-      if (book !== undefined && book.uid !== undefined && book.uid !== '') {
-        commit('setLoading', true)
-        book.computedOrderField = (book.series ? book.series + (book.volume ? '_' + book.volume.toString().padStart(4, '0') : '') : '') + '_' + book.title
-        firebase.database().ref(`bd/${this.state.user.uid}/${book.uid}`).update(book).then(() => {
-          commit('setSuccess', 'Book saved')
+    saveNewBook ({ commit }, uid) {
+      if (uid === undefined || !uid) {
+        return false
+      }
+      commit('setLoading', true)
+      let book = {}
+      book.uid = uid
+      book.series = null
+      book.needLookup = 1
+      book.dateAdded = new Date().getUTCFullYear() + '-' + (new Date().getUTCMonth()+1).toString().padStart(2, '0') + '-' + new Date().getUTCDate().toString().padStart(2, '0');
+      firebase.database().ref(`bd/${this.state.user.uid}/${uid}`).set(book).then(() => {
+          commit('setSuccess', 'Book added')
+          commit('setCurrentBook', book)
         })
           .catch((error) => {
-            commit('setError', 'Book not saved: ' + error.message)
+            commit('setError', 'Book not added: ' + error.message)
           })
           .finally(() => {
             commit('setLoading', false)
           })
+    },
+    saveCurrentBook ({ commit }) {
+      let book = this.state.currentBook
+      if (book === undefined || book.uid === undefined || !book.uid) {
+        return false
       }
+      commit('setLoading', true)
+      book.computedOrderField = (book.series ? book.series + (book.volume ? '_' + book.volume.toString().padStart(4, '0') : '') : '') + '_' + book.title
+      firebase.database().ref(`bd/${this.state.user.uid}/${book.uid}`).update(book).then(() => {
+        commit('setSuccess', 'Book saved')
+      })
+        .catch((error) => {
+          commit('setError', 'Book not saved: ' + error.message)
+        })
+        .finally(() => {
+          commit('setLoading', false)
+        })
     }
   },
   getters: {

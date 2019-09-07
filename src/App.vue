@@ -29,7 +29,7 @@
     </v-content>
     <v-snackbar
       v-model="snackError"
-      top
+      bottom
       multi-line
       color="error"
       :timeout="6000"
@@ -38,7 +38,7 @@
     </v-snackbar>
     <v-snackbar
       v-model="snackSuccess"
-      top
+      bottom
       color="success"
       :timeout="3000"
     >
@@ -80,7 +80,8 @@ export default {
       }
     },
     imgNumber () {
-      return (Math.floor(Math.random() * Math.floor(this.maxImgNum))).toString().padStart(2, '0')
+      let num = ((Math.floor(Math.random() * Math.floor(this.maxImgNum)))+1).toString().padStart(2, '0')
+      return num
     }
   },
   watch: {
@@ -105,7 +106,7 @@ export default {
       if (!value) {
         this.$store.commit('setSuccess', null)
       }
-    },
+    }
   },
   methods: {
     userSignOut () {

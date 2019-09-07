@@ -48,41 +48,63 @@
                 </v-icon>
               </template>
             </v-data-table>
-              <v-dialog v-model="dialog">
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    fab
-                    class="blue-grey lighten-1"
-                    dark
-                    fixed
-                    bottom
-                    right
-                    v-on="on"
-                  ><v-icon>mdi-plus</v-icon>
-                  </v-btn>
-                </template>
-                <v-card>
-                  <v-banner
-                  style="top:0px"
-                  sticky
-                  single-line
-                  class="blue-grey lighten-1  white--text">
-                  <v-btn class="white--text" text @click="close"><v-icon left>mdi-arrow-left-bold</v-icon></v-btn>
-                    {{ formTitle }}
-                    <template v-slot:actions>
-                      <v-btn class="white--text" text @click="save"><v-icon left>mdi-floppy</v-icon>Save</v-btn>
-                    </template>
-                  </v-banner>
-                  <v-card-text>
-                    <v-container>
-                      <book-editor></book-editor>
-                    </v-container>
-                  </v-card-text>
-                </v-card>
-              </v-dialog>
-        </v-card>
+         </v-card>
       </v-col>
     </v-row>
+    <v-dialog v-model="dialogEdit">
+      <v-card>
+        <v-banner
+        style="top:0px"
+        sticky
+        single-line
+        class="blue-grey lighten-1  white--text">
+        <v-btn class="white--text" text @click="close"><v-icon>mdi-arrow-left-bold</v-icon></v-btn>
+          {{ formTitle }}
+          <template v-slot:actions>
+            <v-btn class="white--text" text @click="save"><v-icon left>mdi-floppy</v-icon>Save</v-btn>
+          </template>
+        </v-banner>
+        <v-card-text>
+          <v-container>
+            <book-editor></book-editor>
+          </v-container>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="dialogNew" width="400">
+      <v-card>
+        <v-banner
+        style="top:0px"
+        sticky
+        single-line
+        class="blue-grey lighten-1  white--text">
+        <v-btn class="white--text" text @click="close"><v-icon>mdi-arrow-left-bold</v-icon></v-btn>
+          New book
+          <template v-slot:actions>
+            <v-btn class="white--text" text @click="saveNew"><v-icon left>mdi-floppy</v-icon>Create</v-btn>
+          </template>
+        </v-banner>
+        <v-card-text>
+          <v-container>
+            <v-row>
+                <v-col>
+                    <v-text-field v-model="newBookUID" label="ISBN"></v-text-field>
+                </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+    <v-btn
+      fab
+      class="blue-grey lighten-1"
+      dark
+      fixed
+      bottom
+      right
+      @click="newItem"
+    ><v-icon>mdi-plus</v-icon>
+    </v-btn>
   </v-container>
 </template>
 
@@ -95,8 +117,10 @@ export default {
   data () {
     return {
       search: '',
+      newBookUID: null,
       alert: false,
-      dialog: false,
+      dialogEdit: false,
+      dialogNew: false,
       editedIndex: -1,
       headers: [
         {
@@ -142,20 +166,28 @@ export default {
   methods: {
     editItem (book) {
       this.$store.commit('setCurrentBook', book)
-      this.dialog = true
+      this.dialogEdit = true
     },
-
+    newItem () {
+      this.$store.dispatch('clearCurrentBook')
+      this.dialogNew = true
+    },
     deleteItem (book) {
       confirm('Are you sure you want to delete this item?') && this.$store.dispatch('deleteCurrentBook', book)
     },
 
     close () {
-      this.dialog = false
+      this.dialogEdit = false
+      this.dialogNew = false
       setTimeout(() => {
         this.$store.dispatch('clearCurrentBook')
       }, 300)
     },
-
+    saveNew () {
+      this.$store.dispatch('saveNewBook', this.newBookUID)
+      close()
+      this.dialogEdit = true
+    },
     save () {
       this.$store.dispatch('saveCurrentBook')
     }
@@ -188,7 +220,10 @@ export default {
         this.$store.commit('setError', null)
       }
     },
-    dialog (val) {
+    dialogEdit (val) {
+      val || this.close()
+    },
+    dialogNew (val) {
       val || this.close()
     }
   }
