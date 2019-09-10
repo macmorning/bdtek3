@@ -6,7 +6,11 @@
                     <v-text-field v-model="editedItem.title" label="Title"></v-text-field>
                 </v-col>
                 <v-col cols="12" lg="6">
-                    <v-text-field v-model="editedItem.series" label="Series"></v-text-field>
+                    <v-combobox
+                      v-model="editedItem.series"
+                      :items="series"
+                      label="Series"
+                    ></v-combobox>
                 </v-col>
                 <v-col cols="12" lg="6">
                     <v-text-field v-model="editedItem.volume" label="Volume"></v-text-field>
@@ -37,7 +41,11 @@
                   </v-menu>
                 </v-col>
                 <v-col cols="12" lg="6">
-                    <v-text-field v-model="editedItem.publisher" label="Publisher"></v-text-field>
+                    <v-combobox
+                      v-model="editedItem.publisher"
+                      :items="publishers"
+                      label="Publisher"
+                    ></v-combobox>
                 </v-col>
                 <v-col cols="12" lg="6">
                     <v-text-field v-model="editedItem.edition" label="Edition"></v-text-field>
@@ -104,6 +112,12 @@ export default {
   computed: {
     editedItem () {
       return this.$store.state.currentBook
+    },
+    series () {
+      return this.$store.state.series
+    },
+    publishers () {
+      return this.$store.state.publishers
     }
   }
 }

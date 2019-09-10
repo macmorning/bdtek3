@@ -7,6 +7,7 @@ const routerOptions = [
   { path: '/', component: 'Home', meta: { requiresAuth: true } },
   { path: '/signin', component: 'Signin' },
   { path: '/signup', component: 'Signup' },
+  { path: '/reset', component: 'PasswordForget' },
   { path: '*', component: 'Notfound' }
 ]
 

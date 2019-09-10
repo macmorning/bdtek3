@@ -66,6 +66,14 @@ export default new Vuex.Store({
       let pos = state.books.map(function (e) { return e.uid }).indexOf(payload.key)
       if (pos === -1) {
         state.books.push(payload)
+        if (state.series.indexOf(payload.series) === -1) {
+          state.series.push(payload.series)
+          state.series.sort()
+        }
+        if (state.publishers.indexOf(payload.publisher) === -1) {
+          state.publishers.push(payload.publisher)
+          state.publishers.sort()
+        }
       }
     },
     updateBook (state, payload) {
@@ -76,7 +84,7 @@ export default new Vuex.Store({
         state.books[pos] = Object.assign(state.books[pos], book)
       }
       if (state.currentBook['uid'] === book['uid']) {
-        state.currentBook = book
+        state.currentBook = Object.assign(state.currentBook, book)
       }
     },
     resetBooks (state) {
@@ -87,6 +95,18 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    userResetPwd ({ commit }, payload) {
+      commit('setLoading', true)
+      firebase.auth().sendPasswordResetEmail(payload.email)
+        .then(() => {
+          commit('setLoading', false)
+          commit('setSuccess', 'Email sent')
+        })
+        .catch(error => {
+          commit('setError', error.message)
+          commit('setLoading', false)
+        })
+    },
     userSignUp ({ commit }, payload) {
       commit('setLoading', true)
       firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
@@ -131,7 +151,6 @@ export default new Vuex.Store({
 
       firebase.database().ref(`bd/${payload.uid}`).orderByChild('computedOrderField').limitToFirst(1000).on('child_added', (snapshot) => {
         let book = snapshot.val()
-
         if (book['uid'] === undefined) {
           book['uid'] = snapshot.key
         }
@@ -172,17 +191,17 @@ export default new Vuex.Store({
       book.uid = uid
       book.series = null
       book.needLookup = 1
-      book.dateAdded = new Date().getUTCFullYear() + '-' + (new Date().getUTCMonth()+1).toString().padStart(2, '0') + '-' + new Date().getUTCDate().toString().padStart(2, '0');
+      book.dateAdded = new Date().getUTCFullYear() + '-' + (new Date().getUTCMonth() + 1).toString().padStart(2, '0') + '-' + new Date().getUTCDate().toString().padStart(2, '0')
       firebase.database().ref(`bd/${this.state.user.uid}/${uid}`).set(book).then(() => {
-          commit('setSuccess', 'Book added')
-          commit('setCurrentBook', book)
+        commit('setSuccess', 'Book added')
+        commit('setCurrentBook', book)
+      })
+        .catch((error) => {
+          commit('setError', 'Book not added: ' + error.message)
         })
-          .catch((error) => {
-            commit('setError', 'Book not added: ' + error.message)
-          })
-          .finally(() => {
-            commit('setLoading', false)
-          })
+        .finally(() => {
+          commit('setLoading', false)
+        })
     },
     saveCurrentBook ({ commit }) {
       let book = this.state.currentBook

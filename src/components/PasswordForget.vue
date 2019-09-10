@@ -14,19 +14,11 @@
                 type="email"
                 v-model="email"
                 required></v-text-field>
-              <v-text-field
-                name="password"
-                label="Password"
-                id="password"
-                type="password"
-                v-model="password"
-                required></v-text-field>
           </v-form>
         </v-card-text>
         <v-card-actions>
-          <a color="secondary" href="/reset">Forgot password?</a>
           <v-spacer></v-spacer>
-          <v-btn class="blue-grey lighten-1 white--text" type="submit" @click="userSignIn" :disabled="isLoading">Sign In</v-btn>
+          <v-btn class="blue-grey lighten-1 white--text" type="submit"  @click="userResetPwd">Send link</v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>
@@ -37,35 +29,20 @@
 export default {
   data () {
     return {
-      email: '',
-      password: '',
-      alert: false
-    }
-  },
-  methods: {
-    userSignIn () {
-      this.$store.dispatch('userSignIn', { email: this.email, password: this.password })
+      email: ''
     }
   },
   computed: {
-    error () {
-      return this.$store.state.error
-    },
     isLoading () {
       return this.$store.state.loading
     }
   },
-  watch: {
-    error (value) {
-      if (value) {
-        this.alert = true
-      }
-    },
-    alert (value) {
-      if (!value) {
-        this.$store.commit('setError', null)
-      }
+  methods: {
+    userResetPwd () {
+      this.$store.dispatch('userResetPwd', { email: this.email })
     }
+  },
+  watch: {
   }
 }
 </script>

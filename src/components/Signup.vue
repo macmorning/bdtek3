@@ -34,7 +34,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" type="submit"  @click="userSignUp" :disabled="isLoading">Sign In</v-btn>
+          <v-btn class="blue-grey lighten-1 white--text" type="submit"  @click="userSignUp" :disabled="isLoading">Sign In</v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>

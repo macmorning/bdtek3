@@ -29,9 +29,8 @@
                 showFirstLastPage: true,
                 itemsPerPageOptions: [20, 50, 100, 200, -1]
               }"
-              group-by="series"
               :sort-by="['series', 'volume']"
-            ><!--               show-select -->
+            ><!--   group-by="series"            show-select -->
 
               <template v-slot:item.actions="{ item }">
                 <a class="mr-2" :href="item.detailsURL" target="_blank"><v-icon>mdi-link-variant</v-icon></a>
@@ -164,6 +163,21 @@ export default {
   created () {
   },
   methods: {
+    onCountryInputChange (query) {
+      if (query.trim().length === 0) {
+        return null
+      }
+      // return the matching countries as an array
+      return this.countries.filter((country) => {
+        return country.toLowerCase().includes(query.toLowerCase())
+      })
+    },
+    onCountrySelected (item) {
+      this.selectedCountry = item
+    },
+    onSearchItemSelected (item) {
+      this.selectedSearchItem = item
+    },
     editItem (book) {
       this.$store.commit('setCurrentBook', book)
       this.dialogEdit = true
@@ -173,7 +187,7 @@ export default {
       this.dialogNew = true
     },
     deleteItem (book) {
-      confirm('Are you sure you want to delete this item?') && this.$store.dispatch('deleteCurrentBook', book)
+      confirm('Are you sure you want to delete "' + book.title + '"?') && this.$store.dispatch('deleteCurrentBook', book)
     },
 
     close () {
@@ -181,7 +195,7 @@ export default {
       this.dialogNew = false
       setTimeout(() => {
         this.$store.dispatch('clearCurrentBook')
-      }, 300)
+      }, 100)
     },
     saveNew () {
       this.$store.dispatch('saveNewBook', this.newBookUID)
@@ -189,7 +203,9 @@ export default {
       this.dialogEdit = true
     },
     save () {
-      this.$store.dispatch('saveCurrentBook')
+      setTimeout(() => {
+        this.$store.dispatch('saveCurrentBook')
+      }, 100)
     }
   },
   computed: {
