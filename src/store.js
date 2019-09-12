@@ -111,12 +111,22 @@ export default new Vuex.Store({
       commit('setLoading', true)
       firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
         .then(firebaseUser => {
-          commit('setUser', { email: firebaseUser.user.email })
-          commit('setLoading', false)
-          router.push('/')
+          firebase.auth().currentUser.updateProfile({ displayName: payload.displayName })
+          firebase.database().ref(`bd/${firebaseUser.user.uid}`).set(payload.displayName)
+          firebase.database().ref(`users/${firebaseUser.user.uid}`).update({ displayName: payload.displayName }).then(() => {
+            commit('setUser', firebaseUser.user)
+            commit('setSuccess', 'Your account was created, welcome!')
+            this.dispatch('initBooks', firebaseUser.user)
+            router.push('/')
+          })
+            .catch(error => {
+              commit('setError', error.message)
+            })
         })
         .catch(error => {
           commit('setError', error.message)
+        })
+        .finally(() => {
           commit('setLoading', false)
         })
     },
@@ -192,16 +202,21 @@ export default new Vuex.Store({
       book.series = null
       book.needLookup = 1
       book.dateAdded = new Date().getUTCFullYear() + '-' + (new Date().getUTCMonth() + 1).toString().padStart(2, '0') + '-' + new Date().getUTCDate().toString().padStart(2, '0')
-      firebase.database().ref(`bd/${this.state.user.uid}/${uid}`).set(book).then(() => {
-        commit('setSuccess', 'Book added')
-        commit('setCurrentBook', book)
-      })
-        .catch((error) => {
-          commit('setError', 'Book not added: ' + error.message)
+      try {
+        firebase.database().ref(`bd/${this.state.user.uid}/${uid}`).set(book).then(() => {
+          commit('setSuccess', 'Book added')
+          commit('setCurrentBook', book)
         })
-        .finally(() => {
-          commit('setLoading', false)
-        })
+          .catch((error) => {
+            commit('setError', 'Book not added: ' + error.message)
+          })
+          .finally(() => {
+            commit('setLoading', false)
+          })
+      } catch (e) {
+        commit('setError', 'Book not added: ' + e)
+        commit('setLoading', false)
+      }
     },
     saveCurrentBook ({ commit }) {
       let book = this.state.currentBook

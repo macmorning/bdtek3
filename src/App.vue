@@ -10,16 +10,15 @@
       <v-toolbar-items>
         <v-btn
           text
+          :title="item.title"
           class="white--text"
           v-for="item in menuItems"
           :key="item.title"
           :to="item.path">
-          <v-icon left dark>{{ item.icon }}</v-icon>
-          {{ item.title }}
+          <v-icon dark>{{ item.icon }}</v-icon>
         </v-btn>
-        <v-btn v-if="isAuthenticated" class="white--text" text @click="userSignOut">
-          <v-icon left>mdi-exit-to-app</v-icon>
-          Sign Out
+        <v-btn v-if="isAuthenticated" title="Sign Out" class="white--text" text @click="userSignOut">
+          <v-icon dark>mdi-exit-to-app</v-icon>
         </v-btn>
       </v-toolbar-items>
     </v-app-bar>
@@ -74,7 +73,6 @@ export default {
         ]
       } else {
         return [
-          { title: 'Sign Up', path: '/signup', icon: 'mdi-face' },
           { title: 'Sign In', path: '/signin', icon: 'mdi-lock-open' }
         ]
       }

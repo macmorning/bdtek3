@@ -6,7 +6,7 @@
           <v-icon class="white--text" top>mdi-lock</v-icon>
         </v-avatar>
         <v-card-text>
-          <v-form>
+          <v-form v-on:submit.prevent="userResetPwd">
               <v-text-field
                 name="email"
                 label="Email"

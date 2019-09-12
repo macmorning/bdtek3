@@ -6,7 +6,13 @@
           <v-icon class="white--text" top>mdi-lock</v-icon>
         </v-avatar>
         <v-card-text>
-          <v-form>
+          <v-form v-on:submit.prevent="userSignUp">
+              <v-text-field
+                name="displayName"
+                label="User name"
+                id="displayName"
+                v-model="displayName"
+                required></v-text-field>
               <v-text-field
                 name="email"
                 label="Email"
@@ -34,7 +40,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn class="blue-grey lighten-1 white--text" type="submit"  @click="userSignUp" :disabled="isLoading">Sign In</v-btn>
+          <v-btn class="blue-grey lighten-1 white--text" type="submit"  @click="userSignUp" :disabled="isLoading">Sign Up</v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>
@@ -46,6 +52,7 @@ export default {
   data () {
     return {
       email: '',
+      displayName: '',
       password: '',
       passwordConfirm: '',
       alert: false
@@ -67,7 +74,7 @@ export default {
       if (this.comparePasswords !== true) {
         return
       }
-      this.$store.dispatch('userSignUp', { email: this.email, password: this.password })
+      this.$store.dispatch('userSignUp', { email: this.email, password: this.password, displayName: this.displayName })
     }
   },
   watch: {
