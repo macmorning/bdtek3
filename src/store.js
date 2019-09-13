@@ -20,7 +20,14 @@ export default new Vuex.Store({
     books: [],
     series: [],
     publishers: [],
-    currentBook: {}
+    currentBook: {},
+    selectedBooks: {},
+    selected: false,
+    multiEdit: {
+      series: null,
+      author: null,
+      publisher: null
+    }
   },
   mutations: {
     setUser (state, payload) {
@@ -62,6 +69,16 @@ export default new Vuex.Store({
         delete state.books.splice(pos, 1)
       }
     },
+    bookSelected (state, payload) {
+      if (payload !== undefined && payload.value !== undefined && payload.item !== undefined && payload.item.uid) {
+        state.selectedBooks[payload.item.uid] = payload.value
+        if (payload.value === true) {
+          state.selected = true
+        } else {
+          state.selected = Object.values(state.selectedBooks).indexOf(true) > -1
+        }
+      }
+    },
     addBook (state, payload) {
       let pos = state.books.map(function (e) { return e.uid }).indexOf(payload.key)
       if (pos === -1) {
@@ -92,6 +109,14 @@ export default new Vuex.Store({
       state.books = []
       state.publishers = []
       state.series = []
+      clearMultiEdit()
+    },
+    clearMultiEdit (state) {
+      state.multiEdit = {
+        series: null,
+        author: null,
+        publisher: null
+      }
     }
   },
   actions: {
@@ -191,6 +216,20 @@ export default new Vuex.Store({
     },
     clearCurrentBook ({ commit }) {
       commit('setCurrentBook', {})
+    },
+    saveMultiBook ({ commit }) {
+      Object.keys(this.state.selectedBooks).forEach((uid) => {
+        if (this.state.selectedBooks[uid] === true) {
+          let pos = this.state.books.map(function (e) { return e.uid }).indexOf(uid)
+          let book = this.state.books[pos]
+          book.series = (this.state.multiEdit.series !== null ? this.state.multiEdit.series : book.series)
+          book.publisher = (this.state.multiEdit.publisher !== null ? this.state.multiEdit.publisher : book.publisher)
+          book.author = (this.state.multiEdit.author !== null ? this.state.multiEdit.author : book.author)
+          commit('setCurrentBook', book)
+          this.dispatch('saveCurrentBook')
+        }
+      })
+      commit('clearMultiEdit')
     },
     saveNewBook ({ commit }, uid) {
       if (uid === undefined || !uid) {

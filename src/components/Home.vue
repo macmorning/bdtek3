@@ -30,8 +30,8 @@
                 itemsPerPageOptions: [20, 50, 100, 200, -1]
               }"
               :sort-by="['series', 'volume']"
-            ><!--   group-by="series"            show-select -->
-
+              show-select
+              @item-selected="itemSelected">
               <template v-slot:item.actions="{ item }">
                 <a class="mr-2" :href="item.detailsURL" target="_blank"><v-icon>mdi-link-variant</v-icon></a>
                 <v-icon
@@ -65,7 +65,7 @@
         </v-banner>
         <v-card-text>
           <v-container>
-            <book-editor></book-editor>
+            <book-editor/>
           </v-container>
         </v-card-text>
       </v-card>
@@ -94,6 +94,26 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="dialogMulti" width="400">
+      <v-card>
+        <v-banner
+        style="top:0px"
+        sticky
+        single-line
+        class="blue-grey lighten-1  white--text">
+        <v-btn class="white--text" text @click="close"><v-icon>mdi-arrow-left-bold</v-icon></v-btn>
+          Multi edit
+          <template v-slot:actions>
+            <v-btn class="white--text" text @click="saveMulti"><v-icon left>mdi-floppy</v-icon>Save</v-btn>
+          </template>
+        </v-banner>
+        <v-card-text>
+          <v-container>
+            <multi-book-editor/>
+          </v-container>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <v-btn
       fab
       class="blue-grey lighten-1"
@@ -102,16 +122,30 @@
       bottom
       right
       @click="newItem"
+      v-if="!showMultiEditButton"
     ><v-icon>mdi-plus</v-icon>
+    </v-btn>
+   <v-btn
+      fab
+      class="blue-grey lighten-1"
+      dark
+      fixed
+      bottom
+      right
+      @click="multiEdit"
+      v-if="showMultiEditButton"
+    ><v-icon>mdi-pen</v-icon>
     </v-btn>
   </v-container>
 </template>
 
 <script>
 import BookEditor from '@/components/BookEditor'
+import MultiBookEditor from '@/components/MultiBookEditor'
 export default {
   components: {
-    BookEditor: BookEditor
+    BookEditor: BookEditor,
+    MultiBookEditor: MultiBookEditor
   },
   data () {
     return {
@@ -120,6 +154,7 @@ export default {
       alert: false,
       dialogEdit: false,
       dialogNew: false,
+      dialogMulti: false,
       editedIndex: -1,
       headers: [
         {
@@ -186,6 +221,10 @@ export default {
       this.$store.dispatch('clearCurrentBook')
       this.dialogNew = true
     },
+    multiEdit () {
+      this.$store.dispatch('clearCurrentBook')
+      this.dialogMulti = true
+    },
     deleteItem (book) {
       confirm('Are you sure you want to delete "' + book.title + '"?') && this.$store.dispatch('deleteCurrentBook', book)
     },
@@ -193,6 +232,7 @@ export default {
     close () {
       this.dialogEdit = false
       this.dialogNew = false
+      this.dialogMulti = false
       setTimeout(() => {
         this.$store.dispatch('clearCurrentBook')
       }, 100)
@@ -202,10 +242,17 @@ export default {
       close()
       this.dialogEdit = true
     },
+    saveMulti () {
+      this.$store.dispatch('saveMultiBook')
+      close()
+    },
     save () {
       setTimeout(() => {
         this.$store.dispatch('saveCurrentBook')
       }, 100)
+    },
+    itemSelected (payload) {
+      this.$store.commit('bookSelected', payload)
     }
   },
   computed: {
@@ -223,6 +270,9 @@ export default {
     },
     formTitle () {
       return this.currentBook.title === '' ? 'New Book' : this.currentBook.title
+    },
+    showMultiEditButton () {
+      return this.$store.state.selected
     }
   },
   watch: {
@@ -240,6 +290,9 @@ export default {
       val || this.close()
     },
     dialogNew (val) {
+      val || this.close()
+    },
+    dialogMulti (val) {
       val || this.close()
     }
   }
