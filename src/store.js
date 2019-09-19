@@ -109,14 +109,6 @@ export default new Vuex.Store({
       state.books = []
       state.publishers = []
       state.series = []
-      clearMultiEdit()
-    },
-    clearMultiEdit (state) {
-      state.multiEdit = {
-        series: null,
-        author: null,
-        publisher: null
-      }
     }
   },
   actions: {
@@ -229,7 +221,6 @@ export default new Vuex.Store({
           this.dispatch('saveCurrentBook')
         }
       })
-      commit('clearMultiEdit')
     },
     saveNewBook ({ commit }, uid) {
       if (uid === undefined || !uid) {

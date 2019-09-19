@@ -1,6 +1,6 @@
 <template>
     <v-row>
-        <v-col cols="12" lg="8">
+        <v-col cols="12" lg="9">
             <v-row>
                 <v-col cols="12" lg="6">
                     <v-text-field v-model="editedItem.title" label="Title"></v-text-field>
@@ -80,7 +80,7 @@
                 </v-col>
             </v-row>
         </v-col>
-        <v-col cols="12" md="6" lg="4">
+        <v-col cols="12" lg="3">
             <v-img
             :v-if="editedItem.imageURL"
             :src="editedItem.imageURL"

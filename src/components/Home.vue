@@ -27,7 +27,7 @@
               class="elevation-1"
               :footer-props="{
                 showFirstLastPage: true,
-                itemsPerPageOptions: [20, 50, 100, 200, -1]
+                itemsPerPageOptions: [50, 100, 200, -1]
               }"
               :sort-by="['series', 'volume']"
               show-select
@@ -57,10 +57,10 @@
         sticky
         single-line
         class="blue-grey lighten-1  white--text">
-        <v-btn class="white--text" text @click="close"><v-icon>mdi-arrow-left-bold</v-icon></v-btn>
+        <v-btn class="white--text" text @click="close" title="close"><v-icon>mdi-window-close</v-icon></v-btn>
           {{ formTitle }}
           <template v-slot:actions>
-            <v-btn class="white--text" text @click="save"><v-icon left>mdi-floppy</v-icon>Save</v-btn>
+            <v-btn class="white--text" text @click="save" title="save"><v-icon left>mdi-floppy</v-icon>Save</v-btn>
           </template>
         </v-banner>
         <v-card-text>
@@ -77,10 +77,10 @@
         sticky
         single-line
         class="blue-grey lighten-1  white--text">
-        <v-btn class="white--text" text @click="close"><v-icon>mdi-arrow-left-bold</v-icon></v-btn>
+        <v-btn class="white--text" text @click="close" title="close"><v-icon>mdi-window-close</v-icon></v-btn>
           New book
           <template v-slot:actions>
-            <v-btn class="white--text" text @click="saveNew"><v-icon left>mdi-floppy</v-icon>Create</v-btn>
+            <v-btn class="white--text" text @click="saveNew" title="save"><v-icon left>mdi-floppy</v-icon>Create</v-btn>
           </template>
         </v-banner>
         <v-card-text>
@@ -101,10 +101,10 @@
         sticky
         single-line
         class="blue-grey lighten-1  white--text">
-        <v-btn class="white--text" text @click="close"><v-icon>mdi-arrow-left-bold</v-icon></v-btn>
+        <v-btn class="white--text" text @click="close" title="close"><v-icon>mdi-window-close</v-icon></v-btn>
           Multi edit
           <template v-slot:actions>
-            <v-btn class="white--text" text @click="saveMulti"><v-icon left>mdi-floppy</v-icon>Save</v-btn>
+            <v-btn class="white--text" text @click="saveMulti" title="save"><v-icon left>mdi-floppy</v-icon>Save</v-btn>
           </template>
         </v-banner>
         <v-card-text>
@@ -243,8 +243,10 @@ export default {
       this.dialogEdit = true
     },
     saveMulti () {
-      this.$store.dispatch('saveMultiBook')
-      close()
+      setTimeout(() => {
+        this.$store.dispatch('saveMultiBook')
+        close()
+      }, 100)
     },
     save () {
       setTimeout(() => {
