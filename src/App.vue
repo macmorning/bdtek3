@@ -69,7 +69,9 @@ export default {
     menuItems () {
       if (this.isAuthenticated) {
         return [
-          { title: 'Home', path: '/', icon: 'mdi-home' }
+          { title: 'Home', path: '/', icon: 'mdi-home' },
+          { title: 'Options', path: '/options', icon: 'mdi-wrench' },
+          { title: 'Users', path: '/users', icon: 'mdi-account-multiple' }
         ]
       } else {
         return [

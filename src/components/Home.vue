@@ -196,20 +196,12 @@ export default {
     }
   },
   created () {
+    let uid = this.$route.query.uid
+    if (uid !== undefined && uid) {
+        this.$store.dispatch('fetchFriendBooks', uid)
+    }
   },
   methods: {
-    onCountryInputChange (query) {
-      if (query.trim().length === 0) {
-        return null
-      }
-      // return the matching countries as an array
-      return this.countries.filter((country) => {
-        return country.toLowerCase().includes(query.toLowerCase())
-      })
-    },
-    onCountrySelected (item) {
-      this.selectedCountry = item
-    },
     onSearchItemSelected (item) {
       this.selectedSearchItem = item
     },
@@ -265,7 +257,12 @@ export default {
       return this.$store.state.loading
     },
     books () {
-      return this.$store.state.books
+      let uid = this.$route.query.uid
+      if (uid !== undefined && uid) {
+        return this.$store.state.friendBooks
+      } else {
+        return this.$store.state.books
+      }
     },
     currentBook () {
       return this.$store.state.currentBook

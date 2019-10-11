@@ -13,10 +13,12 @@ export default new Vuex.Store({
     }
   },
   state: {
+    users: {},
     user: null,
     error: null,
     success: null,
     loading: false,
+    friendBooks: [],
     books: [],
     series: [],
     publishers: [],
@@ -109,6 +111,21 @@ export default new Vuex.Store({
       state.books = []
       state.publishers = []
       state.series = []
+    },
+    setUsers (state, payload) {
+      state.users = []
+      for (let key in payload) {
+        state.users.push({
+          userId: key,
+          displayName: payload[key].displayName
+        })
+      }
+    },
+    setFriendBooks (state, payload) {
+      state.friendBooks = []
+      for (let key in payload) {
+        state.friendBooks.push(payload[key])
+      }
     }
   },
   actions: {
@@ -134,6 +151,7 @@ export default new Vuex.Store({
             commit('setUser', firebaseUser.user)
             commit('setSuccess', 'Your account was created, welcome!')
             this.dispatch('initBooks', firebaseUser.user)
+            this.dispatch('initUsers')
             router.push('/')
           })
             .catch(error => {
@@ -155,6 +173,7 @@ export default new Vuex.Store({
           commit('setLoading', false)
           commit('setError', null)
           this.dispatch('initBooks', firebaseUser.user)
+          this.dispatch('initUsers')
           router.push('/')
         })
         .catch(error => {
@@ -164,14 +183,28 @@ export default new Vuex.Store({
     },
     autoSignIn ({ commit }, payload) {
       commit('setUser', { email: payload.email, uid: payload.uid })
-      router.push('/')
       this.dispatch('initBooks', payload)
+      this.dispatch('initUsers')
     },
     userSignOut ({ commit }) {
       firebase.auth().signOut()
       commit('resetBooks')
       commit('setUser', null)
       router.push('/Signin')
+    },
+    initUsers ({ commit }, payload) {
+      commit('setLoading', true)
+      firebase.database().ref(`users`).orderByChild('displayName').once('value').then((snapshot) => {
+        commit('setLoading', false)
+        commit('setUsers', snapshot.val())
+      })
+    },
+    fetchFriendBooks ({ commit }, uid) {
+      commit('setLoading', true)
+      firebase.database().ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).once('value').then((snapshot) => {
+        commit('setLoading', false)
+        commit('setFriendBooks', snapshot.val())
+      })
     },
     initBooks ({ commit }, payload) {
       commit('setLoading', true)
