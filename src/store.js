@@ -13,7 +13,7 @@ export default new Vuex.Store({
     }
   },
   state: {
-    users: {},
+    users: [],
     user: null,
     error: null,
     success: null,
@@ -145,13 +145,11 @@ export default new Vuex.Store({
       commit('setLoading', true)
       firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
         .then(firebaseUser => {
-          firebase.auth().currentUser.updateProfile({ displayName: payload.displayName })
-          firebase.database().ref(`bd/${firebaseUser.user.uid}`).set(payload.displayName)
-          firebase.database().ref(`users/${firebaseUser.user.uid}`).update({ displayName: payload.displayName }).then(() => {
-            commit('setUser', firebaseUser.user)
+          let defaultDisplayName = firebaseUser.user.email.substring(0, firebaseUser.user.email.indexOf('@'))
+          firebase.auth().currentUser.updateProfile({ displayName: defaultDisplayName })
+          firebase.database().ref(`bd/${firebaseUser.user.uid}`).set(true).then(() => {
+            commit('setUser', { email: firebaseUser.user.email, uid: firebaseUser.user.uid, displayName: defaultDisplayName })
             commit('setSuccess', 'Your account was created, welcome!')
-            this.dispatch('initBooks', firebaseUser.user)
-            this.dispatch('initUsers')
             router.push('/')
           })
             .catch(error => {
@@ -169,11 +167,9 @@ export default new Vuex.Store({
       commit('setLoading', true)
       firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
         .then(firebaseUser => {
-          commit('setUser', { email: firebaseUser.user.email, uid: firebaseUser.user.uid })
+          commit('setUser', { email: firebaseUser.user.email, uid: firebaseUser.user.uid, displayName: firebaseUser.user.displayName })
           commit('setLoading', false)
           commit('setError', null)
-          this.dispatch('initBooks', firebaseUser.user)
-          this.dispatch('initUsers')
           router.push('/')
         })
         .catch(error => {
@@ -182,9 +178,7 @@ export default new Vuex.Store({
         })
     },
     autoSignIn ({ commit }, payload) {
-      commit('setUser', { email: payload.email, uid: payload.uid })
-      this.dispatch('initBooks', payload)
-      this.dispatch('initUsers')
+      commit('setUser', { email: payload.email, uid: payload.uid, displayName: payload.displayName })
     },
     userSignOut ({ commit }) {
       firebase.auth().signOut()
@@ -192,7 +186,16 @@ export default new Vuex.Store({
       commit('setUser', null)
       router.push('/Signin')
     },
-    initUsers ({ commit }, payload) {
+    userUpdate ({ commit }, payload) {
+      commit('setUser', payload)
+      firebase.auth().currentUser.updateProfile({ displayName: payload.displayName }).then(() => {
+        commit('setSuccess', 'Your preferences were saved!')
+        firebase.database().ref(`users/${payload.uid}`).update({ displayName: payload.displayName })
+      }).catch((error) => {
+        commit('setError', 'Your preferences were not saved: ' + error.message)
+      })
+    },
+    fetchUsers ({ commit }, payload) {
       commit('setLoading', true)
       firebase.database().ref(`users`).orderByChild('displayName').once('value').then((snapshot) => {
         commit('setLoading', false)
@@ -206,10 +209,13 @@ export default new Vuex.Store({
         commit('setFriendBooks', snapshot.val())
       })
     },
-    initBooks ({ commit }, payload) {
+    initBooks ({ commit }) {
+      if (this.state.books.length > 0) {
+        return false
+      }
       commit('setLoading', true)
-
-      firebase.database().ref(`bd/${payload.uid}`).orderByChild('computedOrderField').limitToFirst(1000).on('child_added', (snapshot) => {
+      let uid = this.state.user.uid
+      firebase.database().ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).on('child_added', (snapshot) => {
         let book = snapshot.val()
         if (book['uid'] === undefined) {
           book['uid'] = snapshot.key
@@ -217,10 +223,10 @@ export default new Vuex.Store({
         commit('addBook', book)
       })
 
-      firebase.database().ref(`bd/${payload.uid}`).on('child_removed', (snapshot) => {
+      firebase.database().ref(`bd/${uid}`).on('child_removed', (snapshot) => {
         commit('removeBook', snapshot)
       })
-      firebase.database().ref(`bd/${payload.uid}`).on('child_changed', (snapshot) => {
+      firebase.database().ref(`bd/${uid}`).on('child_changed', (snapshot) => {
         commit('updateBook', snapshot)
       })
       commit('setLoading', false)

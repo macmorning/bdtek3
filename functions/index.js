@@ -147,13 +147,20 @@ exports.fetchBookInformations = functions.database.ref('/bd/{user}/{ref}/needLoo
 });
 
 exports.createUserNode = functions.auth.user().onCreate((userRecord) => {
+    if (userRecord.uid === undefined || !userRecord) {
+        console.warn ('Empty user record or uid unspecified!')
+    }
     console.info(userRecord);
     return admin.database().ref(`/users/${userRecord.uid}`).set({
-        email: userRecord.email
+        email: userRecord.email,
+        displayName: userRecord.email.substring(0, userRecord.email.indexOf("@"))
     });
 });
 
 exports.deleteUserNode = functions.auth.user().onDelete((userRecord) => {
+    if (userRecord.uid === undefined || !userRecord) {
+        console.warn ('Empty user record or uid unspecified!')
+    }
     console.info(userRecord);
-    return admin.database().ref(`/users/${userRecord.uid}`).remove();
+    return admin.database().ref(`/users/${userRecord.uid}`).remove().then(() => {admin.database().ref(`/bd/${userRecord.uid}`).remove()});
 });

@@ -3,22 +3,30 @@
         <v-col cols="12" lg="9">
             <v-row>
                 <v-col cols="12" lg="6">
-                    <v-text-field v-model="editedItem.title" label="Title"></v-text-field>
+                    <v-text-field v-model="editedItem.title" label="Title" :disabled='readonly'></v-text-field>
                 </v-col>
                 <v-col cols="12" lg="6">
                     <v-combobox
                       v-model="editedItem.series"
                       :items="series"
                       label="Series"
+                      :disabled='readonly'
                     ></v-combobox>
                 </v-col>
                 <v-col cols="12" lg="6">
-                    <v-text-field v-model="editedItem.volume" label="Volume"></v-text-field>
+                    <v-text-field v-model="editedItem.volume" label="Volume" :disabled='readonly'></v-text-field>
                 </v-col>
                 <v-col cols="12" lg="6">
-                    <v-text-field v-model="editedItem.author" label="Author"></v-text-field>
+                    <v-text-field v-model="editedItem.author" label="Author" :disabled='readonly'></v-text-field>
                 </v-col>
                 <v-col cols="12" lg="6">
+                  <v-text-field
+                    v-model="editedItem.published"
+                    label="Published"
+                    prepend-icon="mdi-calendar"
+                    v-if='readonly'
+                    disabled
+                  ></v-text-field>
                   <v-menu
                     v-model="publishedMenu"
                     :close-on-content-click="false"
@@ -27,6 +35,7 @@
                     offset-y
                     full-width
                     min-width="290px"
+                    v-if='!readonly'
                   >
                     <template v-slot:activator="{ on }">
                       <v-text-field
@@ -45,12 +54,20 @@
                       v-model="editedItem.publisher"
                       :items="publishers"
                       label="Publisher"
+                      :disabled='readonly'
                     ></v-combobox>
                 </v-col>
                 <v-col cols="12" lg="6">
-                    <v-text-field v-model="editedItem.edition" label="Edition"></v-text-field>
+                    <v-text-field v-model="editedItem.edition" :disabled='readonly' label="Edition"></v-text-field>
                 </v-col>
                 <v-col cols="12" lg="6">
+                  <v-text-field
+                    v-model="editedItem.dateAdded"
+                    label="Added"
+                    prepend-icon="mdi-calendar"
+                    v-if='readonly'
+                    disabled
+                  ></v-text-field>
                   <v-menu
                     v-model="dateAddedMenu"
                     :close-on-content-click="false"
@@ -59,6 +76,7 @@
                     offset-y
                     full-width
                     min-width="290px"
+                    v-if='!readonly'
                   >
                     <template v-slot:activator="{ on }">
                       <v-text-field
@@ -73,10 +91,10 @@
                   </v-menu>
                 </v-col>
                 <v-col cols="12" lg="6">
-                    <v-text-field v-model="editedItem.detailsURL" label="External link" append-outer-icon="mdi-link-variant" @click:append-outer="openDetails"></v-text-field>
+                    <v-text-field :disabled='readonly' v-model="editedItem.detailsURL" label="External link" append-outer-icon="mdi-link-variant" @click:append-outer="openDetails"></v-text-field>
                 </v-col>
                 <v-col cols="12" lg="6">
-                    <v-text-field v-model="editedItem.imageURL" label="Image URL" append-outer-icon="mdi-link-variant" @click:append-outer="openImage"></v-text-field>
+                    <v-text-field :disabled='readonly' v-model="editedItem.imageURL" label="Image URL" append-outer-icon="mdi-link-variant" @click:append-outer="openImage"></v-text-field>
                 </v-col>
             </v-row>
         </v-col>
@@ -88,6 +106,7 @@
             contain
             max-height="500"
             @click="openImage"
+            :disabled='readonly'
             ></v-img>
         </v-col>
     </v-row>
@@ -95,6 +114,7 @@
 
 <script>
 export default {
+  props: ['readonly'],
   data: function () {
     return {
       publishedMenu: false,

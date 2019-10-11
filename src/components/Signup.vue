@@ -8,12 +8,6 @@
         <v-card-text>
           <v-form v-on:submit.prevent="userSignUp">
               <v-text-field
-                name="displayName"
-                label="User name"
-                id="displayName"
-                v-model="displayName"
-                required></v-text-field>
-              <v-text-field
                 name="email"
                 label="Email"
                 id="email"
@@ -74,7 +68,7 @@ export default {
       if (this.comparePasswords !== true) {
         return
       }
-      this.$store.dispatch('userSignUp', { email: this.email, password: this.password, displayName: this.displayName })
+      this.$store.dispatch('userSignUp', { email: this.email, password: this.password })
     }
   },
   watch: {

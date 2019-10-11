@@ -23,6 +23,7 @@
               item-key="uid"
               fixed-header
               multi-sort
+              @click:row="editItem"
               :mobile-breakpoint="900"
               class="elevation-1"
               :footer-props="{
@@ -30,17 +31,12 @@
                 itemsPerPageOptions: [50, 100, 200, -1]
               }"
               :sort-by="['series', 'volume']"
-              show-select
+              :show-select="!friendId"
               @item-selected="itemSelected">
               <template v-slot:item.actions="{ item }">
                 <a class="mr-2" :href="item.detailsURL" target="_blank"><v-icon>mdi-link-variant</v-icon></a>
                 <v-icon
-                  class="mr-2"
-                  @click="editItem(item)"
-                >
-                  mdi-pencil
-                </v-icon>
-                <v-icon
+                  v-if="!friendId"
                   @click="deleteItem(item)"
                 >
                   mdi-delete
@@ -60,12 +56,12 @@
         <v-btn class="white--text" text @click="close" title="close"><v-icon>mdi-window-close</v-icon></v-btn>
           {{ formTitle }}
           <template v-slot:actions>
-            <v-btn class="white--text" text @click="save" title="save"><v-icon left>mdi-floppy</v-icon>Save</v-btn>
+            <v-btn v-if="!friendId" class="white--text" text @click="save" title="save"><v-icon left>mdi-floppy</v-icon>Save</v-btn>
           </template>
         </v-banner>
         <v-card-text>
           <v-container>
-            <book-editor/>
+            <book-editor :readonly="!!friendId"/>
           </v-container>
         </v-card-text>
       </v-card>
@@ -122,7 +118,7 @@
       bottom
       right
       @click="newItem"
-      v-if="!showMultiEditButton"
+      v-if="!showMultiEditButton && !friendId"
     ><v-icon>mdi-plus</v-icon>
     </v-btn>
    <v-btn
@@ -133,7 +129,7 @@
       bottom
       right
       @click="multiEdit"
-      v-if="showMultiEditButton"
+      v-if="showMultiEditButton && !friendId"
     ><v-icon>mdi-pen</v-icon>
     </v-btn>
   </v-container>
@@ -196,9 +192,10 @@ export default {
     }
   },
   created () {
-    let uid = this.$route.query.uid
-    if (uid !== undefined && uid) {
-        this.$store.dispatch('fetchFriendBooks', uid)
+    if (this.friendId !== undefined && this.friendId) {
+      this.$store.dispatch('fetchFriendBooks', this.friendId)
+    } else {
+      this.$store.dispatch('initBooks')
     }
   },
   methods: {
@@ -230,6 +227,7 @@ export default {
       }, 100)
     },
     saveNew () {
+      this.newBookUID = this.newBookUID.trim().replace(/\D/g, '')
       this.$store.dispatch('saveNewBook', this.newBookUID)
       close()
       this.dialogEdit = true
@@ -250,6 +248,9 @@ export default {
     }
   },
   computed: {
+    friendId () {
+      return this.$route.query.uid
+    },
     error () {
       return this.$store.state.error
     },
@@ -257,8 +258,7 @@ export default {
       return this.$store.state.loading
     },
     books () {
-      let uid = this.$route.query.uid
-      if (uid !== undefined && uid) {
+      if (this.friendId !== undefined && this.friendId) {
         return this.$store.state.friendBooks
       } else {
         return this.$store.state.books
