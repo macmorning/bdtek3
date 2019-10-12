@@ -34,10 +34,10 @@
               :show-select="!friendId"
               @item-selected="itemSelected">
               <template v-slot:item.actions="{ item }">
-                <a class="mr-2" :href="item.detailsURL" target="_blank"><v-icon>mdi-link-variant</v-icon></a>
+                <a class="mr-2" :href="item.detailsURL" v-on:click.stop="" target="_blank"><v-icon>mdi-link-variant</v-icon></a>
                 <v-icon
                   v-if="!friendId"
-                  @click="deleteItem(item)"
+                  v-on:click.stop="deleteItem(item)"
                 >
                   mdi-delete
                 </v-icon>
@@ -83,7 +83,7 @@
           <v-container>
             <v-row>
                 <v-col>
-                    <v-text-field v-model="newBookUID" label="ISBN"></v-text-field>
+                    <v-text-field v-on:keyup.enter="saveNew" v-model="newBookUID" label="ISBN"></v-text-field>
                 </v-col>
             </v-row>
           </v-container>

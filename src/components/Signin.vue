@@ -13,6 +13,7 @@
                 id="email"
                 type="email"
                 v-model="email"
+                v-on:keyup.enter="userSignIn"
                 required></v-text-field>
               <v-text-field
                 name="password"
@@ -20,6 +21,7 @@
                 id="password"
                 type="password"
                 v-model="password"
+                v-on:keyup.enter="userSignIn"
                 required></v-text-field>
           </v-form>
           <a color="secondary" v-on:click='goToSignUp'>Sign up!</a><br/>
