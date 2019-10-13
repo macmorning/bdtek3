@@ -8,7 +8,7 @@
               sticky
               single-line
               class="blue-grey lighten-1  white--text">
-            <v-btn class="white--text" text @click="closeOptions" title="close"><v-icon>mdi-backburger</v-icon></v-btn>
+            <v-btn class="white--text" text @click="closeOptions" title="back to home"><v-icon>mdi-backburger</v-icon></v-btn>
             Your preferences
             <template v-slot:actions>
               <v-btn class="white--text" text @click="saveOptions" title="save"><v-icon left>mdi-floppy</v-icon>Save</v-btn>
@@ -43,6 +43,7 @@ export default {
     },
     saveOptions () {
       this.$store.dispatch('userUpdate', this.user)
+      this.$router.push('/')
     }
   },
   computed: {

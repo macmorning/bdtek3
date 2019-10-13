@@ -6,6 +6,12 @@
           <v-icon class="white--text" top>mdi-lock</v-icon>
         </v-avatar>
         <v-card-text>
+          <p>
+            <a v-on:click='goToGoogle'><h3>Authenticate with Google</h3>
+              <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"/>
+            </a>
+          </p>
+          <h3>Or signup using an email</h3>
           <v-form v-on:submit.prevent="userSignUp">
               <v-text-field
                 name="email"
@@ -69,6 +75,9 @@ export default {
         return
       }
       this.$store.dispatch('userSignUp', { email: this.email, password: this.password })
+    },
+    goToGoogle () {
+      this.$store.dispatch('userSignInGoogle')
     }
   },
   watch: {

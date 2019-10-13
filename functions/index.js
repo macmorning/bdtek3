@@ -151,9 +151,18 @@ exports.createUserNode = functions.auth.user().onCreate((userRecord) => {
         console.warn ('Empty user record or uid unspecified!')
     }
     console.info(userRecord);
+    
+    let displayName = "";
+    if (userRecord.displayName) {
+        displayName = userRecord.displayName;
+    } else if (userRecord.email) {
+        displayName = userRecord.email.substring(0, userRecord.email.indexOf("@"));
+    } else {
+        displayName = userRecord.uid;
+    }
     return admin.database().ref(`/users/${userRecord.uid}`).set({
         email: userRecord.email,
-        displayName: userRecord.email.substring(0, userRecord.email.indexOf("@"))
+        displayName: displayName
     });
 });
 

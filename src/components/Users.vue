@@ -8,7 +8,7 @@
               sticky
               single-line
               class="blue-grey lighten-1  white--text">
-            <v-btn class="white--text" text @click="closeList" title="close"><v-icon>mdi-backburger</v-icon></v-btn>
+            <v-btn class="white--text" text @click="closeList" title="back to home"><v-icon>mdi-backburger</v-icon></v-btn>
             BDTek Users
           </v-banner>
           <v-card-title>
@@ -67,7 +67,7 @@ export default {
       return '/?uid=' + userId
     },
     hop (row) {
-      this.$router.push('/?uid=' + row.userId)
+      this.$router.push('/?uid=' + row.userId + '&name=' + row.displayName)
     },
     closeList () {
       this.$router.push('/')

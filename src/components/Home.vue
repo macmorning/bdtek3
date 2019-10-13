@@ -3,6 +3,15 @@
     <v-row>
       <v-col cols="12" xl="10" offset-xl="1">
         <v-card style="opacity:.8">
+          <v-banner
+              v-if="friendId"
+              style="top:0px;"
+              sticky
+              single-line
+              class="blue-grey lighten-1  white--text">
+            <v-btn class="white--text" text @click="backToUsers" title="back to users"><v-icon>mdi-backburger</v-icon></v-btn>
+            Viewing list of {{ friendName }}
+            </v-banner>
           <v-card-title>
             <div class="flex-grow-1"></div>
               <v-text-field
@@ -32,7 +41,8 @@
               }"
               :sort-by="['series', 'volume']"
               :show-select="!friendId"
-              @item-selected="itemSelected">
+              @item-selected="itemSelected"
+              @toggle-select-all="itemSelectedAll">
               <template v-slot:item.actions="{ item }">
                 <a class="mr-2" :href="item.detailsURL" v-on:click.stop="" target="_blank"><v-icon>mdi-link-variant</v-icon></a>
                 <v-icon
@@ -83,7 +93,7 @@
           <v-container>
             <v-row>
                 <v-col>
-                    <v-text-field v-on:keyup.enter="saveNew" v-model="newBookUID" label="ISBN"></v-text-field>
+                    <v-text-field autofocus v-on:keyup.enter="saveNew" v-model="newBookUID" label="ISBN"></v-text-field>
                 </v-col>
             </v-row>
           </v-container>
@@ -192,6 +202,10 @@ export default {
     }
   },
   created () {
+    if (!this.$store.state.user && !this.friendId) {
+      this.$router.push('/signin')
+    }
+
     if (this.friendId !== undefined && this.friendId) {
       this.$store.dispatch('fetchFriendBooks', this.friendId)
     } else {
@@ -199,6 +213,9 @@ export default {
     }
   },
   methods: {
+    backToUsers () {
+      this.$router.push('/users')
+    },
     onSearchItemSelected (item) {
       this.selectedSearchItem = item
     },
@@ -245,11 +262,17 @@ export default {
     },
     itemSelected (payload) {
       this.$store.commit('bookSelected', payload)
+    },
+    itemSelectedAll (payload) {
+      console.log(payload)
     }
   },
   computed: {
     friendId () {
       return this.$route.query.uid
+    },
+    friendName () {
+      return (this.$route.query.name || 'unknown')
     },
     error () {
       return this.$store.state.error

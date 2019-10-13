@@ -177,6 +177,19 @@ export default new Vuex.Store({
           commit('setLoading', false)
         })
     },
+    userSignInGoogle ({ commit }) {
+      commit('setLoading', true)
+      let provider = new firebase.auth.GoogleAuthProvider()
+      firebase.auth().signInWithPopup(provider).then(function (result) {
+        commit('setUser', { email: result.user.email, uid: result.user.uid, displayName: result.user.displayName })
+        commit('setLoading', false)
+        commit('setError', null)
+        router.push('/')
+      }).catch(error => {
+        commit('setError', error.message)
+        commit('setLoading', false)
+      })
+    },
     autoSignIn ({ commit }, payload) {
       commit('setUser', { email: payload.email, uid: payload.uid, displayName: payload.displayName })
     },
