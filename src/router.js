@@ -10,6 +10,7 @@ const routerOptions = [
   { path: '/signin', component: 'Signin' },
   { path: '/signup', component: 'Signup' },
   { path: '/reset', component: 'PasswordForget' },
+  { path: '/scanner', component: 'Scanner' },
   { path: '*', component: 'Notfound' }
 ]
 

@@ -66,7 +66,7 @@
         <v-btn class="white--text" text @click="close" title="close"><v-icon>mdi-window-close</v-icon></v-btn>
           {{ formTitle }}
           <template v-slot:actions>
-            <v-btn v-if="!friendId" class="white--text" text @click="save" title="save"><v-icon left>mdi-floppy</v-icon>Save</v-btn>
+            <v-btn :loading="book.needLookup == 1" v-if="!friendId" class="white--text" text @click="save" title="save"><v-icon left>mdi-floppy</v-icon>Save</v-btn>
           </template>
         </v-banner>
         <v-card-text>
@@ -76,31 +76,33 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialogNew" width="400">
+    <v-dialog v-model="dialogNew" width="400px">
       <v-card>
         <v-banner
         style="top:0px"
         sticky
         single-line
         class="blue-grey lighten-1  white--text">
-        <v-btn class="white--text" text @click="close" title="close"><v-icon>mdi-window-close</v-icon></v-btn>
+        <v-btn class='white--text' text @click='close' title='close'><v-icon>mdi-window-close</v-icon></v-btn>
           New book
           <template v-slot:actions>
-            <v-btn class="white--text" text @click="saveNew" title="save"><v-icon left>mdi-floppy</v-icon>Create</v-btn>
+            <v-btn class='white--text' text @click='scanSwitch' title='scan'><v-icon>mdi-barcode-scan</v-icon></v-btn>
+            <v-btn class='white--text' text @click='saveNew' title='create'><v-icon>mdi-floppy</v-icon></v-btn>
           </template>
         </v-banner>
         <v-card-text>
           <v-container>
-            <v-row>
-                <v-col>
-                    <v-text-field autofocus v-on:keyup.enter="saveNew" v-model="newBookUID" label="ISBN"></v-text-field>
-                </v-col>
-            </v-row>
+            <v-text-field autofocus v-on:keyup.enter='saveNew' v-model='newBookUID' label='ISBN'></v-text-field>
           </v-container>
+          <v-dialog v-model="dialogScan" width="690px">
+            <v-card style="height: 500px;">
+              <scanner v-if="dialogScan" :onDetected='scanDetected'/>
+            </v-card>
+          </v-dialog>
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialogMulti" width="400">
+    <v-dialog v-model="dialogMulti" width="600px">
       <v-card>
         <v-banner
         style="top:0px"
@@ -148,19 +150,23 @@
 <script>
 import BookEditor from '@/components/BookEditor'
 import MultiBookEditor from '@/components/MultiBookEditor'
+import Scanner from '@/components/Scanner'
 export default {
   components: {
     BookEditor: BookEditor,
-    MultiBookEditor: MultiBookEditor
+    MultiBookEditor: MultiBookEditor,
+    Scanner: Scanner
   },
   data () {
     return {
       search: '',
+      scanArray: {},
       newBookUID: null,
       alert: false,
       dialogEdit: false,
       dialogNew: false,
       dialogMulti: false,
+      dialogScan: false,
       editedIndex: -1,
       headers: [
         {
@@ -234,11 +240,12 @@ export default {
     deleteItem (book) {
       confirm('Are you sure you want to delete "' + book.title + '"?') && this.$store.dispatch('deleteCurrentBook', book)
     },
-
     close () {
       this.dialogEdit = false
       this.dialogNew = false
       this.dialogMulti = false
+      this.dialogScan = false
+      this.scanArray = {}
       setTimeout(() => {
         this.$store.dispatch('clearCurrentBook')
       }, 100)
@@ -247,7 +254,11 @@ export default {
       this.newBookUID = this.newBookUID.trim().replace(/\D/g, '')
       this.$store.dispatch('saveNewBook', this.newBookUID)
       close()
-      this.dialogEdit = true
+      setTimeout(() => {
+        if (this.$store.state.currentBook.uid === this.newBookUID) {
+          this.dialogEdit = true
+        }
+      }, 500)
     },
     saveMulti () {
       setTimeout(() => {
@@ -265,6 +276,18 @@ export default {
     },
     itemSelectedAll (payload) {
       console.log(payload)
+    },
+    scanSwitch () {
+      this.dialogScan = !this.dialogScan
+    },
+    scanDetected (data) {
+      this.scanArray[data.codeResult.code] = (this.scanArray[data.codeResult.code] !== undefined ? this.scanArray[data.codeResult.code] + 1 : 1)
+      if (this.scanArray[data.codeResult.code] >= 5) {
+        this.dialogScan = false
+        delete this.scanArray
+        this.scanArray = {}
+        this.newBookUID = data.codeResult.code
+      }
     }
   },
   computed: {
@@ -295,6 +318,9 @@ export default {
     },
     showMultiEditButton () {
       return this.$store.state.selected
+    },
+    book () {
+      return this.$store.state.currentBook
     }
   },
   watch: {

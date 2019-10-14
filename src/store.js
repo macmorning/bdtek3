@@ -278,6 +278,11 @@ export default new Vuex.Store({
       if (uid === undefined || !uid) {
         return false
       }
+      let pos = this.state.books.map(function (e) { return e.uid }).indexOf(uid)
+      if (pos > -1) {
+        commit('setError', 'This book reference is already in your list')
+        return false
+      }
       commit('setLoading', true)
       let book = {}
       book.uid = uid

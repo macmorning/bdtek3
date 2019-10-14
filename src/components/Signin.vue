@@ -7,19 +7,19 @@
         </v-avatar>
         <v-card-text>
           <p>
-            <a v-on:click='goToGoogle'><h3>Authenticate with Google</h3>
+            <a @click='goToGoogle'><h3>Authenticate with Google</h3>
               <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"/>
             </a>
           </p>
           <h3>Or signin using an email</h3>
-          <v-form v-on:submit.prevent="userSignIn">
+          <v-form @submit.prevent="userSignIn">
               <v-text-field
                 name="email"
                 label="Email"
                 id="email"
                 type="email"
                 v-model="email"
-                v-on:keyup.enter="userSignIn"
+                @keyup.enter="userSignIn"
                 required></v-text-field>
               <v-text-field
                 name="password"
@@ -27,11 +27,11 @@
                 id="password"
                 type="password"
                 v-model="password"
-                v-on:keyup.enter="userSignIn"
+                @keyup.enter="userSignIn"
                 required></v-text-field>
           </v-form>
-          <a color="secondary" v-on:click='goToSignUp'>Sign up!</a><br/>
-          <a color="secondary" v-on:click='goToReset'>Forgot password?</a><br/>
+          <a color="secondary" @click='goToSignUp'>Sign up!</a><br/>
+          <a color="secondary" @click='goToReset'>Forgot password?</a><br/>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
