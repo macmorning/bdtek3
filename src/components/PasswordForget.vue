@@ -18,7 +18,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn class="blue-grey lighten-1 white--text" type="submit"  @click="userResetPwd">Send link</v-btn>
+          <v-btn class="blue-grey lighten-1 white--text" type="submit"  @click="userResetPwd">Envoyer un lien</v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>

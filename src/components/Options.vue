@@ -2,22 +2,24 @@
   <v-container fluid>
     <v-row>
       <v-col cols="12" lg="8" xl="6" offset-lg="2" offset-xl="3">
-        <v-card style="opacity:.8">
+        <v-card>
           <v-banner
               style="top:0px;"
               sticky
               single-line
               class="blue-grey lighten-1  white--text">
-            <v-btn class="white--text" text @click="closeOptions" title="back to home"><v-icon>mdi-backburger</v-icon></v-btn>
-            Your preferences
+            <v-btn class="white--text" text @click="closeOptions" title="retour"><v-icon>mdi-backburger</v-icon></v-btn>
+            Vos préférences
             <template v-slot:actions>
-              <v-btn class="white--text" text @click="saveOptions" title="save"><v-icon left>mdi-floppy</v-icon>Save</v-btn>
+              <v-btn class="white--text" text @click="saveOptions" title="enregistrer"><v-icon left>mdi-floppy</v-icon>Enregistrer</v-btn>
             </template>
             </v-banner>
 
           <v-card-text>
             <v-container>
-                <v-text-field v-model="user.displayName" label="Displayed name"></v-text-field>
+                <v-text-field v-model="user.displayName" label="Surnom" hint="C'est sous ce nom que vous apparaissez dans la liste des utilisateurs." persistent-hint></v-text-field>
+                <v-switch v-model="user.visibleToAll" label="Profil visible de tous" hint="Détermine si votre profil est public ou non. Même dans le cas contraire, tout le monde peut voir à votre bibliothèque à condition d'avoir l'url correcte." persistent-hint></v-switch>
+                <v-switch v-model="bgRandom" label="Images de fond aléatoires" hint="Paramètre enregistré localement. Le rafraîchissement de la page est nécessaire pour la prise en compte de ce paramètre." persistent-hint></v-switch>
             </v-container>
           </v-card-text>
         </v-card>
@@ -31,11 +33,13 @@ export default {
   data () {
     return {
       user: {},
+      bgRandom: false,
       alert: false
     }
   },
   created () {
     this.user = this.storedUser
+    this.bgRandom = (localStorage.getItem('style.bgRandom') === 'true' || localStorage.getItem('style.bgRandom') === null)
   },
   methods: {
     closeOptions () {
@@ -43,6 +47,7 @@ export default {
     },
     saveOptions () {
       this.$store.dispatch('userUpdate', this.user)
+      localStorage.setItem('style.bgRandom', this.bgRandom)
       this.$router.push('/')
     }
   },

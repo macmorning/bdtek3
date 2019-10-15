@@ -6,17 +6,17 @@
                     <v-combobox
                       v-model="multiEdit.series"
                       :items="series"
-                      label="Series"
+                      label="Série"
                     ></v-combobox>
                 </v-col>
                 <v-col cols="12">
-                    <v-text-field v-model="multiEdit.author" label="Author"></v-text-field>
+                    <v-text-field v-model="multiEdit.author" label="Auteur(s)"></v-text-field>
                 </v-col>
                 <v-col cols="12">
                     <v-combobox
                       v-model="multiEdit.publisher"
                       :items="publishers"
-                      label="Publisher"
+                      label="Editeur"
                     ></v-combobox>
                 </v-col>
             </v-row>

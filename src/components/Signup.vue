@@ -7,11 +7,11 @@
         </v-avatar>
         <v-card-text>
           <p>
-            <a v-on:click='goToGoogle'><h3>Authenticate with Google</h3>
+            <a v-on:click='goToGoogle'><h3>S'enregistrer avec</h3>
               <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"/>
             </a>
           </p>
-          <h3>Or signup using an email</h3>
+          <h3>Ou avec une adresse email</h3>
           <v-form v-on:submit.prevent="userSignUp">
               <v-text-field
                 name="email"
@@ -22,14 +22,14 @@
                 required></v-text-field>
               <v-text-field
                 name="password"
-                label="Password"
+                label="Mot de passe"
                 id="password"
                 type="password"
                 v-model="password"
                 required></v-text-field>
               <v-text-field
                 name="confirmPassword"
-                label="Confirm Password"
+                label="Confirmation du mdp"
                 id="confirmPassword"
                 type="password"
                 v-model="passwordConfirm"
@@ -40,7 +40,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn class="blue-grey lighten-1 white--text" type="submit"  @click="userSignUp" :disabled="isLoading">Sign Up</v-btn>
+          <v-btn class="blue-grey lighten-1 white--text" type="submit"  @click="userSignUp" :disabled="isLoading" :loading="isLoading">S'enregistrer</v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>
@@ -60,7 +60,7 @@ export default {
   },
   computed: {
     comparePasswords () {
-      return this.password === this.passwordConfirm ? true : 'Passwords don\'t match'
+      return this.password === this.passwordConfirm ? true : 'Les mots de passe ne correspondent pas'
     },
     isLoading () {
       return this.$store.state.loading

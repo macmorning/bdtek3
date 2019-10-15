@@ -7,11 +7,11 @@
         </v-avatar>
         <v-card-text>
           <p>
-            <a @click='goToGoogle'><h3>Authenticate with Google</h3>
+            <a @click='goToGoogle'><h3>S'authentifier avec</h3>
               <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"/>
             </a>
           </p>
-          <h3>Or signin using an email</h3>
+          <h3>Ou avec une adresse email</h3>
           <v-form @submit.prevent="userSignIn">
               <v-text-field
                 name="email"
@@ -23,19 +23,19 @@
                 required></v-text-field>
               <v-text-field
                 name="password"
-                label="Password"
+                label="Mot de passe"
                 id="password"
                 type="password"
                 v-model="password"
                 @keyup.enter="userSignIn"
                 required></v-text-field>
           </v-form>
-          <a color="secondary" @click='goToSignUp'>Sign up!</a><br/>
-          <a color="secondary" @click='goToReset'>Forgot password?</a><br/>
+          <a color="secondary" @click='goToSignUp'>S'enregistrer</a><br/>
+          <a color="secondary" @click='goToReset'>Oubli de mot de passe</a><br/>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn class="blue-grey lighten-1 white--text" type="submit" @click="userSignIn" :disabled="isLoading">Sign In</v-btn>
+          <v-btn class="blue-grey lighten-1 white--text" type="submit" @click="userSignIn" :disabled="isLoading" :loading="isLoading">Se connecter</v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>

@@ -17,14 +17,14 @@
           :to="item.path">
           <v-icon dark>{{ item.icon }}</v-icon>
         </v-btn>
-        <v-btn v-if="isAuthenticated" title="Sign Out" class="white--text" text @click="userSignOut">
+        <v-btn v-if="isAuthenticated" title="Déconnexion" class="white--text" text @click="userSignOut">
           <v-icon dark>mdi-exit-to-app</v-icon>
         </v-btn>
       </v-toolbar-items>
     </v-app-bar>
 
     <v-content>
-      <router-view id="root" :style="{'background-position': 'center','background-size': 'cover','background-attachment': 'fixed','min-height': '100%','background-image':'url(/img/' + imgNumber + '.png)'}"></router-view>
+      <router-view id="root" :style="backgroundStyle"></router-view>
     </v-content>
     <v-snackbar
       v-model="snackError"
@@ -56,6 +56,11 @@ export default {
       snackError: false
     }
   },
+  created () {
+    if (localStorage.getItem('style.bgRandom') == null) {
+      localStorage.setItem('style.bgRandom', true)
+    }
+  },
   computed: {
     error () {
       return this.$store.state.error
@@ -69,19 +74,37 @@ export default {
     menuItems () {
       if (this.isAuthenticated) {
         return [
-          { title: 'Home', path: '/', icon: 'mdi-home' },
+          { title: 'Bibliothèque', path: '/', icon: 'mdi-book-multiple' },
           { title: 'Options', path: '/options', icon: 'mdi-wrench' },
-          { title: 'Users', path: '/users', icon: 'mdi-account-multiple' }
+          { title: 'Utilisateurs', path: '/users', icon: 'mdi-account-multiple' }
         ]
       } else {
         return [
-          { title: 'Sign In', path: '/signin', icon: 'mdi-lock-open' }
+          { title: 'Connexion', path: '/signin', icon: 'mdi-lock-open' }
         ]
       }
+    },
+    bgRandom () {
+      return (localStorage.getItem('style.bgRandom') === 'true' || localStorage.getItem('style.bgRandom') === null)
     },
     imgNumber () {
       let num = ((Math.floor(Math.random() * Math.floor(this.maxImgNum))) + 1).toString().padStart(2, '0')
       return num
+    },
+    backgroundStyle () {
+      if (this.bgRandom) {
+        return {
+          'background-position': 'center',
+          'background-size': 'cover',
+          'background-attachment': 'fixed',
+          'min-height': '100%',
+          'background-image': 'url(/img/' + this.imgNumber + '.png)'
+        }
+      } else {
+        return {
+          'background-color': '#eee'
+        }
+      }
     }
   },
   watch: {

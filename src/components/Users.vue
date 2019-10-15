@@ -2,13 +2,13 @@
   <v-container fluid>
     <v-row>
       <v-col cols="12" lg="8" xl="6" offset-lg="2" offset-xl="3">
-        <v-card style="opacity:.8">
+        <v-card>
           <v-banner
               style="top:0px"
               sticky
               single-line
               class="blue-grey lighten-1  white--text">
-            <v-btn class="white--text" text @click="closeList" title="back to home"><v-icon>mdi-backburger</v-icon></v-btn>
+            <v-btn class="white--text" text @click="closeList" title="retour"><v-icon>mdi-backburger</v-icon></v-btn>
             BDTek Users
           </v-banner>
           <v-card-title>
@@ -16,14 +16,16 @@
               <v-text-field
                 v-model="search"
                 append-icon="mdi-magnify"
-                label="Search"
+                label="Recherche"
                 single-line
                 hide-details
+                append-outer-icon="mdi-window-close"
+                @click:append-outer="clearSearch"
               ></v-text-field>
           </v-card-title>
             <v-data-table
               :loading="isLoading"
-              loading-text="Loading... Please wait"
+              loading-text="Chargement en cours, veuillez patienter"
               :headers="headersUsers"
               :items="users"
               :search="search"
@@ -53,7 +55,7 @@ export default {
       headersUsers: [
         {
           value: 'displayName',
-          text: 'Name',
+          text: 'Surnom',
           minWidth: '20em'
         }
       ]
@@ -63,6 +65,9 @@ export default {
     this.$store.dispatch('fetchUsers')
   },
   methods: {
+    clearSearch () {
+      this.search = ''
+    },
     getLink (userId) {
       return '/?uid=' + userId
     },
