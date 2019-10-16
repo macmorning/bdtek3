@@ -204,7 +204,7 @@ export default new Vuex.Store({
       commit('resetBooks')
       commit('setUser', null)
       commit('setSelectedBooks', [])
-      router.push('/Signin')
+      router.push('/signin')
     },
     userUpdate ({ commit }, payload) {
       commit('setUser', payload)
@@ -230,7 +230,10 @@ export default new Vuex.Store({
       })
     },
     initBooks ({ commit }) {
-      console.log(this.state.user)
+      if (!this.state.user) {
+        commit('setError', 'Une erreur s\'est produite, veuillez rafraîchir la page')
+        return false
+      }
       if (this.state.books.length > 0) {
         return false
       }

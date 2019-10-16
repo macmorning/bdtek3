@@ -102,7 +102,7 @@ export default {
         }
       } else {
         return {
-          'background-color': '#eee'
+          'background-color': '#fafafa'
         }
       }
     }

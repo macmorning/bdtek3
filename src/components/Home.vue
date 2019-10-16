@@ -222,12 +222,12 @@ export default {
   created () {
     if (!this.$store.state.user && !this.friendId) {
       this.$router.push('/signin')
-    }
-
-    if (this.friendId !== undefined && this.friendId) {
-      this.$store.dispatch('fetchFriendBooks', this.friendId)
     } else {
-      this.$store.dispatch('initBooks')
+      if (this.friendId !== undefined && this.friendId) {
+        this.$store.dispatch('fetchFriendBooks', this.friendId)
+      } else {
+        this.$store.dispatch('initBooks')
+      }
     }
   },
   methods: {
