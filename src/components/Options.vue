@@ -17,9 +17,9 @@
 
           <v-card-text>
             <v-container>
-                <v-text-field v-model="user.displayName" label="Surnom" hint="C'est sous ce nom que vous apparaissez dans la liste des utilisateurs." persistent-hint></v-text-field>
-                <v-switch v-model="user.visibleToAll" label="Profil visible de tous" hint="Détermine si votre profil est public ou non. Même dans le cas contraire, tout le monde peut voir à votre bibliothèque à condition d'avoir l'url correcte." persistent-hint></v-switch>
-                <v-switch v-model="bgRandom" label="Images de fond aléatoires" hint="Paramètre enregistré localement. Le rafraîchissement de la page est nécessaire pour la prise en compte de ce paramètre." persistent-hint></v-switch>
+                <v-text-field v-model="displayName" label="Surnom" hint="C'est sous ce nom que vous apparaissez dans la liste des utilisateurs." persistent-hint></v-text-field>
+                <v-switch v-model="visibleToAll" label="Profil visible de tous" hint="Détermine si votre profil est public ou non. Même dans le cas contraire, tout le monde peut voir à votre bibliothèque à condition d'avoir l'url correcte." persistent-hint></v-switch>
+                <v-switch v-model="bgRandom" label="Images de fond aléatoires" hint="Paramètre enregistré localement." persistent-hint></v-switch>
             </v-container>
           </v-card-text>
         </v-card>
@@ -33,13 +33,24 @@ export default {
   data () {
     return {
       user: {},
+      displayName: "",
+      visibleToAll: false,
       bgRandom: false,
       alert: false
     }
   },
   created () {
-    this.user = this.storedUser
-    this.bgRandom = (localStorage.getItem('style.bgRandom') === 'true' || localStorage.getItem('style.bgRandom') === null)
+    setTimeout(() => {
+      this.displayName = this.storedUser.displayName
+      this.visibleToAll = this.storedUser.visibleToAll
+      if (this.storedUser.visibleToAll === undefined) {
+        setTimeout(() => {
+         this.visibleToAll = this.storedUser.visibleToAll
+         console.log(this.visibleToAll)
+        }, 1000)
+      }
+      this.bgRandom = this.storedOptions.bgRandom
+    }, 500)
   },
   methods: {
     closeOptions () {
@@ -47,7 +58,7 @@ export default {
     },
     saveOptions () {
       this.$store.dispatch('userUpdate', this.user)
-      localStorage.setItem('style.bgRandom', this.bgRandom)
+      this.$store.commit('setOptionBgRandom', this.bgRandom)
       this.$router.push('/')
     }
   },
@@ -60,6 +71,9 @@ export default {
     },
     storedUser () {
       return this.$store.state.user
+    },
+    storedOptions () {
+      return this.$store.state.options
     }
   },
   watch: {

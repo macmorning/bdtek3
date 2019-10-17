@@ -29,7 +29,7 @@ const unsubscribe = firebase.auth()
       render: h => h(App),
       created () {
         if (firebaseUser) {
-          store.dispatch('autoSignIn', firebaseUser)
+          store.dispatch('doSignIn', firebaseUser)
         }
       }
     })

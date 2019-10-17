@@ -37,7 +37,7 @@
               @click:row="hop"
               item-key="userId"
               fixed-header
-              class="elevation-1"
+              class="elevation-1 users-list"
               :sort-by="['displayName']">
             </v-data-table>
          </v-card>

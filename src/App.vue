@@ -57,9 +57,8 @@ export default {
     }
   },
   created () {
-    if (localStorage.getItem('style.bgRandom') == null) {
-      localStorage.setItem('style.bgRandom', true)
-    }
+  },
+  methods: {
   },
   computed: {
     error () {
@@ -84,27 +83,25 @@ export default {
         ]
       }
     },
-    bgRandom () {
-      return (localStorage.getItem('style.bgRandom') === 'true' || localStorage.getItem('style.bgRandom') === null)
-    },
-    imgNumber () {
-      let num = ((Math.floor(Math.random() * Math.floor(this.maxImgNum))) + 1).toString().padStart(2, '0')
-      return num
-    },
     backgroundStyle () {
-      if (this.bgRandom) {
+      if (this.$store.state.options.bgRandom) {
         return {
           'background-position': 'center',
           'background-size': 'cover',
           'background-attachment': 'fixed',
-          'min-height': '100%',
-          'background-image': 'url(/img/' + this.imgNumber + '.png)'
+          'background-image': 'url(/img/' + this.imgNumber + '.png)',
+          'min-height': '100%'
         }
       } else {
         return {
-          'background-color': '#fafafa'
+          'background-color': '#fafafa',
+          'min-height': '100%'
         }
       }
+    },
+    imgNumber () {
+      let num = ((Math.floor(Math.random() * Math.floor(this.maxImgNum))) + 1).toString().padStart(2, '0')
+      return num
     }
   },
   watch: {

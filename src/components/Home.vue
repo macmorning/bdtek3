@@ -8,7 +8,7 @@
               style="top:0px;"
               sticky
               single-line
-              class="blue-grey lighten-1  white--text">
+              class="blue-grey lighten-1 white--text">
             <v-btn class="white--text" text @click="backToUsers" title="retour"><v-icon>mdi-backburger</v-icon></v-btn>
             Liste de {{ friendName }}
             </v-banner>
@@ -354,7 +354,7 @@ export default {
       return this.$store.state.currentBook
     },
     bgRandom () {
-      return (localStorage.getItem('style.bgRandom') === 'true' || localStorage.getItem('style.bgRandom') === null)
+      return this.$store.state.options.bgRandom
     },
     opacity () {
       if (this.bgRandom) {

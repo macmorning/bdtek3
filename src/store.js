@@ -28,6 +28,9 @@ export default new Vuex.Store({
       series: null,
       author: null,
       publisher: null
+    },
+    options: {
+      bgRandom: true
     }
   },
   mutations: {
@@ -121,6 +124,14 @@ export default new Vuex.Store({
         payload[key].uid = key
         state.friendBooks.push(payload[key])
       }
+    },
+    setOptionBgRandom (state, payload) {
+      if (payload === undefined) {
+        state.options.bgRandom = (localStorage.getItem('style.bgRandom') === 'true' || localStorage.getItem('style.bgRandom') === null)
+      } else {
+        localStorage.setItem('style.bgRandom', payload)
+        state.options.bgRandom = payload
+      }
     }
   },
   actions: {
@@ -161,7 +172,7 @@ export default new Vuex.Store({
     userSignIn ({ dispatch, commit }, payload) {
       commit('setLoading', true)
       firebase.auth().signInWithEmailAndPassword(payload.email, payload.password).then(firebaseUser => {
-        dispatch('autoSignIn', firebaseUser.user)
+        dispatch('doSignIn', firebaseUser.user)
         commit('setError', null)
         setTimeout(() => {
           router.push('/')
@@ -177,7 +188,7 @@ export default new Vuex.Store({
       commit('setLoading', true)
       let provider = new firebase.auth.GoogleAuthProvider()
       firebase.auth().signInWithPopup(provider).then((firebaseUser) => {
-        dispatch('autoSignIn', firebaseUser.user)
+        dispatch('doSignIn', firebaseUser.user)
         commit('setError', null)
         setTimeout(() => {
           router.push('/')
@@ -188,8 +199,9 @@ export default new Vuex.Store({
         commit('setLoading', false)
       })
     },
-    autoSignIn ({ commit }, payload) {
+    doSignIn ({ commit }, payload) {
       let user = { uid: payload.uid, email: payload.email, displayName: payload.displayName, photoURL: payload.photoURL }
+      commit('setOptionBgRandom')
       commit('setUser', user)
       firebase.database().ref(`users/${payload.uid}`).once('value').then((snapshot) => {
         Object.assign(user, snapshot.val())
