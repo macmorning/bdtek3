@@ -33,7 +33,7 @@ export default {
   data () {
     return {
       user: {},
-      displayName: "",
+      displayName: '',
       visibleToAll: false,
       bgRandom: false,
       alert: false
@@ -41,13 +41,13 @@ export default {
   },
   created () {
     setTimeout(() => {
+      this.user = this.storedUser
       this.displayName = this.storedUser.displayName
       this.visibleToAll = this.storedUser.visibleToAll
       if (this.storedUser.visibleToAll === undefined) {
         setTimeout(() => {
-         this.visibleToAll = this.storedUser.visibleToAll
-         console.log(this.visibleToAll)
-        }, 1000)
+          this.visibleToAll = this.storedUser.visibleToAll
+        }, 500)
       }
       this.bgRandom = this.storedOptions.bgRandom
     }, 500)
@@ -57,6 +57,8 @@ export default {
       this.$router.push('/')
     },
     saveOptions () {
+      this.user.displayName = this.displayName
+      this.user.visibleToAll = this.visibleToAll
       this.$store.dispatch('userUpdate', this.user)
       this.$store.commit('setOptionBgRandom', this.bgRandom)
       this.$router.push('/')

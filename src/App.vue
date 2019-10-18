@@ -58,8 +58,6 @@ export default {
   },
   created () {
   },
-  methods: {
-  },
   computed: {
     error () {
       return this.$store.state.error

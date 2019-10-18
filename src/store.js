@@ -46,9 +46,6 @@ export default new Vuex.Store({
     setLoading (state, payload) {
       state.loading = payload
     },
-    setBooks (state, payload) {
-      state.books = payload
-    },
     setSeries (state, payload) {
       if (payload.length > 1) {
         payload.sort()
@@ -75,6 +72,19 @@ export default new Vuex.Store({
       if (pos > -1 && state.books[pos].uid === book.uid) {
         delete state.books.splice(pos, 1)
       }
+    },
+    setBooks (state, payload) {
+      state.books = payload
+      state.books.forEach((book) => {
+        if (state.series.indexOf(book.series) === -1) {
+          state.series.push(book.series)
+          state.series.sort()
+        }
+        if (state.publishers.indexOf(book.publisher) === -1) {
+          state.publishers.push(book.publisher)
+          state.publishers.sort()
+        }
+      })
     },
     addBook (state, payload) {
       let pos = state.books.map(function (e) { return e.uid }).indexOf(payload.key)
@@ -119,11 +129,7 @@ export default new Vuex.Store({
       }
     },
     setFriendBooks (state, payload) {
-      state.friendBooks = []
-      for (let key in payload) {
-        payload[key].uid = key
-        state.friendBooks.push(payload[key])
-      }
+      state.friendBooks = payload
     },
     setOptionBgRandom (state, payload) {
       if (payload === undefined) {
@@ -237,8 +243,19 @@ export default new Vuex.Store({
     fetchFriendBooks ({ commit }, uid) {
       commit('setLoading', true)
       firebase.database().ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).once('value').then((snapshot) => {
+        let booksObj = snapshot.val()
+        let booksArray = []
+        for (let [key, book] of Object.entries(booksObj)) {
+          if (book['uid'] === undefined) {
+            book['uid'] = key
+          }
+          booksArray.push(book)
+        }
+        commit('setFriendBooks', booksArray)
+      }).catch((error) => {
+        commit('setError', 'Liste non chargée : ' + error.message)
+      }).finally(() => {
         commit('setLoading', false)
-        commit('setFriendBooks', snapshot.val())
       })
     },
     initBooks ({ commit }) {
@@ -249,9 +266,27 @@ export default new Vuex.Store({
       if (this.state.books.length > 0) {
         return false
       }
+
+      let newItems = false
+
       commit('setLoading', true)
       let uid = this.state.user.uid
+      firebase.database().ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).once('value', (snapshot) => {
+        let booksObj = snapshot.val()
+        let booksArray = []
+        for (let [key, book] of Object.entries(booksObj)) {
+          if (book['uid'] === undefined) {
+            book['uid'] = key
+          }
+          booksArray.push(book)
+        }
+        commit('setBooks', booksArray)
+        newItems = true
+        commit('setLoading', false)
+      })
+
       firebase.database().ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).on('child_added', (snapshot) => {
+        if (!newItems) { return }
         let book = snapshot.val()
         if (book['uid'] === undefined) {
           book['uid'] = snapshot.key
@@ -265,9 +300,8 @@ export default new Vuex.Store({
       firebase.database().ref(`bd/${uid}`).on('child_changed', (snapshot) => {
         commit('updateBook', snapshot)
       })
-      commit('setLoading', false)
     },
-    deleteCurrentBook ({ commit }, book) {
+    currentBookDelete ({ commit }, book) {
       if (book !== undefined && book.uid !== undefined && book.uid !== '') {
         commit('setLoading', true)
         firebase.database().ref(`bd/${this.state.user.uid}/${book.uid}`).remove().then(() => {
@@ -281,8 +315,25 @@ export default new Vuex.Store({
           })
       }
     },
-    clearCurrentBook ({ commit }) {
+    currentBookClear ({ commit }) {
       commit('setCurrentBook', {})
+    },
+    currentBookSave ({ commit }) {
+      let book = this.state.currentBook
+      if (book === undefined || book.uid === undefined || !book.uid) {
+        return false
+      }
+      commit('setLoading', true)
+      book.computedOrderField = (book.series ? book.series + (book.volume ? '_' + book.volume.toString().padStart(4, '0') : '') : '') + '_' + book.title
+      firebase.database().ref(`bd/${this.state.user.uid}/${book.uid}`).update(book).then(() => {
+        commit('setSuccess', 'Livre enregistré')
+      })
+        .catch((error) => {
+          commit('setError', 'Livre non enregistré: ' + error.message)
+        })
+        .finally(() => {
+          commit('setLoading', false)
+        })
     },
     saveMultiBook ({ commit }) {
       this.state.selectedBooks.forEach((book) => {
@@ -291,7 +342,7 @@ export default new Vuex.Store({
           book.publisher = (this.state.multiEdit.publisher !== null ? this.state.multiEdit.publisher : book.publisher)
           book.author = (this.state.multiEdit.author !== null ? this.state.multiEdit.author : book.author)
           commit('setCurrentBook', book)
-          this.dispatch('saveCurrentBook')
+          this.dispatch('currentBookSave')
         }
       })
     },
@@ -325,23 +376,6 @@ export default new Vuex.Store({
         commit('setError', 'Livre non ajouté : ' + e)
         commit('setLoading', false)
       }
-    },
-    saveCurrentBook ({ commit }) {
-      let book = this.state.currentBook
-      if (book === undefined || book.uid === undefined || !book.uid) {
-        return false
-      }
-      commit('setLoading', true)
-      book.computedOrderField = (book.series ? book.series + (book.volume ? '_' + book.volume.toString().padStart(4, '0') : '') : '') + '_' + book.title
-      firebase.database().ref(`bd/${this.state.user.uid}/${book.uid}`).update(book).then(() => {
-        commit('setSuccess', 'Livre enregistré')
-      })
-        .catch((error) => {
-          commit('setError', 'Livre non enregistré: ' + error.message)
-        })
-        .finally(() => {
-          commit('setLoading', false)
-        })
     }
   },
   getters: {

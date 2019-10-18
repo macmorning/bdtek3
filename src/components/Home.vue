@@ -245,15 +245,15 @@ export default {
       this.dialogEdit = true
     },
     newItem () {
-      this.$store.dispatch('clearCurrentBook')
+      this.$store.dispatch('currentBookClear')
       this.dialogNew = true
     },
     multiEdit () {
-      this.$store.dispatch('clearCurrentBook')
+      this.$store.dispatch('currentBookClear')
       this.dialogMulti = true
     },
     deleteItem (book) {
-      confirm('Êtes-vous sûr de vouloir supprimer "' + book.title + '" ?') && this.$store.dispatch('deleteCurrentBook', book)
+      confirm('Êtes-vous sûr de vouloir supprimer "' + book.title + '" ?') && this.$store.dispatch('currentBookDelete', book)
     },
     close () {
       this.dialogEdit = false
@@ -262,7 +262,7 @@ export default {
       this.dialogScan = false
       this.scanArray = {}
       setTimeout(() => {
-        this.$store.dispatch('clearCurrentBook')
+        this.$store.dispatch('currentBookClear')
       }, 100)
     },
     saveNew () {
@@ -285,7 +285,7 @@ export default {
     },
     save () {
       setTimeout(() => {
-        this.$store.dispatch('saveCurrentBook')
+        this.$store.dispatch('currentBookSave')
       }, 100)
     },
     itemSelected (payload) {
@@ -312,7 +312,7 @@ export default {
     askLookup () {
       if (confirm('Êtes-vous sûr de vouloir remplacer les informations actuelles par celles qui seront trouvées sur Internet ?')) {
         this.book.needLookup = 1
-        this.$store.dispatch('saveCurrentBook')
+        this.$store.dispatch('currentBookSave')
       }
     }
   },

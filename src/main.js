@@ -6,6 +6,7 @@ import router from './router'
 import store from './store'
 import firebase from 'firebase/app'
 import 'firebase/auth'
+import '@/style/Common'
 
 const config = {
   apiKey: process.env.VUE_APP_API_KEY,
