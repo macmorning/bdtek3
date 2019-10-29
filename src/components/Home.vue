@@ -34,7 +34,6 @@
               item-key="uid"
               fixed-header
               multi-sort
-              @click:row="editItem"
               :mobile-breakpoint="900"
               class="elevation-1"
               :footer-props="{
@@ -43,7 +42,10 @@
               }"
               :sort-by="['series', 'volume']"
               :show-select="!friendId"
-              v-model="selectedBooks">
+              single-expand
+              v-model="selectedBooks"
+              :expanded="expanded"
+              @click:row="expandRow">
               <template v-slot:item.actions="{ item }">
                 <a class="mr-2" :href="item.detailsURL" v-on:click.stop="" target="_blank" title="ouvrir l'url"><v-icon>mdi-link-variant</v-icon></a>
                 <v-icon
@@ -53,11 +55,22 @@
                 >
                   mdi-delete
                 </v-icon>
+                <v-icon
+                  v-if="!friendId"
+                  v-on:click.stop="editItem(item)"
+                  title="modifier"
+                >
+                  mdi-pen
+                </v-icon>
+              </template>
+              <template v-slot:expanded-item="{ headers }">
+                <td :colspan="headers.length"><book-details/></td>
               </template>
             </v-data-table>
          </v-card>
       </v-col>
     </v-row>
+
     <v-dialog v-model="dialogEdit">
       <v-card>
         <v-banner
@@ -65,7 +78,7 @@
         sticky
         single-line
         class="blue-grey lighten-1  white--text">
-        <v-btn class="white--text" text @click="close" title="fermer"><v-icon>mdi-window-close</v-icon></v-btn>
+        <v-btn class="white--text" text @click="close" title="fermer"><v-icon>mdi-backburger</v-icon></v-btn>
           {{ formTitle }}
           <template v-slot:actions>
             <v-btn :loading="book.needLookup == 1" v-if="!friendId" class="white--text" text @click="askLookup" title="rechercher les détails"><v-icon>mdi-magnify</v-icon></v-btn>
@@ -79,6 +92,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
     <v-dialog v-model="dialogNew" width="400px">
       <v-card>
         <v-banner
@@ -86,7 +100,7 @@
         sticky
         single-line
         class="blue-grey lighten-1  white--text">
-        <v-btn class='white--text' text @click='close' title='fermer'><v-icon>mdi-window-close</v-icon></v-btn>
+        <v-btn class='white--text' text @click='close' title='fermer'><v-icon>mdi-backburger</v-icon></v-btn>
           Nouveau livre
           <template v-slot:actions>
             <v-btn class='white--text' text @click='scanSwitch' title='scanner'><v-icon>mdi-barcode-scan</v-icon></v-btn>
@@ -105,6 +119,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
     <v-dialog v-model="dialogMulti" width="600px">
       <v-card>
         <v-banner
@@ -112,7 +127,7 @@
         sticky
         single-line
         class="blue-grey lighten-1  white--text">
-        <v-btn class="white--text" text @click="close" title="fermer"><v-icon>mdi-window-close</v-icon></v-btn>
+        <v-btn class="white--text" text @click="close" title="fermer"><v-icon>mdi-backburger</v-icon></v-btn>
           Edition multiple
           <template v-slot:actions>
             <v-btn class="white--text" text @click="saveMulti" title="enregistrer"><v-icon>mdi-floppy</v-icon></v-btn>
@@ -160,11 +175,13 @@
 </template>
 
 <script>
+import BookDetails from '@/components/BookDetails'
 import BookEditor from '@/components/BookEditor'
 import MultiBookEditor from '@/components/MultiBookEditor'
 import Scanner from '@/components/Scanner'
 export default {
   components: {
+    BookDetails: BookDetails,
     BookEditor: BookEditor,
     MultiBookEditor: MultiBookEditor,
     Scanner: Scanner
@@ -175,6 +192,7 @@ export default {
       scanArray: {},
       newBookUID: null,
       alert: false,
+      expanded: [],
       dialogEdit: false,
       dialogNew: false,
       dialogMulti: false,
@@ -240,19 +258,31 @@ export default {
     onSearchItemSelected (item) {
       this.selectedSearchItem = item
     },
+    expandRow (item) {
+      if (item === this.expanded[0]) {
+        this.expanded = []
+      } else {
+        this.expanded = [item]
+        this.$store.commit('setCurrentBook', item)
+      }
+    },
     editItem (book) {
+      this.expanded = []
       this.$store.commit('setCurrentBook', book)
       this.dialogEdit = true
     },
     newItem () {
+      this.expanded = []
       this.$store.dispatch('currentBookClear')
       this.dialogNew = true
     },
     multiEdit () {
+      this.expanded = []
       this.$store.dispatch('currentBookClear')
       this.dialogMulti = true
     },
     deleteItem (book) {
+      this.expanded = []
       confirm('Êtes-vous sûr de vouloir supprimer "' + book.title + '" ?') && this.$store.dispatch('currentBookDelete', book)
     },
     close () {
@@ -261,9 +291,6 @@ export default {
       this.dialogMulti = false
       this.dialogScan = false
       this.scanArray = {}
-      setTimeout(() => {
-        this.$store.dispatch('currentBookClear')
-      }, 100)
     },
     saveNew () {
       this.newBookUID = this.newBookUID.trim().replace(/\D/g, '')
