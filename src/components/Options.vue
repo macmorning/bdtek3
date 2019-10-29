@@ -11,9 +11,9 @@
             <v-btn class="white--text" text @click="closeOptions" title="retour"><v-icon>mdi-backburger</v-icon></v-btn>
             Vos préférences
             <template v-slot:actions>
-              <v-btn class="white--text" text @click="saveOptions" title="enregistrer"><v-icon left>mdi-floppy</v-icon>Enregistrer</v-btn>
+              <v-btn class="white--text" text @click="saveOptions" title="enregistrer"><v-icon>mdi-floppy</v-icon></v-btn>
             </template>
-            </v-banner>
+          </v-banner>
 
           <v-card-text>
             <v-container>

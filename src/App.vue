@@ -87,7 +87,7 @@ export default {
           'background-position': 'center',
           'background-size': 'cover',
           'background-attachment': 'fixed',
-          'background-image': 'url(/img/' + this.imgNumber + '.png)',
+          'background-image': 'url(/img/' + this.imgNumber + '.webp)',
           'min-height': '100%'
         }
       } else {

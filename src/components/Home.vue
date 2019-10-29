@@ -34,20 +34,21 @@
               item-key="uid"
               fixed-header
               multi-sort
-              :mobile-breakpoint="900"
+              :mobile-breakpoint="960"
               class="elevation-1"
               :footer-props="{
                 showFirstLastPage: true,
                 itemsPerPageOptions: [50, 100, 200, -1]
               }"
               :sort-by="['series', 'volume']"
-              :show-select="!friendId"
+              :show-select="!friendId && !$vuetify.breakpoint.xs && !$vuetify.breakpoint.sm"
               single-expand
               v-model="selectedBooks"
               :expanded="expanded"
-              @click:row="expandRow">
+              @click:row="expandRow"
+              :dense="$vuetify.breakpoint.xs || $vuetify.breakpoint.sm">
               <template v-slot:item.actions="{ item }">
-                <a class="mr-2" :href="item.detailsURL" v-on:click.stop="" target="_blank" title="ouvrir l'url"><v-icon>mdi-link-variant</v-icon></a>
+                <a v-if="item.detailsURL" class="mr-2" :href="item.detailsURL" v-on:click.stop="" target="_blank" title="ouvrir l'url"><v-icon>mdi-link-variant</v-icon></a>
                 <v-icon
                   v-if="!friendId"
                   v-on:click.stop="deleteItem(item)"
@@ -64,7 +65,18 @@
                 </v-icon>
               </template>
               <template v-slot:expanded-item="{ headers }">
-                <td :colspan="headers.length"><book-details/></td>
+                <td @click="expandRow" :colspan="headers.length">
+                    <v-banner
+                      single-line
+                      class="blue-grey lighten-1  white--text"
+                      v-if="$vuetify.breakpoint.xs || $vuetify.breakpoint.sm">
+                    <template v-slot:actions>
+                      <a class="mr-3" v-if="currentBook.detailsURL" :href="currentBook.detailsURL" v-on:click.stop="" target="_blank" title="ouvrir l'url"><v-icon class="white--text">mdi-link-variant</v-icon></a>
+                      <v-btn v-if="!friendId" class="white--text" text v-on:click.stop="deleteItem(currentBook)" title="supprimer"><v-icon>mdi-delete</v-icon></v-btn>
+                      <v-btn v-if="!friendId" class="white--text" text v-on:click.stop="editItem(currentBook)" title="supprimer"><v-icon>mdi-pen</v-icon></v-btn>
+                    </template>
+                  </v-banner>
+                  <book-details/></td>
               </template>
             </v-data-table>
          </v-card>
@@ -198,11 +210,26 @@ export default {
       dialogMulti: false,
       dialogScan: false,
       editedIndex: -1,
-      headers: [
+      headersSM: [
+        {
+          value: 'title',
+          text: 'Titre'
+        }, {
+          value: 'series',
+          text: 'Série'
+        }, {
+          value: 'volume',
+          text: '#'
+        }, {
+          value: 'author',
+          text: 'Auteur(s)'
+        }
+      ],
+      headersMD: [
         {
           value: 'uid',
           text: 'ISBN',
-          width: '12em'
+          minWidth: '20em'
         }, {
           value: 'title',
           text: 'Titre',
@@ -217,14 +244,47 @@ export default {
         }, {
           value: 'author',
           text: 'Auteur(s)',
-          width: '15em'
+          minWidth: '10em'
+        }, {
+          value: 'actions',
+          text: 'Actions',
+          width: '10em',
+          align: 'end',
+          filter: false,
+          sortable: false
+        }
+      ],
+      headersXL: [
+        {
+          value: 'uid',
+          text: 'ISBN',
+          minWidth: '20em'
+        }, {
+          value: 'title',
+          text: 'Titre',
+          minWidth: '20em'
+        }, {
+          value: 'series',
+          text: 'Série'
+        }, {
+          value: 'volume',
+          text: '#',
+          width: '7em'
+        }, {
+          value: 'author',
+          text: 'Auteur(s)',
+          minWidth: '20em'
         }, {
           value: 'publisher',
           text: 'Editeur',
-          width: '12em'
+          minWidth: '10em'
+        }, {
+          value: 'published',
+          text: 'Publié',
+          width: '10em'
         }, {
           value: 'dateAdded',
-          text: 'Date d\'ajout',
+          text: 'Ajouté',
           width: '10em'
         }, {
           value: 'actions',
@@ -254,9 +314,6 @@ export default {
     },
     backToUsers () {
       this.$router.push('/users')
-    },
-    onSearchItemSelected (item) {
-      this.selectedSearchItem = item
     },
     expandRow (item) {
       if (item === this.expanded[0]) {
@@ -389,6 +446,9 @@ export default {
       } else {
         return ''
       }
+    },
+    headers () {
+      if (this.$vuetify.breakpoint.xl) { return this.headersXL } else if (this.$vuetify.breakpoint.lg || this.$vuetify.breakpoint.md) { return this.headersMD } else { return this.headersSM }
     }
   },
   watch: {
