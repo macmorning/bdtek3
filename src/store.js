@@ -245,11 +245,13 @@ export default new Vuex.Store({
       firebase.database().ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).once('value').then((snapshot) => {
         let booksObj = snapshot.val()
         let booksArray = []
-        for (let [key, book] of Object.entries(booksObj)) {
-          if (book['uid'] === undefined) {
-            book['uid'] = key
+        if (booksObj !== null) {
+          for (let [key, book] of Object.entries(booksObj)) {
+            if (book['uid'] === undefined) {
+              book['uid'] = key
+            }
+            booksArray.push(book)
           }
-          booksArray.push(book)
         }
         commit('setFriendBooks', booksArray)
       }).catch((error) => {
@@ -258,7 +260,7 @@ export default new Vuex.Store({
         commit('setLoading', false)
       })
     },
-    initBooks ({ commit }) {
+    initBooks ({ dispatch, commit }) {
       if (!this.state.user) {
         commit('setError', 'Une erreur s\'est produite, veuillez rafraîchir la page')
         return false
@@ -281,6 +283,7 @@ export default new Vuex.Store({
           booksArray.push(book)
         }
         commit('setBooks', booksArray)
+        dispatch('cacheBooks')
         newItems = true
         commit('setLoading', false)
       })
@@ -292,13 +295,16 @@ export default new Vuex.Store({
           book['uid'] = snapshot.key
         }
         commit('addBook', book)
+        dispatch('cacheBooks')
       })
 
       firebase.database().ref(`bd/${uid}`).on('child_removed', (snapshot) => {
         commit('removeBook', snapshot)
+        dispatch('cacheBooks')
       })
       firebase.database().ref(`bd/${uid}`).on('child_changed', (snapshot) => {
         commit('updateBook', snapshot)
+        dispatch('cachebooks')
       })
     },
     currentBookDelete ({ commit }, book) {
@@ -376,6 +382,11 @@ export default new Vuex.Store({
         commit('setError', 'Livre non ajouté : ' + e)
         commit('setLoading', false)
       }
+    },
+    async cacheBooks () {
+      localStorage.setItem('collection.books', JSON.stringify(this.state.books))
+      let currentTime = new Date()
+      localStorage.setItem('collection.booksLastSaved', currentTime.getFullYear() + '-' + (currentTime.getMonth() + 1).toString().padStart(2, '0') + '-' + currentTime.getDate().toString().padStart(2, '0') + ' ' + currentTime.getHours().toString().padStart(2, '0') + ':' + currentTime.getMinutes().toString().padStart(2, '0'))
     }
   },
   getters: {

@@ -12,6 +12,15 @@
             <v-btn class="white--text" text @click="backToUsers" title="retour"><v-icon>mdi-backburger</v-icon></v-btn>
             Liste de {{ friendName }}
             </v-banner>
+          <v-banner
+              v-if="cached"
+              style="top:0px;"
+              sticky
+              single-line
+              class="blue-grey lighten-1 white--text">
+            <v-btn class="white--text" text @click="backToHome" title="retour"><v-icon>mdi-backburger</v-icon></v-btn>
+            Dernière version connue de votre collection ({{cachedBooksTime}})
+          </v-banner>
           <v-card-title>
             <div class="flex-grow-1"></div>
               <v-text-field
@@ -26,7 +35,9 @@
           </v-card-title>
             <v-data-table
               :loading="isLoading"
-              loading-text="chargement en cours, veuillez patienter"
+              loading-text="chargement de la collection"
+              no-data-text="aucun livre dans cette collection"
+              no-results-text="aucun livre ne correspond à cette recherche"
               :headers="headers"
               :items="books"
               :items-per-page="100"
@@ -41,23 +52,28 @@
                 itemsPerPageOptions: [50, 100, 200, -1]
               }"
               :sort-by="['series', 'volume']"
-              :show-select="!friendId && !$vuetify.breakpoint.xs && !$vuetify.breakpoint.sm"
+              :show-select="!cached && !friendId && !$vuetify.breakpoint.xs && !$vuetify.breakpoint.sm"
               single-expand
               v-model="selectedBooks"
               :expanded="expanded"
               @click:row="expandRow"
               :dense="$vuetify.breakpoint.xs || $vuetify.breakpoint.sm">
+              <template v-slot:loading>
+                  <p>chargement de la collection</p>
+                  <p v-if="!friendId && !cached && cachedBooksTime">chargement trop long ou hors connexion ?<br/>
+                  <a v-on:click.stop="loadFromCache">cliquez ici pour charger la dernière version enregistrée le {{cachedBooksTime}}</a></p>
+              </template>
               <template v-slot:item.actions="{ item }">
                 <a v-if="item.detailsURL" class="mr-2" :href="item.detailsURL" v-on:click.stop="" target="_blank" title="ouvrir l'url"><v-icon>mdi-link-variant</v-icon></a>
                 <v-icon
-                  v-if="!friendId"
+                  v-if="!cached && !friendId"
                   v-on:click.stop="deleteItem(item)"
                   title="supprimer"
                 >
                   mdi-delete
                 </v-icon>
                 <v-icon
-                  v-if="!friendId"
+                  v-if="!cached && !friendId"
                   v-on:click.stop="editItem(item)"
                   title="modifier"
                 >
@@ -72,8 +88,8 @@
                       v-if="$vuetify.breakpoint.xs || $vuetify.breakpoint.sm">
                     <template v-slot:actions>
                       <a class="mr-3" v-if="currentBook.detailsURL" :href="currentBook.detailsURL" v-on:click.stop="" target="_blank" title="ouvrir l'url"><v-icon class="white--text">mdi-link-variant</v-icon></a>
-                      <v-btn v-if="!friendId" class="white--text" text v-on:click.stop="deleteItem(currentBook)" title="supprimer"><v-icon>mdi-delete</v-icon></v-btn>
-                      <v-btn v-if="!friendId" class="white--text" text v-on:click.stop="editItem(currentBook)" title="supprimer"><v-icon>mdi-pen</v-icon></v-btn>
+                      <v-btn v-if="!cached && !friendId" class="white--text" text v-on:click.stop="deleteItem(currentBook)" title="supprimer"><v-icon>mdi-delete</v-icon></v-btn>
+                      <v-btn v-if="!cached && !friendId" class="white--text" text v-on:click.stop="editItem(currentBook)" title="modifier"><v-icon>mdi-pen</v-icon></v-btn>
                     </template>
                   </v-banner>
                   <book-details/></td>
@@ -93,8 +109,8 @@
         <v-btn class="white--text" text @click="close" title="fermer"><v-icon>mdi-backburger</v-icon></v-btn>
           {{ formTitle }}
           <template v-slot:actions>
-            <v-btn :loading="book.needLookup == 1" v-if="!friendId" class="white--text" text @click="askLookup" title="rechercher les détails"><v-icon>mdi-magnify</v-icon></v-btn>
-            <v-btn :disabled="book.needLookup == 1" v-if="!friendId" class="white--text" text @click="save" title="enregistrer"><v-icon>mdi-floppy</v-icon></v-btn>
+            <v-btn :loading="book.needLookup == 1" v-if="!cached && !friendId" class="white--text" text @click="askLookup" title="rechercher les détails"><v-icon>mdi-magnify</v-icon></v-btn>
+            <v-btn :disabled="book.needLookup == 1" v-if="!cached && !friendId" class="white--text" text @click="save" title="enregistrer"><v-icon>mdi-floppy</v-icon></v-btn>
           </template>
         </v-banner>
         <v-card-text>
@@ -161,7 +177,7 @@
       right
       title="ajouter un livre"
       @click="newItem"
-      v-if="selectedBooks.length==0 && !friendId"
+      v-if="!friendId && !cached && selectedBooks.length==0"
     ><v-icon>mdi-book-plus</v-icon>
     </v-btn>
       <v-btn
@@ -172,7 +188,7 @@
         bottom
         right
         title="édition multiple"
-        v-if="selectedBooks.length>0 && !friendId"
+        v-if="!friendId && !cached && selectedBooks.length>0"
         @click="multiEdit">
      <v-badge
       color="cyan"
@@ -202,6 +218,7 @@ export default {
     return {
       search: '',
       scanArray: {},
+      cached: false,
       newBookUID: null,
       alert: false,
       expanded: [],
@@ -303,17 +320,24 @@ export default {
     } else {
       if (this.friendId !== undefined && this.friendId) {
         this.$store.dispatch('fetchFriendBooks', this.friendId)
-      } else {
+      } else if (!this.cached) {
         this.$store.dispatch('initBooks')
       }
     }
   },
   methods: {
+    loadFromCache () {
+      this.cached = true
+    },
     clearSearch () {
       this.search = ''
     },
     backToUsers () {
       this.$router.push('/users')
+    },
+    backToHome () {
+      this.cached = false
+      this.$store.dispatch('initBooks')
     },
     expandRow (item) {
       if (item === this.expanded[0]) {
@@ -401,6 +425,12 @@ export default {
     }
   },
   computed: {
+    cachedBooks () {
+      return JSON.parse(localStorage.getItem('collection.books'))
+    },
+    cachedBooksTime () {
+      return localStorage.getItem('collection.booksLastSaved')
+    },
     friendId () {
       return this.$route.query.uid
     },
@@ -414,7 +444,9 @@ export default {
       return this.$store.state.loading
     },
     books () {
-      if (this.friendId !== undefined && this.friendId) {
+      if (this.cached) {
+        return this.cachedBooks
+      } else if (this.friendId !== undefined && this.friendId) {
         return this.$store.state.friendBooks
       } else {
         return this.$store.state.books

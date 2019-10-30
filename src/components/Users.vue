@@ -25,7 +25,7 @@
           </v-card-title>
             <v-data-table
               :loading="isLoading"
-              loading-text="Chargement en cours, veuillez patienter"
+              loading-text="chargement des utilisateurs"
               :headers="headersUsers"
               :items="users"
               :search="search"

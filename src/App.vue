@@ -29,6 +29,7 @@
     <v-snackbar
       v-model="snackError"
       bottom
+      left
       multi-line
       color="error"
       :timeout="6000"
@@ -38,6 +39,7 @@
     <v-snackbar
       v-model="snackSuccess"
       bottom
+      left
       color="success"
       :timeout="3000"
     >
@@ -50,7 +52,7 @@
 export default {
   data () {
     return {
-      appTitle: 'BDTek v3',
+      appTitle: 'BDTek',
       maxImgNum: 10,
       snackSuccess: false,
       snackError: false
