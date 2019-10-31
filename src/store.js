@@ -218,6 +218,7 @@ export default new Vuex.Store({
       })
     },
     userSignOut ({ commit }) {
+      firebase.database().ref(`bd/${this.state.user.uid}`).off()
       firebase.auth().signOut()
       commit('resetBooks')
       commit('setUser', null)

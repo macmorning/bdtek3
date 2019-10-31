@@ -19,7 +19,7 @@
               single-line
               class="blue-grey lighten-1 white--text">
             <v-btn class="white--text" text @click="backToHome" title="retour"><v-icon>mdi-backburger</v-icon></v-btn>
-            Dernière version connue de votre collection ({{cachedBooksTime}})
+            Version locale du {{cachedBooksTime}}
           </v-banner>
           <v-card-title>
             <div class="flex-grow-1"></div>
@@ -48,7 +48,7 @@
               :mobile-breakpoint="960"
               class="elevation-1"
               :footer-props="{
-                showFirstLastPage: true,
+                showFirstLastPage: (!$vuetify.breakpoint.xs && !$vuetify.breakpoint.sm),
                 itemsPerPageOptions: [50, 100, 200, -1]
               }"
               :sort-by="['series', 'volume']"
@@ -69,6 +69,7 @@
                   v-if="!cached && !friendId"
                   v-on:click.stop="deleteItem(item)"
                   title="supprimer"
+                  class="mr-2"
                 >
                   mdi-delete
                 </v-icon>
@@ -81,15 +82,15 @@
                 </v-icon>
               </template>
               <template v-slot:expanded-item="{ headers }">
-                <td @click="expandRow" :colspan="headers.length">
+                <td class="expansion" :colspan="headers.length">
                     <v-banner
                       single-line
                       class="blue-grey lighten-1  white--text"
                       v-if="$vuetify.breakpoint.xs || $vuetify.breakpoint.sm">
                     <template v-slot:actions>
-                      <a class="mr-3" v-if="currentBook.detailsURL" :href="currentBook.detailsURL" v-on:click.stop="" target="_blank" title="ouvrir l'url"><v-icon class="white--text">mdi-link-variant</v-icon></a>
-                      <v-btn v-if="!cached && !friendId" class="white--text" text v-on:click.stop="deleteItem(currentBook)" title="supprimer"><v-icon>mdi-delete</v-icon></v-btn>
-                      <v-btn v-if="!cached && !friendId" class="white--text" text v-on:click.stop="editItem(currentBook)" title="modifier"><v-icon>mdi-pen</v-icon></v-btn>
+                      <a class="mr-6" v-if="currentBook.detailsURL" :href="currentBook.detailsURL" v-on:click.stop="" target="_blank" title="ouvrir l'url"><v-icon class="white--text">mdi-link-variant</v-icon></a>
+                      <v-icon v-if="!cached && !friendId" class="white--text mr-6" text v-on:click.stop="deleteItem(currentBook)" title="supprimer">mdi-delete</v-icon>
+                      <v-icon v-if="!cached && !friendId" class="white--text" text v-on:click.stop="editItem(currentBook)" title="modifier">mdi-pen</v-icon>
                     </template>
                   </v-banner>
                   <book-details/></td>

@@ -3,7 +3,6 @@ const functions = require('firebase-functions'),
       rp =require('request-promise'),
       htmlparser = require("htmlparser2"),
       select = require('soupselect').select;
-// parseString = require('xml2js').parseString,
      
 admin.initializeApp();
 
@@ -34,6 +33,14 @@ const getText = (node) => {
             }
         });
         return text;
+    }
+}
+
+const formatDate = (date) => {
+    if (Date.parse(date) > 0) { return date; }
+    else if (date.indexOf("/") > -1) {
+        let d = date.split("/");
+        return (d[2] + "-" + d[1] + "-" + d[0]);
     }
 }
 
@@ -103,7 +110,7 @@ exports.fetchBookInformations = functions.database.ref('/bd/{user}/{ref}/needLoo
                 author: (informations.author !== undefined ? informations.author : ""),
                 imageURL: (informations.imageURL !== undefined ? informations.imageURL : ""),
                 detailsURL: (informations.detailsURL !== undefined ? informations.detailsURL : ""),
-                published: (informations.published !== undefined ? informations.published : ""),
+                published: (informations.published !== undefined ? formatDate(informations.published) : ""),
                 publisher: (informations.publisher !== undefined ? informations.publisher : ""),
                 series: (informations.series !== undefined ? informations.series : ""),
                 volume: (informations.volume !== undefined ? informations.volume : ""),
