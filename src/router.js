@@ -5,8 +5,7 @@ import 'firebase/auth'
 
 const routerOptions = [
   { path: '/', component: 'Home' },
-  { path: '/options', component: 'Options', meta: { requiresAuth: true } },
-  { path: '/users', component: 'Users', meta: { requiresAuth: true } },
+  { path: '/user/:uid', component: 'Home' },
   { path: '/signin', component: 'Signin' },
   { path: '/signup', component: 'Signup' },
   { path: '/reset', component: 'PasswordForget' },

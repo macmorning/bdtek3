@@ -9,7 +9,7 @@
               sticky
               single-line
               class="blue-grey lighten-1 white--text">
-            <v-btn class="white--text" text @click="backToUsers" title="retour"><v-icon>mdi-backburger</v-icon></v-btn>
+            <v-btn class="white--text" text @click="backToHome" title="fermer"><v-icon>mdi-close</v-icon></v-btn>
             Liste de {{ friendName }}
             </v-banner>
           <v-banner
@@ -18,7 +18,7 @@
               sticky
               single-line
               class="blue-grey lighten-1 white--text">
-            <v-btn class="white--text" text @click="backToHome" title="retour"><v-icon>mdi-backburger</v-icon></v-btn>
+            <v-btn class="white--text" text @click="backToHome" title="version actuelle"><v-icon>mdi-close</v-icon></v-btn>
             Version locale du {{cachedBooksTime}}
           </v-banner>
           <v-card-title>
@@ -316,29 +316,29 @@ export default {
     }
   },
   created () {
-    if (!this.$store.state.user && !this.friendId) {
-      this.$router.push('/signin')
-    } else {
-      if (this.friendId !== undefined && this.friendId) {
-        this.$store.dispatch('fetchFriendBooks', this.friendId)
-      } else if (!this.cached) {
-        this.$store.dispatch('initBooks')
-      }
-    }
+    this.init()
   },
   methods: {
+    init () {
+      if (!this.$store.state.user && !this.friendId) {
+        this.$router.push('/signin')
+      } else {
+        if (this.friendId !== undefined && this.friendId) {
+          this.$store.dispatch('fetchFriendBooks', this.friendId)
+        } else if (!this.cached) {
+          this.$store.dispatch('initBooks')
+        }
+      }
+    },
     loadFromCache () {
       this.cached = true
     },
     clearSearch () {
       this.search = ''
     },
-    backToUsers () {
-      this.$router.push('/users')
-    },
     backToHome () {
       this.cached = false
-      this.$store.dispatch('initBooks')
+      this.$router.push('/')
     },
     expandRow (item) {
       if (item === this.expanded[0]) {
@@ -433,7 +433,7 @@ export default {
       return localStorage.getItem('collection.booksLastSaved')
     },
     friendId () {
-      return this.$route.query.uid
+      return this.$route.params.uid
     },
     friendName () {
       return (this.$route.query.name || 'unknown')
@@ -503,6 +503,11 @@ export default {
     },
     dialogMulti (val) {
       val || this.close()
+    },
+    $route (to, from) {
+      if (to.params.uid !== undefined && to.params.uid !== from.params.uid) {
+        this.init()
+      }
     }
   }
 }

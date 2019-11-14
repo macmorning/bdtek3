@@ -17,6 +17,14 @@
           :to="item.path">
           <v-icon dark>{{ item.icon }}</v-icon>
         </v-btn>
+        <v-btn
+          v-if="isAuthenticated"
+          text
+          title="utilisateurs"
+          class="white--text"
+          @click="users">
+          <v-icon dark>mdi-account-multiple</v-icon>
+        </v-btn>
          <v-menu
             v-if="isAuthenticated"
             bottom>
@@ -31,6 +39,11 @@
             </template>
 
             <v-list>
+              <v-list-item>
+                <v-btn title="options" text @click="options">
+                  <v-icon class="mr-3">mdi-wrench</v-icon> options
+                </v-btn>
+              </v-list-item>
               <v-list-item>
                 <v-btn title="partage" text @click="share">
                   <v-icon class="mr-3">mdi-share</v-icon> partage
@@ -70,28 +83,45 @@
       {{ success }}
     </v-snackbar>
     <v-dialog
+      v-model="optionsDialog"
+      max-width="500"
+    >
+      <options v-on:close-dialog="closeOptions"/>
+    </v-dialog>
+    <v-dialog
       v-model="shareDialog"
       max-width="500"
     >
-      <v-card>
-        <v-card-title>Lien à partager</v-card-title>
-        <v-card-text>
-          <v-text-field ref='shareUrlField' readonly :value='shareUrl' append-outer-icon="mdi-clipboard-arrow-down" @click:append-outer="shareUrlCopy"></v-text-field>
-        </v-card-text>
-      </v-card>
+      <share v-on:close-dialog="closeShare"/>
+    </v-dialog>
+    <v-dialog
+      v-model="usersDialog"
+      max-width="700"
+    >
+      <users v-on:close-dialog="closeUsers"/>
     </v-dialog>
   </v-app>
 </template>
 
 <script>
+import Options from '@/components/Options'
+import Share from '@/components/Share'
+import Users from '@/components/Users'
 export default {
+  components: {
+    Options: Options,
+    Share: Share,
+    Users: Users
+  },
   data () {
     return {
       appTitle: 'BDTek',
       maxImgNum: 10,
       snackSuccess: false,
       snackError: false,
-      shareDialog: false
+      shareDialog: false,
+      optionsDialog: false,
+      usersDialog: false
     }
   },
   created () {
@@ -109,9 +139,7 @@ export default {
     menuItems () {
       if (this.isAuthenticated) {
         return [
-          { title: 'Bibliothèque', path: '/', icon: 'mdi-book-multiple' },
-          { title: 'Options', path: '/options', icon: 'mdi-wrench' },
-          { title: 'Utilisateurs', path: '/users', icon: 'mdi-account-multiple' }
+          { title: 'Bibliothèque', path: '/', icon: 'mdi-book-multiple' }
         ]
       } else {
         return [
@@ -138,12 +166,6 @@ export default {
     imgNumber () {
       let num = ((Math.floor(Math.random() * Math.floor(this.maxImgNum))) + 1).toString().padStart(2, '0')
       return num
-    },
-    shareUrl () {
-      if (!this.$store.state.user) { return false }
-      let userId = this.$route.query.uid ? this.$route.query.uid : this.$store.state.user.uid
-      let userName = this.$route.query.uid && this.$route.query.name ? this.$route.query.name : this.$store.state.user.displayName
-      return (window.location.origin + '/?uid=' + userId + '&name=' + userName)
     }
   },
   watch: {
@@ -171,14 +193,23 @@ export default {
     }
   },
   methods: {
+    closeOptions () {
+      this.optionsDialog = false
+    },
+    closeUsers () {
+      this.usersDialog = false
+    },
+    closeShare () {
+      this.shareDialog = false
+    },
     share () {
       this.shareDialog = true
     },
-    shareUrlCopy () {
-      this.$refs.shareUrlField.$refs.input.focus()
-      this.$refs.shareUrlField.$refs.input.select()
-      document.execCommand('copy')
-      this.$store.commit('setSuccess', 'Lien copié dans le presse-papier')
+    users () {
+      this.usersDialog = true
+    },
+    options () {
+      this.optionsDialog = true
     },
     userSignOut () {
       this.$store.dispatch('userSignOut')
