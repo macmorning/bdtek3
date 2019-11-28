@@ -30,16 +30,18 @@
             </v-row>
         </v-col>
         <v-col cols="12" lg="2">
-            <v-card flat tile class="d-flex"><v-img
+            <v-card flat tile class="d-flex"><img
+              v-lazyload
+              src="/img/loading.gif"
               aspect-ratio="1"
               :v-if="editedItem.imageURL"
-              :src="editedItem.imageURL ? editedItem.imageURL.toString() : ''"
+              :data-src="editedItem.imageURL ? editedItem.imageURL.toString() : ''"
+              data-err="/img/not_found.webp"
               position="center"
               max-height="200px"
               v-on:click.stop="openImage"
               style="cursor:pointer;"
-            >
-            </v-img></v-card>
+            /></v-card>
         </v-col>
     </v-row>
 </template>

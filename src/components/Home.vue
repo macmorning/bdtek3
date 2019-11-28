@@ -372,6 +372,7 @@ export default {
       this.dialogMulti = false
       this.dialogScan = false
       this.scanArray = {}
+      this.$store.dispatch('currentBookClear')
     },
     saveNew () {
       this.newBookUID = this.newBookUID.trim().replace(/\D/g, '')

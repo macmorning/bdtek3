@@ -21,9 +21,9 @@
                     ></v-checkbox>
                 </v-col>
                 <v-col cols="11">
-                    <v-text-field 
+                    <v-text-field
                       :disabled="!multiEdit.authorBool"
-                      v-model="multiEdit.author" 
+                      v-model="multiEdit.author"
                       label="Auteur(s)">
                     </v-text-field>
                 </v-col>

@@ -1,125 +1,99 @@
 <template>
     <v-row>
-        <v-col cols="12" lg="9">
-            <v-row>
-                <v-col cols="12" lg="6">
-                    <v-text-field v-model="editedItem.uid" label="ISBN" readonly></v-text-field>
-                </v-col>
-                <v-col cols="12" lg="6">
-                    <v-text-field v-model="editedItem.title" label="Titre" :readonly='readonly'></v-text-field>
-                </v-col>
-                <v-col cols="12" lg="6">
-                    <v-combobox
-                      v-model="editedItem.series"
-                      :items="series"
-                      label="Série"
-                      :readonly='readonly'
-                    ></v-combobox>
-                </v-col>
-                <v-col cols="12" lg="6">
-                    <v-text-field v-model="editedItem.volume" label="Volume" :readonly='readonly'></v-text-field>
-                </v-col>
-                <v-col cols="12" lg="6">
-                    <v-text-field v-model="editedItem.author" label="Auteur(s)" :readonly='readonly'></v-text-field>
-                </v-col>
-                <v-col cols="12" lg="6">
-                    <v-text-field :readonly='readonly' v-model="editedItem.imageURL" label="Image" append-outer-icon="mdi-link-variant" @click:append-outer="openImage"></v-text-field>
-                </v-col>
-                <v-col cols="12" lg="6">
-                  <v-text-field
-                    v-model="editedItem.published"
-                    label="Date de publication"
-                    prepend-icon="mdi-calendar"
-                    v-if='readonly'
-                    readonly
-                  ></v-text-field>
-                  <v-menu
-                    v-model="publishedMenu"
-                    :close-on-content-click="false"
-                    :nudge-right="40"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="290px"
-                    v-if='!readonly'
-                  >
-                    <template v-slot:activator="{ on }">
-                      <v-text-field
-                        v-model="editedItem.published"
-                        label="Date de publication"
-                        prepend-icon="mdi-calendar"
-                        readonly
-                        v-on="on"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker v-model="editedItem.published" @input="publishedMenu = false"></v-date-picker>
-                  </v-menu>
-                </v-col>
-                <v-col cols="12" lg="6">
-                    <v-combobox
-                      v-model="editedItem.publisher"
-                      :items="publishers"
-                      label="Editeur"
-                      :readonly='readonly'
-                    ></v-combobox>
-                </v-col>
-                <v-col cols="12" lg="6">
-                    <v-text-field v-model="editedItem.edition" :readonly='readonly' label="Détails sur l'édition"></v-text-field>
-                </v-col>
-                <v-col cols="12" lg="6">
-                  <v-text-field
-                    v-model="editedItem.dateAdded"
-                    label="Date d'ajout"
-                    prepend-icon="mdi-calendar"
-                    v-if='readonly'
-                    readonly
-                  ></v-text-field>
-                  <v-menu
-                    v-model="dateAddedMenu"
-                    :close-on-content-click="false"
-                    :nudge-right="40"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="290px"
-                    v-if='!readonly'
-                  >
-                    <template v-slot:activator="{ on }">
-                      <v-text-field
-                        v-model="editedItem.dateAdded"
-                        label="Date d'ajout"
-                        prepend-icon="mdi-calendar"
-                        readonly
-                        v-on="on"
-                      ></v-text-field>
-                    </template>
-                    <v-date-picker v-model="editedItem.dateAdded" @input="dateAddedMenu = false"></v-date-picker>
-                  </v-menu>
-                </v-col>
-                <v-col cols="12" lg="6">
-                    <v-text-field :readonly='readonly' v-model="editedItem.detailsURL" label="Lien externe" append-outer-icon="mdi-link-variant" @click:append-outer="openDetails"></v-text-field>
-                </v-col>
-            </v-row>
+        <v-col cols="12" lg="6">
+            <v-text-field v-model="editedItem.uid" label="ISBN" readonly></v-text-field>
         </v-col>
-        <v-col cols="12" lg="3" align="center" justify="center">
-            <v-img
-            :v-if="editedItem.imageURL"
-            :src="editedItem.imageURL ? editedItem.imageURL.toString() : ''"
-            position="center"
-            max-height="500px"
-            class="elevation-3"
-            @click="openImage"
-            :disabled='readonly'
-            style="cursor:pointer;"
-            >
-              <template v-slot:placeholder>
-                <v-row
-                  class="fill-height ma-0"
-                  align="center"
-                  justify="center"
-                >
-                <v-progress-circular indeterminate color="blue-grey lighten-1"></v-progress-circular>
-                </v-row>
-              </template>
-            </v-img>
+        <v-col cols="12" lg="6">
+            <v-text-field v-model="editedItem.title" label="Titre" :readonly='readonly'></v-text-field>
+        </v-col>
+        <v-col cols="12" lg="6">
+            <v-combobox
+              v-model="editedItem.series"
+              :items="series"
+              label="Série"
+              :readonly='readonly'
+            ></v-combobox>
+        </v-col>
+        <v-col cols="12" lg="6">
+            <v-text-field v-model="editedItem.volume" label="Volume" :readonly='readonly'></v-text-field>
+        </v-col>
+        <v-col cols="12" lg="6">
+            <v-text-field v-model="editedItem.author" label="Auteur(s)" :readonly='readonly'></v-text-field>
+        </v-col>
+        <v-col cols="12" lg="6">
+            <v-text-field :readonly='readonly' v-model="editedItem.imageURL" label="Image" append-outer-icon="mdi-link-variant" @click:append-outer="openImage"></v-text-field>
+        </v-col>
+        <v-col cols="12" lg="6">
+          <v-text-field
+            v-model="editedItem.published"
+            label="Date de publication"
+            prepend-icon="mdi-calendar"
+            v-if='readonly'
+            readonly
+          ></v-text-field>
+          <v-menu
+            v-model="publishedMenu"
+            :close-on-content-click="false"
+            :nudge-right="40"
+            transition="scale-transition"
+            offset-y
+            min-width="290px"
+            v-if='!readonly'
+          >
+            <template v-slot:activator="{ on }">
+              <v-text-field
+                v-model="editedItem.published"
+                label="Date de publication"
+                prepend-icon="mdi-calendar"
+                readonly
+                v-on="on"
+              ></v-text-field>
+            </template>
+            <v-date-picker v-model="editedItem.published" @input="publishedMenu = false"></v-date-picker>
+          </v-menu>
+        </v-col>
+        <v-col cols="12" lg="6">
+            <v-combobox
+              v-model="editedItem.publisher"
+              :items="publishers"
+              label="Editeur"
+              :readonly='readonly'
+            ></v-combobox>
+        </v-col>
+        <v-col cols="12" lg="6">
+            <v-text-field v-model="editedItem.edition" :readonly='readonly' label="Détails sur l'édition"></v-text-field>
+        </v-col>
+        <v-col cols="12" lg="6">
+          <v-text-field
+            v-model="editedItem.dateAdded"
+            label="Date d'ajout"
+            prepend-icon="mdi-calendar"
+            v-if='readonly'
+            readonly
+          ></v-text-field>
+          <v-menu
+            v-model="dateAddedMenu"
+            :close-on-content-click="false"
+            :nudge-right="40"
+            transition="scale-transition"
+            offset-y
+            min-width="290px"
+            v-if='!readonly'
+          >
+            <template v-slot:activator="{ on }">
+              <v-text-field
+                v-model="editedItem.dateAdded"
+                label="Date d'ajout"
+                prepend-icon="mdi-calendar"
+                readonly
+                v-on="on"
+              ></v-text-field>
+            </template>
+            <v-date-picker v-model="editedItem.dateAdded" @input="dateAddedMenu = false"></v-date-picker>
+          </v-menu>
+        </v-col>
+        <v-col cols="12" lg="6">
+            <v-text-field :readonly='readonly' v-model="editedItem.detailsURL" label="Lien externe" append-outer-icon="mdi-link-variant" @click:append-outer="openDetails"></v-text-field>
         </v-col>
     </v-row>
 </template>
@@ -150,6 +124,11 @@ export default {
     },
     publishers () {
       return this.$store.state.publishers
+    }
+  },
+  watch: {
+    editemItem (val) {
+      console.log(val)
     }
   }
 }

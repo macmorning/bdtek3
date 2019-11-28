@@ -7,6 +7,7 @@ import store from './store'
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import '@/style/Common'
+import VueTinyLazyloadImg from 'vue-tiny-lazyload-img'
 
 const config = {
   apiKey: process.env.VUE_APP_API_KEY,
@@ -18,6 +19,7 @@ const config = {
 }
 firebase.initializeApp(config)
 Vue.config.productionTip = false
+Vue.use(VueTinyLazyloadImg)
 
 /* eslint-disable no-new */
 const unsubscribe = firebase.auth()
