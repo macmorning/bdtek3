@@ -6,7 +6,7 @@
           single-line
           class="blue-grey lighten-1  white--text">
         <v-btn class="white--text" text @click="closeList" title="fermer"><v-icon>mdi-close</v-icon></v-btn>
-        BDTek Users
+        Utilisateurs de bdtek
       </v-banner>
       <v-card-title>
         <div class="flex-grow-1"></div>
@@ -26,10 +26,10 @@
           :headers="headersUsers"
           :items="users"
           :search="search"
-          :items-per-page="100"
+          :items-per-page="20"
           :footer-props="{
             showFirstLastPage: false,
-            itemsPerPageOptions: [100, 200, 500]
+            itemsPerPageOptions: [20, 50, 100]
           }"
           @click:row="hop"
           item-key="userId"

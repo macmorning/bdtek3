@@ -26,8 +26,11 @@ export default new Vuex.Store({
     selectedBooks: [],
     multiEdit: {
       series: null,
+      seriesBool: false,
       author: null,
-      publisher: null
+      authorBool: false,
+      publisher: null,
+      publisherBool: false
     },
     options: {
       bgRandom: true
@@ -296,16 +299,16 @@ export default new Vuex.Store({
           book['uid'] = snapshot.key
         }
         commit('addBook', book)
-        dispatch('cacheBooks')
+        this.dispatch('cacheBooks')
       })
 
       firebase.database().ref(`bd/${uid}`).on('child_removed', (snapshot) => {
         commit('removeBook', snapshot)
-        dispatch('cacheBooks')
+        this.dispatch('cacheBooks')
       })
       firebase.database().ref(`bd/${uid}`).on('child_changed', (snapshot) => {
         commit('updateBook', snapshot)
-        dispatch('cachebooks')
+        this.dispatch('cacheBooks')
       })
     },
     currentBookDelete ({ commit }, book) {
@@ -345,9 +348,9 @@ export default new Vuex.Store({
     saveMultiBook ({ commit }) {
       this.state.selectedBooks.forEach((book) => {
         if (book.uid) {
-          book.series = (this.state.multiEdit.series !== null ? this.state.multiEdit.series : book.series)
-          book.publisher = (this.state.multiEdit.publisher !== null ? this.state.multiEdit.publisher : book.publisher)
-          book.author = (this.state.multiEdit.author !== null ? this.state.multiEdit.author : book.author)
+          book.series = (this.state.multiEdit.seriesBool ? this.state.multiEdit.series : book.series)
+          book.publisher = (this.state.multiEdit.publisherBool ? this.state.multiEdit.publisher : book.publisher)
+          book.author = (this.state.multiEdit.authorBool ? this.state.multiEdit.author : book.author)
           commit('setCurrentBook', book)
           this.dispatch('currentBookSave')
         }

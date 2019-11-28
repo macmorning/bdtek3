@@ -63,7 +63,7 @@
                     ></v-combobox>
                 </v-col>
                 <v-col cols="12" lg="6">
-                    <v-text-field v-model="editedItem.edition" :readonly='readonly' label="Edition"></v-text-field>
+                    <v-text-field v-model="editedItem.edition" :readonly='readonly' label="Détails sur l'édition"></v-text-field>
                 </v-col>
                 <v-col cols="12" lg="6">
                   <v-text-field

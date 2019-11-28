@@ -2,18 +2,39 @@
     <v-row>
         <v-col cols="12">
             <v-row>
-                <v-col cols="12">
+                <v-col cols="1">
+                    <v-checkbox
+                      v-model="multiEdit.seriesBool"
+                    ></v-checkbox>
+                </v-col>
+                <v-col cols="11">
                     <v-combobox
+                      :disabled="!multiEdit.seriesBool"
                       v-model="multiEdit.series"
                       :items="series"
                       label="Série"
                     ></v-combobox>
                 </v-col>
-                <v-col cols="12">
-                    <v-text-field v-model="multiEdit.author" label="Auteur(s)"></v-text-field>
+                <v-col cols="1">
+                    <v-checkbox
+                      v-model="multiEdit.authorBool"
+                    ></v-checkbox>
                 </v-col>
-                <v-col cols="12">
+                <v-col cols="11">
+                    <v-text-field 
+                      :disabled="!multiEdit.authorBool"
+                      v-model="multiEdit.author" 
+                      label="Auteur(s)">
+                    </v-text-field>
+                </v-col>
+                <v-col cols="1">
+                    <v-checkbox
+                      v-model="multiEdit.publisherBool"
+                    ></v-checkbox>
+                </v-col>
+                <v-col cols="11">
                     <v-combobox
+                      :disabled="!multiEdit.publisherBool"
                       v-model="multiEdit.publisher"
                       :items="publishers"
                       label="Editeur"

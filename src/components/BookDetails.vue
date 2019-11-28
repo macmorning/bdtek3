@@ -1,6 +1,6 @@
 <template>
     <v-row>
-        <v-col cols="10" offset="1" lg="8" offset-lg="1"><blockquote class="blockquote">
+        <v-col cols="10" offset="1" lg="8" offset-lg="1">
             <v-row>
               <span class="blue-grey--text text--lighten-2">ISBN&nbsp;:&nbsp;</span>{{editedItem.uid}}
             </v-row>
@@ -28,7 +28,7 @@
             <v-row v-if="editedItem.dateAdded">
               <span class="blue-grey--text text--lighten-2">Date d'ajout&nbsp;:&nbsp;</span>{{editedItem.dateAdded}}
             </v-row>
-        </blockquote></v-col>
+        </v-col>
         <v-col cols="12" lg="2">
             <v-card flat tile class="d-flex"><v-img
               aspect-ratio="1"

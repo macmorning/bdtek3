@@ -34,17 +34,10 @@ export default {
     }
   },
   created () {
-    setTimeout(() => {
-      this.user = this.storedUser
-      this.displayName = this.storedUser.displayName
-      this.visibleToAll = this.storedUser.visibleToAll
-      if (this.storedUser.visibleToAll === undefined) {
-        setTimeout(() => {
-          this.visibleToAll = this.storedUser.visibleToAll
-        }, 500)
-      }
-      this.bgRandom = this.storedOptions.bgRandom
-    }, 500)
+    this.user = this.storedUser
+    this.displayName = this.storedUser.displayName
+    this.visibleToAll = this.storedUser.visibleToAll
+    this.bgRandom = this.storedOptions.bgRandom
   },
   methods: {
     closeOptions () {

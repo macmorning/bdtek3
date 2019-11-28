@@ -23,15 +23,14 @@
           </v-banner>
           <v-card-title>
             <div class="flex-grow-1"></div>
-              <v-text-field
+              <v-combobox
                 v-model="search"
+                :items="series"
                 append-icon="mdi-magnify"
                 label="Recherche"
-                single-line
-                hide-details
                 append-outer-icon="mdi-window-close"
                 @click:append-outer="clearSearch"
-              ></v-text-field>
+              ></v-combobox>
           </v-card-title>
             <v-data-table
               :loading="isLoading"
@@ -107,7 +106,7 @@
         sticky
         single-line
         class="blue-grey lighten-1  white--text">
-        <v-btn class="white--text" text @click="close" title="fermer"><v-icon>mdi-backburger</v-icon></v-btn>
+        <v-btn class="white--text" text @click="close" title="fermer"><v-icon>mdi-close</v-icon></v-btn>
           {{ formTitle }}
           <template v-slot:actions>
             <v-btn :loading="book.needLookup == 1" v-if="!cached && !friendId" class="white--text" text @click="askLookup" title="rechercher les détails"><v-icon>mdi-magnify</v-icon></v-btn>
@@ -129,7 +128,7 @@
         sticky
         single-line
         class="blue-grey lighten-1  white--text">
-        <v-btn class='white--text' text @click='close' title='fermer'><v-icon>mdi-backburger</v-icon></v-btn>
+        <v-btn class='white--text' text @click='close' title='fermer'><v-icon>mdi-close</v-icon></v-btn>
           Nouveau livre
           <template v-slot:actions>
             <v-btn class='white--text' text @click='scanSwitch' title='scanner'><v-icon>mdi-barcode-scan</v-icon></v-btn>
@@ -156,10 +155,10 @@
         sticky
         single-line
         class="blue-grey lighten-1  white--text">
-        <v-btn class="white--text" text @click="close" title="fermer"><v-icon>mdi-backburger</v-icon></v-btn>
+        <v-btn class="white--text" text @click="close" title="fermer"><v-icon>mdi-close</v-icon></v-btn>
           Edition multiple
           <template v-slot:actions>
-            <v-btn class="white--text" text @click="saveMulti" title="enregistrer"><v-icon>mdi-floppy</v-icon></v-btn>
+            <v-btn :disabled="!multiEdit.seriesBool && !multiEdit.authorBool && !multiEdit.publisherBool" class="white--text" text @click="saveMulti" title="enregistrer"><v-icon>mdi-floppy</v-icon></v-btn>
           </template>
         </v-banner>
         <v-card-text>
@@ -190,7 +189,7 @@
         right
         title="édition multiple"
         v-if="!friendId && !cached && selectedBooks.length>0"
-        @click="multiEdit">
+        @click="openMultiEdit">
      <v-badge
       color="cyan"
       left>
@@ -358,7 +357,7 @@ export default {
       this.$store.dispatch('currentBookClear')
       this.dialogNew = true
     },
-    multiEdit () {
+    openMultiEdit () {
       this.expanded = []
       this.$store.dispatch('currentBookClear')
       this.dialogMulti = true
@@ -385,16 +384,17 @@ export default {
       }, 500)
     },
     saveMulti () {
-      if (this.selectedBooks.length < 5 || confirm('Êtes-vous certain de vouloir modifier les ' + this.selectedBooks.length + ' livres sélectionnés ?')) {
+      if (confirm('Êtes-vous certain de vouloir modifier les ' + this.selectedBooks.length + ' livres sélectionnés ?')) {
         setTimeout(() => {
           this.$store.dispatch('saveMultiBook')
-          close()
+          this.dialogMulti = false
         }, 100)
       }
     },
     save () {
       setTimeout(() => {
         this.$store.dispatch('currentBookSave')
+        this.dialogEdit = false
       }, 100)
     },
     itemSelected (payload) {
@@ -480,8 +480,14 @@ export default {
         return ''
       }
     },
+    series () {
+      return this.$store.state.series
+    },
     headers () {
       if (this.$vuetify.breakpoint.xl) { return this.headersXL } else if (this.$vuetify.breakpoint.lg || this.$vuetify.breakpoint.md) { return this.headersMD } else { return this.headersSM }
+    },
+    multiEdit () {
+      return this.$store.state.multiEdit
     }
   },
   watch: {
