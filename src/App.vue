@@ -164,7 +164,7 @@ export default {
       }
     },
     imgNumber () {
-      let num = ((Math.floor(Math.random() * Math.floor(this.maxImgNum))) + 1).toString().padStart(2, '0')
+      const num = ((Math.floor(Math.random() * Math.floor(this.maxImgNum))) + 1).toString().padStart(2, '0')
       return num
     }
   },

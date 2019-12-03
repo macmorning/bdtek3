@@ -42,9 +42,15 @@ export default {
     },
     shareUrl () {
       if (!this.$store.state.user) { return false }
-      let userId = this.$route.query.uid ? this.$route.query.uid : this.$store.state.user.uid
-      let userName = this.$route.query.uid && this.$route.query.name ? this.$route.query.name : this.$store.state.user.displayName
+      const userId = this.friendId ? this.friendId : this.$store.state.user.uid
+      const userName = this.friendId && this.friendName ? this.friendName : this.$store.state.user.displayName
       return (window.location.origin + '/user/' + userId + '?name=' + userName)
+    },
+    friendId () {
+      return this.$route.params.uid
+    },
+    friendName () {
+      return (this.$route.query.name || 'unknown')
     }
   }
 }

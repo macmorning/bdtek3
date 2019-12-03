@@ -69,8 +69,8 @@ export default new Vuex.Store({
     },
     removeBook (state, payload) {
       // trouver la position du livre modifié dans le tableau des livres actuel
-      let pos = state.books.map(function (e) { return e.uid }).indexOf(payload.key)
-      let book = payload.val()
+      const pos = state.books.map(function (e) { return e.uid }).indexOf(payload.key)
+      const book = payload.val()
 
       if (pos > -1 && state.books[pos].uid === book.uid) {
         delete state.books.splice(pos, 1)
@@ -90,7 +90,7 @@ export default new Vuex.Store({
       })
     },
     addBook (state, payload) {
-      let pos = state.books.map(function (e) { return e.uid }).indexOf(payload.key)
+      const pos = state.books.map(function (e) { return e.uid }).indexOf(payload.key)
       if (pos === -1) {
         state.books.push(payload)
         if (state.series.indexOf(payload.series) === -1) {
@@ -105,12 +105,12 @@ export default new Vuex.Store({
     },
     updateBook (state, payload) {
       // trouver la position du livre modifié dans le tableau des livres actuel
-      let pos = state.books.map(function (e) { return e.uid }).indexOf(payload.key)
-      let book = payload.val()
+      const pos = state.books.map(function (e) { return e.uid }).indexOf(payload.key)
+      const book = payload.val()
       if (pos > -1 && state.books[pos].uid === book.uid) {
         state.books[pos] = Object.assign(state.books[pos], book)
       }
-      if (state.currentBook['uid'] === book['uid']) {
+      if (state.currentBook.uid === book.uid) {
         state.currentBook = Object.assign(state.currentBook, book)
       }
     },
@@ -122,7 +122,7 @@ export default new Vuex.Store({
     },
     setUsers (state, payload) {
       state.users = []
-      for (let key in payload) {
+      for (const key in payload) {
         if (payload[key].visibleToAll === undefined || payload[key].visibleToAll === true) {
           state.users.push({
             userId: key,
@@ -160,7 +160,7 @@ export default new Vuex.Store({
       commit('setLoading', true)
       firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
         .then(firebaseUser => {
-          let defaultDisplayName = firebaseUser.user.email.substring(0, firebaseUser.user.email.indexOf('@'))
+          const defaultDisplayName = firebaseUser.user.email.substring(0, firebaseUser.user.email.indexOf('@'))
           firebase.auth().currentUser.updateProfile({ displayName: defaultDisplayName })
           firebase.database().ref(`bd/${firebaseUser.user.uid}`).set(true).then(() => {
             commit('setUser', { email: firebaseUser.user.email, uid: firebaseUser.user.uid, displayName: defaultDisplayName })
@@ -195,7 +195,7 @@ export default new Vuex.Store({
     },
     userSignInGoogle ({ dispatch, commit }) {
       commit('setLoading', true)
-      let provider = new firebase.auth.GoogleAuthProvider()
+      const provider = new firebase.auth.GoogleAuthProvider()
       firebase.auth().signInWithPopup(provider).then((firebaseUser) => {
         dispatch('doSignIn', firebaseUser.user)
         commit('setError', null)
@@ -209,7 +209,7 @@ export default new Vuex.Store({
       })
     },
     doSignIn ({ commit }, payload) {
-      let user = { uid: payload.uid, email: payload.email, displayName: payload.displayName, photoURL: payload.photoURL }
+      const user = { uid: payload.uid, email: payload.email, displayName: payload.displayName, photoURL: payload.photoURL }
       commit('setOptionBgRandom')
       commit('setUser', user)
       firebase.database().ref(`users/${payload.uid}`).once('value').then((snapshot) => {
@@ -239,7 +239,7 @@ export default new Vuex.Store({
     },
     fetchUsers ({ commit }, payload) {
       commit('setLoading', true)
-      firebase.database().ref(`users`).orderByChild('displayName').once('value').then((snapshot) => {
+      firebase.database().ref('users').orderByChild('displayName').once('value').then((snapshot) => {
         commit('setLoading', false)
         commit('setUsers', snapshot.val())
       })
@@ -247,12 +247,12 @@ export default new Vuex.Store({
     fetchFriendBooks ({ commit }, uid) {
       commit('setLoading', true)
       firebase.database().ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).once('value').then((snapshot) => {
-        let booksObj = snapshot.val()
-        let booksArray = []
+        const booksObj = snapshot.val()
+        const booksArray = []
         if (booksObj !== null) {
-          for (let [key, book] of Object.entries(booksObj)) {
-            if (book['uid'] === undefined) {
-              book['uid'] = key
+          for (const [key, book] of Object.entries(booksObj)) {
+            if (book.uid === undefined) {
+              book.uid = key
             }
             booksArray.push(book)
           }
@@ -276,13 +276,13 @@ export default new Vuex.Store({
       let newItems = false
 
       commit('setLoading', true)
-      let uid = this.state.user.uid
+      const uid = this.state.user.uid
       firebase.database().ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).once('value', (snapshot) => {
-        let booksObj = snapshot.val()
-        let booksArray = []
-        for (let [key, book] of Object.entries(booksObj)) {
-          if (book['uid'] === undefined) {
-            book['uid'] = key
+        const booksObj = snapshot.val()
+        const booksArray = []
+        for (const [key, book] of Object.entries(booksObj)) {
+          if (book.uid === undefined) {
+            book.uid = key
           }
           booksArray.push(book)
         }
@@ -294,9 +294,9 @@ export default new Vuex.Store({
 
       firebase.database().ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).on('child_added', (snapshot) => {
         if (!newItems) { return }
-        let book = snapshot.val()
-        if (book['uid'] === undefined) {
-          book['uid'] = snapshot.key
+        const book = snapshot.val()
+        if (book.uid === undefined) {
+          book.uid = snapshot.key
         }
         commit('addBook', book)
         this.dispatch('cacheBooks')
@@ -329,7 +329,7 @@ export default new Vuex.Store({
       commit('setCurrentBook', {})
     },
     currentBookSave ({ commit }) {
-      let book = this.state.currentBook
+      const book = this.state.currentBook
       if (book === undefined || book.uid === undefined || !book.uid) {
         return false
       }
@@ -360,13 +360,13 @@ export default new Vuex.Store({
       if (uid === undefined || !uid) {
         return false
       }
-      let pos = this.state.books.map(function (e) { return e.uid }).indexOf(uid)
+      const pos = this.state.books.map(function (e) { return e.uid }).indexOf(uid)
       if (pos > -1) {
         commit('setError', 'Un livre portant cette référence est déjà dans votre bibliothèque')
         return false
       }
       commit('setLoading', true)
-      let book = {}
+      const book = {}
       book.uid = uid
       book.series = null
       book.needLookup = 1
@@ -389,7 +389,7 @@ export default new Vuex.Store({
     },
     async cacheBooks () {
       localStorage.setItem('collection.books', JSON.stringify(this.state.books))
-      let currentTime = new Date()
+      const currentTime = new Date()
       localStorage.setItem('collection.booksLastSaved', currentTime.getFullYear() + '-' + (currentTime.getMonth() + 1).toString().padStart(2, '0') + '-' + currentTime.getDate().toString().padStart(2, '0') + ' ' + currentTime.getHours().toString().padStart(2, '0') + ':' + currentTime.getMinutes().toString().padStart(2, '0'))
     }
   },

@@ -9,7 +9,7 @@
               sticky
               single-line
               class="blue-grey lighten-1 white--text">
-            <v-btn class="white--text" text @click="backToHome" title="fermer"><v-icon>mdi-close</v-icon></v-btn>
+            <v-btn :disabled="!this.$store.state.user" class="white--text" text @click="backToHome" title="fermer"><v-icon>mdi-close</v-icon></v-btn>
             Liste de {{ friendName }}
             </v-banner>
           <v-banner
@@ -44,7 +44,7 @@
               item-key="uid"
               fixed-header
               multi-sort
-              :mobile-breakpoint="960"
+              :mobile-breakpoint="1"
               class="elevation-1"
               :footer-props="{
                 showFirstLastPage: (!$vuetify.breakpoint.xs && !$vuetify.breakpoint.sm),
@@ -55,8 +55,7 @@
               single-expand
               v-model="selectedBooks"
               :expanded="expanded"
-              @click:row="expandRow"
-              :dense="$vuetify.breakpoint.xs || $vuetify.breakpoint.sm">
+              @click:row="expandRow">
               <template v-slot:loading>
                   <p>chargement de la collection</p>
                   <p v-if="!friendId && !cached && cachedBooksTime">chargement trop long ou hors connexion ?<br/>
@@ -88,6 +87,7 @@
                       v-if="$vuetify.breakpoint.xs || $vuetify.breakpoint.sm">
                     <template v-slot:actions>
                       <a class="mr-6" v-if="currentBook.detailsURL" :href="currentBook.detailsURL" v-on:click.stop="" target="_blank" title="ouvrir l'url"><v-icon class="white--text">mdi-link-variant</v-icon></a>
+                      <a class="mr-6 d-md-none" v-if="currentBook.imageURL" :href="currentBook.imageURL" v-on:click.stop="" target="_blank" title="afficher l'image"><v-icon class="white--text">mdi-file-image</v-icon></a>
                       <v-icon v-if="!cached && !friendId" class="white--text mr-6" text v-on:click.stop="deleteItem(currentBook)" title="supprimer">mdi-delete</v-icon>
                       <v-icon v-if="!cached && !friendId" class="white--text" text v-on:click.stop="editItem(currentBook)" title="modifier">mdi-pen</v-icon>
                     </template>
@@ -237,9 +237,6 @@ export default {
         }, {
           value: 'volume',
           text: '#'
-        }, {
-          value: 'author',
-          text: 'Auteur(s)'
         }
       ],
       headersMD: [
@@ -402,7 +399,7 @@ export default {
       this.$store.commit('bookSelected', payload)
     },
     itemUnselectAll () {
-      let payload = {
+      const payload = {
         value: false
       }
       this.$store.commit('bookSelectedAll', payload)
