@@ -1,5 +1,6 @@
 <template>
-    <v-row>
+  <div :style="background">
+    <v-row style="background:white;opacity:0.9;">
         <v-col cols="10" offset="1" md="8" offset-md="1">
             <v-row>
               <span class="blue-grey--text text--lighten-2">ISBN&nbsp;:&nbsp;</span>{{editedItem.uid}}
@@ -30,7 +31,7 @@
             </v-row>
         </v-col>
         <v-col class="d-none d-md-block" cols="2">
-            <v-card flat tile class="d-flex"><img
+            <v-card flat tile class="d-flex" style="background-color:transparent;"><img
               v-lazyload
               src="/img/loading.gif"
               aspect-ratio="1"
@@ -38,12 +39,12 @@
               :data-src="editedItem.imageURL ? editedItem.imageURL.toString() : ''"
               data-err="/img/not_found.webp"
               position="center"
-              max-height="200px"
+              style="max-height:200px;cursor:pointer;"
               v-on:click.stop="openImage"
-              style="cursor:pointer;"
             /></v-card>
         </v-col>
     </v-row>
+  </div>
 </template>
 
 <script>
@@ -62,6 +63,13 @@ export default {
     }
   },
   computed: {
+    background () {
+      if (this.$store.state.currentBook.imageURL) {
+        return 'background-image:url("' + this.$store.state.currentBook.imageURL.toString() + '");background-position:center;background-size:cover;'
+      } else {
+        return ''
+      }
+    },
     editedItem () {
       return this.$store.state.currentBook
     }
