@@ -153,7 +153,7 @@ export default {
           'background-position': 'center',
           'background-size': 'cover',
           'background-attachment': 'fixed',
-          'background-image': 'url(/img/' + this.imgNumber + '.webp)',
+          'background-image': 'url(' + this.imgUrl + ')',
           'min-height': '100%'
         }
       } else {
@@ -163,9 +163,21 @@ export default {
         }
       }
     },
-    imgNumber () {
-      const num = ((Math.floor(Math.random() * Math.floor(this.maxImgNum))) + 1).toString().padStart(2, '0')
-      return num
+    imgUrl () {
+      let url = ''
+      url = '/img/' + this.getRandomNumber(this.maxImgNum).toString().padStart(2, '0') + '.webp'
+      if (this.$store.state.books.length > 0) {
+        let iterations = 0
+        let randURL = ''
+        do {
+          iterations++
+          randURL = this.$store.state.books[this.getRandomNumber(this.$store.state.books.length)].imageURL
+          if (randURL !== '') {
+            return randURL
+          }
+        } while (iterations < 5)
+      }
+      return url
     }
   },
   watch: {
@@ -213,6 +225,9 @@ export default {
     },
     userSignOut () {
       this.$store.dispatch('userSignOut')
+    },
+    getRandomNumber (max) {
+      return Math.floor(Math.random() * Math.floor(max)) + 1
     }
   }
 }

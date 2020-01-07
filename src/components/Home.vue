@@ -473,7 +473,7 @@ export default {
     },
     opacity () {
       if (this.bgRandom) {
-        return 'opacity:.8;'
+        return 'opacity:.9;'
       } else {
         return ''
       }

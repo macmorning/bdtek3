@@ -31,17 +31,23 @@
             </v-row>
         </v-col>
         <v-col class="d-none d-md-block" cols="2">
-            <v-card flat tile class="d-flex" style="background-color:transparent;"><img
-              v-lazyload
-              src="/img/loading.gif"
+            <v-img
+              v-if="editedItem.imageURL.toString() !== ''"
+              :src="editedItem.imageURL.toString()"
               aspect-ratio="1"
-              :v-if="editedItem.imageURL"
-              :data-src="editedItem.imageURL ? editedItem.imageURL.toString() : ''"
-              data-err="/img/not_found.webp"
-              position="center"
-              style="max-height:200px;cursor:pointer;"
+              class="grey lighten-2"
               v-on:click.stop="openImage"
-            /></v-card>
+            >
+              <template v-slot:placeholder>
+                <v-row
+                  class="fill-height ma-0"
+                  align="center"
+                  justify="center"
+                >
+                  <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                </v-row>
+              </template>
+            </v-img>
         </v-col>
     </v-row>
   </div>

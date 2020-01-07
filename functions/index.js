@@ -40,7 +40,9 @@ const formatDate = (date) => {
     if (Date.parse(date) > 0) { return date; }
     else if (date.indexOf("/") > -1) {
         let d = date.split("/");
-        return (d[2] + "-" + d[1] + "-" + d[0]);
+        let newDate = d[2] + "-" + d[1] + "-" + d[0];
+        console.info("formatDate > converting " + date + " to " + newDate);
+        return (newDate);
     }
 }
 
