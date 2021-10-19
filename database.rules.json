@@ -1,22 +1,22 @@
 {
-    "rules": {
-      ".read": "auth !== null",
-      "bd": {
-        "$usernode": {
+  "rules": {
+    ".read": "auth !== null",
+    "bd": {
+      "$usernode": {
+        ".read": true,
+        ".write": "auth != null && auth.uid == $usernode",
+        "$uid": {
           ".read": true,
           ".write": "auth != null && auth.uid == $usernode",
-          "$uid" : {
-            ".read": true,
-            ".write": "auth != null && auth.uid == $usernode",
-            ".indexOn": "computedOrderField"
-          }
-        }
-      },
-      "users": {
-        "$usernode": {
-          ".read": true,
-          ".write": "auth != null && auth.uid == $usernode"
+          ".indexOn": "computedOrderField"
         }
       }
+    },
+    "users": {
+      "$usernode": {
+        ".read": true,
+        ".write": "auth != null && auth.uid == $usernode"
+      }
     }
+  }
 }
