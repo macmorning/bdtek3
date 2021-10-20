@@ -1,15 +1,12 @@
 const functions = require('firebase-functions'),
-       admin = require('firebase-admin'),
-      rp =require('request-promise'),
-      htmlparser = require("htmlparser2"),
-      select = require('soupselect').select;
-     
+        admin = require('firebase-admin'),
+        rp =require('request-promise'),
+        htmlparser = require("htmlparser2"),
+        select = require('soupselect').select;
+
 admin.initializeApp();
 
 const lookupConfig = {
-  // set using firebase functions:config:set libthing.key=...
-  libthing_api_key: functions.config().libthing.key || false,
-  libthing_baseurl: "https://www.librarything.com/services/rest/1.1/?method=librarything.ck.getwork&isbn=@@isbn@@&apikey=@@apikey@@",
   leslibraires_baseurl: "https://www.leslibraires.fr/recherche/?q=@@isbn@@"
 };
 const fieldNames = {
@@ -21,7 +18,7 @@ const fieldNames = {
 }
 const getText = (node) => {
     if(node.type === "text") {
-        return node.data;
+        return node.text.trim();
     }
     if (node.children.length > 0) {
         let text = "";
@@ -32,7 +29,7 @@ const getText = (node) => {
                 text += item.children[0].data;
             }
         });
-        return text;
+        return (text ? text.trim() : false);
     }
 }
 
@@ -53,7 +50,6 @@ exports.fetchBookInformations = functions.database.ref('/bd/{user}/{ref}/needLoo
         return null;
     }
     console.info("lookup for > " + isbn);
-    //let url = lookupConfig.libthing_baseurl.replace("@@apikey@@",lookupConfig.libthing_api_key).replace("@@isbn@@",isbn);
     let url = lookupConfig.leslibraires_baseurl.replace("@@isbn@@",isbn);
 
     return rp({ url: url, followRedirect: true, simple: false }).then(function(resp) {
@@ -62,38 +58,67 @@ exports.fetchBookInformations = functions.database.ref('/bd/{user}/{ref}/needLoo
             if (error)
                 console.error(error);
             else {
-                let sel = select(dom, '.dl-horizontal dt');
-                sel.forEach((elem) => {
-                        if (elem.children === undefined || elem.next === undefined || elem.next.children === undefined) return;
-                        let currentFieldName = elem.children[0].data;
-                        if (fieldNames[currentFieldName]) {
-                            let text = false;
-                            try {
-                                text = getText(elem.next);
-                            } catch (e) {
-                                text = false;
+
+                let sel = select(dom,"dd");
+                sel.forEach(item => {
+                    if (item.attribs && item.attribs.itemprop) {
+                        if (item.attribs.itemprop == "publisher") {
+                            informations["publisher"] = getText(item);
+                        } else if (item.attribs.itemprop == "datePublished") {
+                            informations["published"] = formatDate(getText(item));
+                        }
+                    }
+                });
+
+                sel = select(dom, 'dl.dl-horizontal');
+                let currentFieldName;
+                sel[0].children.forEach((elem) => {
+                        if (elem.next === undefined || !elem.next) return;
+                        if (elem.next.name == "dt") {
+                            if (fieldNames[getText(elem.next)]) {
+                                currentFieldName = getText(elem.next);
+                            } else { 
+                                currentFieldName = "";
                             }
-                            // cas particulier de "Collection" ou "Série" qui inclut le numéro du volume entre parenthèses
-                            if (text && (currentFieldName === "Collection" || currentFieldName === "Séries") && elem.next.children[1] !== undefined) {
-                                const regex = /(\d{1,4})/gm;
-                                let m = regex.exec(elem.next.children[1].data);
-                                informations["volume"] = parseInt(m[0]);
-                                text = text.replace(/\n.*/gm,"");
-                            }
-                            if (text) {
-                                informations[fieldNames[currentFieldName]] = text;
+                        }
+                        if (elem.next.name == "dd") {
+                            if (currentFieldName) {
+                                let text = getText(elem.next);
+                                // cas particulier de "Collection" ou "Série" qui inclut le numéro du volume entre parenthèses
+                                if (text && (currentFieldName === "Collection" || currentFieldName === "Séries")) {
+                                    const regex = /(\d{1,4})/gm;
+                                    let m = regex.exec(text);
+                                    informations["volume"] = parseInt(m[0]);
+                                    text = text.replace(/\n.*/gm,"");
+                                }
+                                if (text) {
+                                    informations[fieldNames[currentFieldName]] = text;
+                                }
                             }
                         }
                 });
+
                 sel = select(dom,".main-infos h1 span");
-                if(sel[0] !== undefined) {
+                if (sel[0] !== undefined) {
                     informations["title"] = getText(sel[0]);
                 } 
 
-                sel = select(dom,".main-infos h2");
-                if(sel[0] !== undefined) {
-                    informations["author"] = getText(sel[0]);
-                } 
+                sel = select(dom, 'div.main-infos h2');
+                if (sel[0] !== undefined && getText(sel[0])) {
+                    informations["title"] = getText(sel[0]);
+                }
+
+                sel = select(dom,"a");
+                let authors = "";
+                sel.forEach(item => {
+                    if (item.attribs && item.attribs.itemprop == "author") {
+                        if (authors) {
+                            authors += ",";
+                        }
+                        authors += getText(item);
+                    } 
+                });
+                informations["author"] = authors;
 
                 informations["detailsURL"] = url;
                 sel = select(dom,"div.image a div img");

@@ -14,9 +14,10 @@
   },
   "dependencies": {
     "domutils": "^2.0.0",
-    "firebase-admin": "^8.4.0",
-    "firebase-functions": "^3.2.0",
+    "firebase-admin": "^10.0.0",
+    "firebase-functions": "^3.15.7",
     "htmlparser2": "^4.0.0",
+    "node-html-parser": "^5.0.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "soupselect": "^0.2.0",
