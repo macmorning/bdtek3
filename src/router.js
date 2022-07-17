@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import firebase from 'firebase/app'
-import 'firebase/auth'
+import firebase from './initFirebase'
 
 const routerOptions = [
   { path: '/', component: 'Home' },
@@ -26,10 +25,10 @@ const router = new Router({
   mode: 'history',
   routes
 })
-
+const auth = firebase.auth;
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
-  const isAuthenticated = firebase.auth().currentUser
+  const isAuthenticated = auth.currentUser
   if (requiresAuth && !isAuthenticated) {
     next('/signin')
   } else {

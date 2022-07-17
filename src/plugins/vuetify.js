@@ -1,19 +1,8 @@
 import Vue from 'vue'
-import Vuetify, {
-  VCard,
-  VToolbar
-} from 'vuetify/lib'
-import { Ripple } from 'vuetify/lib/directives'
+import Vuetify from 'vuetify/lib'
+// import { Ripple } from 'vuetify/lib/directives'
 
-Vue.use(Vuetify, {
-  components: {
-    VCard,
-    VToolbar
-  },
-  directives: {
-    Ripple
-  }
-})
+Vue.use(Vuetify)
 
 const opts = {}
 

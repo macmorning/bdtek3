@@ -1,10 +1,11 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import firebase from 'firebase/app'
-import 'firebase/auth'
-import 'firebase/database'
+import firebase from './initFirebase'
+import { sendPasswordResetEmail, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signOut } from 'firebase/auth'
 import router from '@/router'
 
+const auth = firebase.auth;
+const database = firebase.database;
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -146,7 +147,7 @@ export default new Vuex.Store({
   actions: {
     userResetPwd ({ commit }, payload) {
       commit('setLoading', true)
-      firebase.auth().sendPasswordResetEmail(payload.email)
+      sendPasswordResetEmail(auth, payload.email)
         .then(() => {
           commit('setLoading', false)
           commit('setSuccess', 'Email envoyé')
@@ -158,11 +159,11 @@ export default new Vuex.Store({
     },
     userSignUp ({ commit }, payload) {
       commit('setLoading', true)
-      firebase.auth().createUserWithEmailAndPassword(payload.email, payload.password)
+      createUserWithEmailAndPassword(auth, payload.email, payload.password)
         .then(firebaseUser => {
           const defaultDisplayName = firebaseUser.user.email.substring(0, firebaseUser.user.email.indexOf('@'))
-          firebase.auth().currentUser.updateProfile({ displayName: defaultDisplayName })
-          firebase.database().ref(`bd/${firebaseUser.user.uid}`).set(true).then(() => {
+          auth.currentUser.updateProfile({ displayName: defaultDisplayName })
+          database.ref(`bd/${firebaseUser.user.uid}`).set(true).then(() => {
             commit('setUser', { email: firebaseUser.user.email, uid: firebaseUser.user.uid, displayName: defaultDisplayName })
             commit('setSuccess', 'Votre compte a été créé. Bienvenue !')
             router.push('/')
@@ -180,7 +181,7 @@ export default new Vuex.Store({
     },
     userSignIn ({ dispatch, commit }, payload) {
       commit('setLoading', true)
-      firebase.auth().signInWithEmailAndPassword(payload.email, payload.password).then(firebaseUser => {
+      signInWithEmailAndPassword(payload.email, payload.password).then(firebaseUser => {
         dispatch('doSignIn', firebaseUser.user)
         commit('setError', null)
         setTimeout(() => {
@@ -196,7 +197,7 @@ export default new Vuex.Store({
     userSignInGoogle ({ dispatch, commit }) {
       commit('setLoading', true)
       const provider = new firebase.auth.GoogleAuthProvider()
-      firebase.auth().signInWithPopup(provider).then((firebaseUser) => {
+      signInWithPopup(provider).then((firebaseUser) => {
         dispatch('doSignIn', firebaseUser.user)
         commit('setError', null)
         setTimeout(() => {
@@ -212,7 +213,7 @@ export default new Vuex.Store({
       const user = { uid: payload.uid, email: payload.email, displayName: payload.displayName, photoURL: payload.photoURL }
       commit('setOptionBgRandom')
       commit('setUser', user)
-      firebase.database().ref(`users/${payload.uid}`).once('value').then((snapshot) => {
+      database.ref(`users/${payload.uid}`).once('value').then((snapshot) => {
         Object.assign(user, snapshot.val())
         if (user.visibleToAll === undefined) {
           user.visibleToAll = true
@@ -221,8 +222,8 @@ export default new Vuex.Store({
       })
     },
     userSignOut ({ commit }) {
-      firebase.database().ref(`bd/${this.state.user.uid}`).off()
-      firebase.auth().signOut()
+      database.ref(`bd/${this.state.user.uid}`).off()
+      signOut(auth)
       commit('resetBooks')
       commit('setUser', null)
       commit('setSelectedBooks', [])
@@ -230,23 +231,23 @@ export default new Vuex.Store({
     },
     userUpdate ({ commit }, payload) {
       commit('setUser', payload)
-      firebase.auth().currentUser.updateProfile({ displayName: payload.displayName }).then(() => {
+      auth.currentUser.updateProfile({ displayName: payload.displayName }).then(() => {
         commit('setSuccess', 'Vos préférences sont enregistrées')
-        firebase.database().ref(`users/${payload.uid}`).update({ displayName: payload.displayName, visibleToAll: payload.visibleToAll })
+        database.ref(`users/${payload.uid}`).update({ displayName: payload.displayName, visibleToAll: payload.visibleToAll })
       }).catch((error) => {
         commit('setError', 'Vos préférences n\'ont pas été enregistrées : ' + error.message)
       })
     },
     fetchUsers ({ commit }, payload) {
       commit('setLoading', true)
-      firebase.database().ref('users').orderByChild('displayName').once('value').then((snapshot) => {
+      database.ref('users').orderByChild('displayName').once('value').then((snapshot) => {
         commit('setLoading', false)
         commit('setUsers', snapshot.val())
       })
     },
     fetchFriendBooks ({ commit }, uid) {
       commit('setLoading', true)
-      firebase.database().ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).once('value').then((snapshot) => {
+      database.ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).once('value').then((snapshot) => {
         const booksObj = snapshot.val()
         const booksArray = []
         if (booksObj !== null) {
@@ -277,7 +278,7 @@ export default new Vuex.Store({
 
       commit('setLoading', true)
       const uid = this.state.user.uid
-      firebase.database().ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).once('value', (snapshot) => {
+      database.ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).once('value', (snapshot) => {
         const booksObj = snapshot.val()
         const booksArray = []
         for (const [key, book] of Object.entries(booksObj)) {
@@ -292,7 +293,7 @@ export default new Vuex.Store({
         commit('setLoading', false)
       })
 
-      firebase.database().ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).on('child_added', (snapshot) => {
+      database.ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).on('child_added', (snapshot) => {
         if (!newItems) { return }
         const book = snapshot.val()
         if (book.uid === undefined) {
@@ -302,11 +303,11 @@ export default new Vuex.Store({
         this.dispatch('cacheBooks')
       })
 
-      firebase.database().ref(`bd/${uid}`).on('child_removed', (snapshot) => {
+      database.ref(`bd/${uid}`).on('child_removed', (snapshot) => {
         commit('removeBook', snapshot)
         this.dispatch('cacheBooks')
       })
-      firebase.database().ref(`bd/${uid}`).on('child_changed', (snapshot) => {
+      database.ref(`bd/${uid}`).on('child_changed', (snapshot) => {
         commit('updateBook', snapshot)
         this.dispatch('cacheBooks')
       })
@@ -314,7 +315,7 @@ export default new Vuex.Store({
     currentBookDelete ({ commit }, book) {
       if (book !== undefined && book.uid !== undefined && book.uid !== '') {
         commit('setLoading', true)
-        firebase.database().ref(`bd/${this.state.user.uid}/${book.uid}`).remove().then(() => {
+        database.ref(`bd/${this.state.user.uid}/${book.uid}`).remove().then(() => {
           commit('setSuccess', 'Livre retiré')
         })
           .catch((error) => {
@@ -335,7 +336,7 @@ export default new Vuex.Store({
       }
       commit('setLoading', true)
       book.computedOrderField = (book.series ? book.series + (book.volume ? '_' + book.volume.toString().padStart(4, '0') : '') : '') + '_' + book.title
-      firebase.database().ref(`bd/${this.state.user.uid}/${book.uid}`).update(book).then(() => {
+      database.ref(`bd/${this.state.user.uid}/${book.uid}`).update(book).then(() => {
         commit('setSuccess', 'Livre enregistré')
       })
         .catch((error) => {
@@ -372,7 +373,7 @@ export default new Vuex.Store({
       book.needLookup = 1
       book.dateAdded = new Date().getUTCFullYear() + '-' + (new Date().getUTCMonth() + 1).toString().padStart(2, '0') + '-' + new Date().getUTCDate().toString().padStart(2, '0')
       try {
-        firebase.database().ref(`bd/${this.state.user.uid}/${uid}`).set(book).then(() => {
+        database.ref(`bd/${this.state.user.uid}/${uid}`).set(book).then(() => {
           commit('setSuccess', 'Livre ajouté')
           commit('setCurrentBook', book)
         })
