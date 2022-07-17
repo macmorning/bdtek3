@@ -4,8 +4,9 @@
           style="top:0px"
           sticky
           single-line
-          class="blue-grey lighten-1  white--text">
-        <v-btn class="white--text" text @click="closeList" title="fermer"><v-icon>mdi-close</v-icon></v-btn>
+          class="blue-grey lighten-1  white--text"
+>
+        <v-btn class="white--text" text title="fermer" @click="closeList"><v-icon>mdi-close</v-icon></v-btn>
         Utilisateurs de bdtek
       </v-banner>
       <v-card-title>
@@ -31,11 +32,12 @@
             showFirstLastPage: false,
             itemsPerPageOptions: [20, 50, 100]
           }"
-          @click:row="hop"
           item-key="userId"
           fixed-header
           class="elevation-1 users-list"
-          :sort-by="['displayName']">
+          :sort-by="['displayName']"
+          @click:row="hop"
+>
         </v-data-table>
       </v-card>
 </template>
@@ -55,6 +57,17 @@ export default {
       ]
     }
   },
+  computed: {
+    error () {
+      return this.$store.state.error
+    },
+    isLoading () {
+      return this.$store.state.loading
+    },
+    users () {
+      return this.$store.state.users
+    }
+  },
   created () {
     this.$store.dispatch('fetchUsers')
   },
@@ -70,17 +83,6 @@ export default {
     },
     closeList () {
       this.$emit('close-dialog')
-    }
-  },
-  computed: {
-    error () {
-      return this.$store.state.error
-    },
-    isLoading () {
-      return this.$store.state.loading
-    },
-    users () {
-      return this.$store.state.users
     }
   }
 }

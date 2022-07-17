@@ -10,38 +10,40 @@
             <v-expansion-panel>
               <v-expansion-panel-header>S'enregistrer avec Google</v-expansion-panel-header>
               <v-expansion-panel-content class="my-5">
-                <v-btn class="blue-grey lighten-1 white--text" @click="goToGoogle" :disabled="isLoading" :loading="isLoading">Se connecter</v-btn>
+                <v-btn class="blue-grey lighten-1 white--text" :disabled="isLoading" :loading="isLoading" @click="goToGoogle">Se connecter</v-btn>
               </v-expansion-panel-content>
             </v-expansion-panel>
             <v-expansion-panel>
               <v-expansion-panel-header>Ou avec une adresse email</v-expansion-panel-header>
               <v-expansion-panel-content class="my-5">
-                <v-form v-on:submit.prevent="userSignUp">
+                <v-form @submit.prevent="userSignUp">
                     <v-text-field
+                      id="email"
+                      v-model="email"
                       name="email"
                       label="Email"
-                      id="email"
                       type="email"
-                      v-model="email"
-                      required></v-text-field>
+                      required
+></v-text-field>
                     <v-text-field
+                      id="password"
+                      v-model="password"
                       name="password"
                       label="Mot de passe"
-                      id="password"
                       type="password"
-                      v-model="password"
-                      required></v-text-field>
+                      required
+></v-text-field>
                     <v-text-field
+                      id="confirmPassword"
+                      v-model="passwordConfirm"
                       name="confirmPassword"
                       label="Confirmation du mot de passe"
-                      id="confirmPassword"
                       type="password"
-                      v-model="passwordConfirm"
                       :rules="[comparePasswords]"
                       required
                       ></v-text-field>
                 </v-form>
-                <v-btn class="blue-grey lighten-1 white--text" type="submit"  @click="userSignUp" :disabled="isLoading" :loading="isLoading">S'enregistrer</v-btn>
+                <v-btn class="blue-grey lighten-1 white--text" type="submit" :disabled="isLoading" :loading="isLoading" @click="userSignUp">S'enregistrer</v-btn>
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-expansion-panels>
@@ -76,17 +78,6 @@ export default {
       return this.$store.state.error
     }
   },
-  methods: {
-    userSignUp () {
-      if (this.comparePasswords !== true) {
-        return
-      }
-      this.$store.dispatch('userSignUp', { email: this.email, password: this.password })
-    },
-    goToGoogle () {
-      this.$store.dispatch('userSignInGoogle')
-    }
-  },
   watch: {
     error (value) {
       if (value) {
@@ -97,6 +88,17 @@ export default {
       if (!value) {
         this.$store.commit('setError', null)
       }
+    }
+  },
+  methods: {
+    userSignUp () {
+      if (this.comparePasswords !== true) {
+        return
+      }
+      this.$store.dispatch('userSignUp', { email: this.email, password: this.password })
+    },
+    goToGoogle () {
+      this.$store.dispatch('userSignInGoogle')
     }
   }
 }

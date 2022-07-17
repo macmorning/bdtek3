@@ -7,8 +7,9 @@
               style="top:0px;"
               sticky
               single-line
-              class="blue-grey lighten-1  white--text">
-            <v-btn class="white--text" text @click="returnToHome" title="retour"><v-icon>mdi-backburger</v-icon></v-btn>
+              class="blue-grey lighten-1  white--text"
+>
+            <v-btn class="white--text" text title="retour" @click="returnToHome"><v-icon>mdi-backburger</v-icon></v-btn>
             Page non trouvée
             </v-banner>
 

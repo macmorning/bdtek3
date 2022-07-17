@@ -8,8 +8,9 @@
               style="top:0px;"
               sticky
               single-line
-              class="blue-grey lighten-1 white--text">
-            <v-btn :disabled="!this.$store.state.user" class="white--text" text @click="backToHome" title="fermer"><v-icon>mdi-close</v-icon></v-btn>
+              class="blue-grey lighten-1 white--text"
+>
+            <v-btn :disabled="!$store.state.user" class="white--text" text title="fermer" @click="backToHome"><v-icon>mdi-close</v-icon></v-btn>
             Liste de {{ friendName }}
             </v-banner>
           <v-banner
@@ -17,9 +18,10 @@
               style="top:0px;"
               sticky
               single-line
-              class="blue-grey lighten-1 white--text">
-            <v-btn class="white--text" text @click="backToHome" title="version actuelle"><v-icon>mdi-close</v-icon></v-btn>
-            Version locale du {{cachedBooksTime}}
+              class="blue-grey lighten-1 white--text"
+>
+            <v-btn class="white--text" text title="version actuelle" @click="backToHome"><v-icon>mdi-close</v-icon></v-btn>
+            Version locale du {{ cachedBooksTime }}
           </v-banner>
           <v-card-title>
             <div class="flex-grow-1"></div>
@@ -40,6 +42,7 @@
               :headers="headers"
               :items="books"
               :items-per-page="100"
+              v-model="selectedBooks"
               :search="search"
               item-key="uid"
               fixed-header
@@ -53,46 +56,50 @@
               :sort-by="['series', 'volume']"
               :show-select="!cached && !friendId && !$vuetify.breakpoint.xs && !$vuetify.breakpoint.sm"
               single-expand
-              v-model="selectedBooks"
               :expanded="expanded"
-              @click:row="expandRow">
-              <template v-slot:loading>
+              @click:row="expandRow"
+>
+              <template #loading>
                   <p>chargement de la collection</p>
-                  <p v-if="!friendId && !cached && cachedBooksTime">chargement trop long ou hors connexion ?<br/>
-                  <a v-on:click.stop="loadFromCache">cliquez ici pour charger la dernière version enregistrée le {{cachedBooksTime}}</a></p>
+                  <p v-if="!friendId && !cached && cachedBooksTime">
+chargement trop long ou hors connexion ?<br />
+                  <a @click.stop="loadFromCache">cliquez ici pour charger la dernière version enregistrée le {{ cachedBooksTime }}</a>
+</p>
               </template>
-              <template v-slot:item.actions="{ item }">
-                <a v-if="item.detailsURL" class="mr-2" :href="item.detailsURL" v-on:click.stop="" target="_blank" title="ouvrir l'url"><v-icon>mdi-link-variant</v-icon></a>
+              <template #item.actions="{ item }">
+                <a v-if="item.detailsURL" class="mr-2" :href="item.detailsURL" target="_blank" title="ouvrir l'url" @click.stop=""><v-icon>mdi-link-variant</v-icon></a>
                 <v-icon
                   v-if="!cached && !friendId"
-                  v-on:click.stop="deleteItem(item)"
                   title="supprimer"
                   class="mr-2"
+                  @click.stop="deleteItem(item)"
                 >
                   mdi-delete
                 </v-icon>
                 <v-icon
                   v-if="!cached && !friendId"
-                  v-on:click.stop="editItem(item)"
                   title="modifier"
+                  @click.stop="editItem(item)"
                 >
                   mdi-pen
                 </v-icon>
               </template>
-              <template v-slot:expanded-item="{ headers }">
+              <template #expanded-item="{ headers }">
                 <td class="expansion" :colspan="headers.length">
                     <v-banner
+                      v-if="$vuetify.breakpoint.xs || $vuetify.breakpoint.sm"
                       single-line
                       class="blue-grey lighten-1  white--text"
-                      v-if="$vuetify.breakpoint.xs || $vuetify.breakpoint.sm">
-                    <template v-slot:actions>
-                      <a class="mr-6" v-if="currentBook.detailsURL" :href="currentBook.detailsURL" v-on:click.stop="" target="_blank" title="ouvrir l'url"><v-icon class="white--text">mdi-link-variant</v-icon></a>
-                      <a class="mr-6 d-md-none" v-if="currentBook.imageURL" :href="currentBook.imageURL" v-on:click.stop="" target="_blank" title="afficher l'image"><v-icon class="white--text">mdi-file-image</v-icon></a>
-                      <v-icon v-if="!cached && !friendId" class="white--text mr-6" text v-on:click.stop="deleteItem(currentBook)" title="supprimer">mdi-delete</v-icon>
-                      <v-icon v-if="!cached && !friendId" class="white--text" text v-on:click.stop="editItem(currentBook)" title="modifier">mdi-pen</v-icon>
+>
+                    <template #actions>
+                      <a v-if="currentBook.detailsURL" class="mr-6" :href="currentBook.detailsURL" target="_blank" title="ouvrir l'url" @click.stop=""><v-icon class="white--text">mdi-link-variant</v-icon></a>
+                      <a v-if="currentBook.imageURL" class="mr-6 d-md-none" :href="currentBook.imageURL" target="_blank" title="afficher l'image" @click.stop=""><v-icon class="white--text">mdi-file-image</v-icon></a>
+                      <v-icon v-if="!cached && !friendId" class="white--text mr-6" text title="supprimer" @click.stop="deleteItem(currentBook)">mdi-delete</v-icon>
+                      <v-icon v-if="!cached && !friendId" class="white--text" text title="modifier" @click.stop="editItem(currentBook)">mdi-pen</v-icon>
                     </template>
                   </v-banner>
-                  <book-details/></td>
+                  <book-details />
+</td>
               </template>
             </v-data-table>
          </v-card>
@@ -105,17 +112,18 @@
         style="top:0px"
         sticky
         single-line
-        class="blue-grey lighten-1  white--text">
-        <v-btn class="white--text" text @click="close" title="fermer"><v-icon>mdi-close</v-icon></v-btn>
+        class="blue-grey lighten-1  white--text"
+>
+        <v-btn class="white--text" text title="fermer" @click="close"><v-icon>mdi-close</v-icon></v-btn>
           {{ formTitle }}
-          <template v-slot:actions>
-            <v-btn :loading="book.needLookup == 1" v-if="!cached && !friendId" class="white--text" text @click="askLookup" title="rechercher les détails"><v-icon>mdi-magnify</v-icon></v-btn>
-            <v-btn :disabled="book.needLookup == 1" v-if="!cached && !friendId" class="white--text" text @click="save" title="enregistrer"><v-icon>mdi-floppy</v-icon></v-btn>
+          <template #actions>
+            <v-btn v-if="!cached && !friendId" :loading="book.needLookup == 1" class="white--text" text title="rechercher les détails" @click="askLookup"><v-icon>mdi-magnify</v-icon></v-btn>
+            <v-btn v-if="!cached && !friendId" :disabled="book.needLookup == 1" class="white--text" text title="enregistrer" @click="save"><v-icon>mdi-floppy</v-icon></v-btn>
           </template>
         </v-banner>
         <v-card-text>
           <v-container>
-            <book-editor :readonly="!!friendId"/>
+            <book-editor :readonly="!!friendId" />
           </v-container>
         </v-card-text>
       </v-card>
@@ -127,21 +135,22 @@
         style="top:0px"
         sticky
         single-line
-        class="blue-grey lighten-1  white--text">
-        <v-btn class='white--text' text @click='close' title='fermer'><v-icon>mdi-close</v-icon></v-btn>
+        class="blue-grey lighten-1  white--text"
+>
+        <v-btn class="white--text" text title="fermer" @click="close"><v-icon>mdi-close</v-icon></v-btn>
           Nouveau livre
-          <template v-slot:actions>
-            <v-btn class='white--text' text @click='scanSwitch' title='scanner'><v-icon>mdi-barcode-scan</v-icon></v-btn>
-            <v-btn class='white--text' text @click='saveNew' title='créer'><v-icon>mdi-floppy</v-icon></v-btn>
+          <template #actions>
+            <v-btn class="white--text" text title="scanner" @click="scanSwitch"><v-icon>mdi-barcode-scan</v-icon></v-btn>
+            <v-btn class="white--text" text title="créer" @click="saveNew"><v-icon>mdi-floppy</v-icon></v-btn>
           </template>
         </v-banner>
         <v-card-text>
           <v-container>
-            <v-text-field autofocus v-on:keyup.enter='saveNew' v-model='newBookUID' label='ISBN'></v-text-field>
+            <v-text-field v-model="newBookUID" autofocus label="ISBN" @keyup.enter="saveNew"></v-text-field>
           </v-container>
           <v-dialog v-model="dialogScan" width="690px">
             <v-card style="height: 500px;">
-              <scanner v-if="dialogScan" :onDetected='scanDetected'/>
+              <scanner v-if="dialogScan" :on-detected="scanDetected" />
             </v-card>
           </v-dialog>
         </v-card-text>
@@ -154,21 +163,23 @@
         style="top:0px"
         sticky
         single-line
-        class="blue-grey lighten-1  white--text">
-        <v-btn class="white--text" text @click="close" title="fermer"><v-icon>mdi-close</v-icon></v-btn>
+        class="blue-grey lighten-1  white--text"
+>
+        <v-btn class="white--text" text title="fermer" @click="close"><v-icon>mdi-close</v-icon></v-btn>
           Edition multiple
-          <template v-slot:actions>
-            <v-btn :disabled="!multiEdit.seriesBool && !multiEdit.authorBool && !multiEdit.publisherBool" class="white--text" text @click="saveMulti" title="enregistrer"><v-icon>mdi-floppy</v-icon></v-btn>
+          <template #actions>
+            <v-btn :disabled="!multiEdit.seriesBool && !multiEdit.authorBool && !multiEdit.publisherBool" class="white--text" text title="enregistrer" @click="saveMulti"><v-icon>mdi-floppy</v-icon></v-btn>
           </template>
         </v-banner>
         <v-card-text>
           <v-container>
-            <multi-book-editor/>
+            <multi-book-editor />
           </v-container>
         </v-card-text>
       </v-card>
     </v-dialog>
     <v-btn
+      v-if="!friendId && !cached && selectedBooks.length==0"
       fab
       class="blue-grey lighten-1"
       dark
@@ -177,10 +188,11 @@
       right
       title="ajouter un livre"
       @click="newItem"
-      v-if="!friendId && !cached && selectedBooks.length==0"
-    ><v-icon>mdi-book-plus</v-icon>
+    >
+<v-icon>mdi-book-plus</v-icon>
     </v-btn>
       <v-btn
+        v-if="!friendId && !cached && selectedBooks.length>0"
         fab
         class="blue-grey lighten-1"
         dark
@@ -188,12 +200,13 @@
         bottom
         right
         title="édition multiple"
-        v-if="!friendId && !cached && selectedBooks.length>0"
-        @click="openMultiEdit">
+        @click="openMultiEdit"
+>
      <v-badge
       color="cyan"
-      left>
-      <template v-slot:badge>
+      left
+>
+      <template #badge>
         {{ selectedBooks.length }}
       </template>
          <v-icon>mdi-pen</v-icon>
@@ -311,6 +324,97 @@ export default {
       ]
     }
   },
+  computed: {
+    cachedBooks () {
+      return JSON.parse(localStorage.getItem('collection.books'))
+    },
+    cachedBooksTime () {
+      return localStorage.getItem('collection.booksLastSaved')
+    },
+    friendId () {
+      return this.$route.params.uid
+    },
+    friendName () {
+      return (this.$route.query.name || 'unknown')
+    },
+    error () {
+      return this.$store.state.error
+    },
+    isLoading () {
+      return this.$store.state.loading
+    },
+    books () {
+      if (this.cached) {
+        return this.cachedBooks
+      } else if (this.friendId !== undefined && this.friendId) {
+        return this.$store.state.friendBooks
+      } else {
+        return this.$store.state.books
+      }
+    },
+    currentBook () {
+      return this.$store.state.currentBook
+    },
+    formTitle () {
+      return this.currentBook.title === '' ? 'New Book' : this.currentBook.title
+    },
+    selectedBooks: {
+      get: function () {
+        return this.$store.state.selectedBooks
+      },
+      set: function (payload) {
+        this.$store.commit('setSelectedBooks', payload)
+      }
+    },
+    book () {
+      return this.$store.state.currentBook
+    },
+    bgRandom () {
+      return this.$store.state.options.bgRandom
+    },
+    opacity () {
+      if (this.bgRandom) {
+        return 'opacity:.9;'
+      } else {
+        return ''
+      }
+    },
+    series () {
+      return this.$store.state.series
+    },
+    headers () {
+      if (this.$vuetify.breakpoint.xl) { return this.headersXL } else if (this.$vuetify.breakpoint.lg || this.$vuetify.breakpoint.md) { return this.headersMD } else { return this.headersSM }
+    },
+    multiEdit () {
+      return this.$store.state.multiEdit
+    }
+  },
+  watch: {
+    error (value) {
+      if (value) {
+        this.alert = true
+      }
+    },
+    alert (value) {
+      if (!value) {
+        this.$store.commit('setError', null)
+      }
+    },
+    dialogEdit (val) {
+      val || this.close()
+    },
+    dialogNew (val) {
+      val || this.close()
+    },
+    dialogMulti (val) {
+      val || this.close()
+    },
+    $route (to, from) {
+      if (to.params.uid !== undefined && to.params.uid !== from.params.uid) {
+        this.init()
+      }
+    }
+  },
   created () {
     this.init()
   },
@@ -420,97 +524,6 @@ export default {
       if (confirm('Êtes-vous sûr de vouloir remplacer les informations actuelles par celles qui seront trouvées sur Internet ?')) {
         this.book.needLookup = 1
         this.$store.dispatch('currentBookSave')
-      }
-    }
-  },
-  computed: {
-    cachedBooks () {
-      return JSON.parse(localStorage.getItem('collection.books'))
-    },
-    cachedBooksTime () {
-      return localStorage.getItem('collection.booksLastSaved')
-    },
-    friendId () {
-      return this.$route.params.uid
-    },
-    friendName () {
-      return (this.$route.query.name || 'unknown')
-    },
-    error () {
-      return this.$store.state.error
-    },
-    isLoading () {
-      return this.$store.state.loading
-    },
-    books () {
-      if (this.cached) {
-        return this.cachedBooks
-      } else if (this.friendId !== undefined && this.friendId) {
-        return this.$store.state.friendBooks
-      } else {
-        return this.$store.state.books
-      }
-    },
-    currentBook () {
-      return this.$store.state.currentBook
-    },
-    formTitle () {
-      return this.currentBook.title === '' ? 'New Book' : this.currentBook.title
-    },
-    selectedBooks: {
-      get: function () {
-        return this.$store.state.selectedBooks
-      },
-      set: function (payload) {
-        this.$store.commit('setSelectedBooks', payload)
-      }
-    },
-    book () {
-      return this.$store.state.currentBook
-    },
-    bgRandom () {
-      return this.$store.state.options.bgRandom
-    },
-    opacity () {
-      if (this.bgRandom) {
-        return 'opacity:.9;'
-      } else {
-        return ''
-      }
-    },
-    series () {
-      return this.$store.state.series
-    },
-    headers () {
-      if (this.$vuetify.breakpoint.xl) { return this.headersXL } else if (this.$vuetify.breakpoint.lg || this.$vuetify.breakpoint.md) { return this.headersMD } else { return this.headersSM }
-    },
-    multiEdit () {
-      return this.$store.state.multiEdit
-    }
-  },
-  watch: {
-    error (value) {
-      if (value) {
-        this.alert = true
-      }
-    },
-    alert (value) {
-      if (!value) {
-        this.$store.commit('setError', null)
-      }
-    },
-    dialogEdit (val) {
-      val || this.close()
-    },
-    dialogNew (val) {
-      val || this.close()
-    },
-    dialogMulti (val) {
-      val || this.close()
-    },
-    $route (to, from) {
-      if (to.params.uid !== undefined && to.params.uid !== from.params.uid) {
-        this.init()
       }
     }
   }

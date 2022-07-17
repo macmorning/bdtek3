@@ -10,7 +10,7 @@
             <v-expansion-panel>
               <v-expansion-panel-header>S'authentifier avec Google</v-expansion-panel-header>
               <v-expansion-panel-content class="my-5">
-                <v-btn class="blue-grey lighten-1 white--text" @click="goToGoogle" :disabled="isLoading" :loading="isLoading">Se connecter</v-btn>
+                <v-btn class="blue-grey lighten-1 white--text" :disabled="isLoading" :loading="isLoading" @click="goToGoogle">Se connecter</v-btn>
               </v-expansion-panel-content>
             </v-expansion-panel>
             <v-expansion-panel>
@@ -18,32 +18,32 @@
               <v-expansion-panel-content class="my-5">
                 <v-form @submit.prevent="userSignIn">
                   <v-text-field
+                    id="email"
+                    v-model="email"
                     name="email"
                     label="Email"
-                    id="email"
                     type="email"
-                    v-model="email"
+                    required
                     @keyup.enter="userSignIn"
-                    required></v-text-field>
+></v-text-field>
                   <v-text-field
+                    id="password"
+                    v-model="password"
                     name="password"
                     label="Mot de passe"
-                    id="password"
                     type="password"
-                    v-model="password"
-                    @keyup.enter="userSignIn"
                     required
-                    append-outer-icon="mdi-comment-question-outline" @click:append-outer="goToReset"
+                    append-outer-icon="mdi-comment-question-outline"
+                    @keyup.enter="userSignIn" @click:append-outer="goToReset"
                   ></v-text-field>
                 </v-form>
-                <v-btn class="blue-grey lighten-1 white--text" type="submit" @click="userSignIn" :disabled="isLoading" :loading="isLoading">Se connecter</v-btn>
+                <v-btn class="blue-grey lighten-1 white--text" type="submit" :disabled="isLoading" :loading="isLoading" @click="userSignIn">Se connecter</v-btn>
               </v-expansion-panel-content>
             </v-expansion-panel>
           </v-expansion-panels>
 
-          <p class="mt-8"><a color="secondary" @click='goToSignUp'>Pas de compte ? S'enregistrer</a></p>
-
-        </v-card-text>
+          <p class="mt-8"><a color="secondary" @click="goToSignUp">Pas de compte ? S'enregistrer</a></p>
+</v-card-text>
       </v-card>
     </v-flex>
   </v-layout>
@@ -57,22 +57,6 @@ export default {
       email: '',
       password: '',
       alert: false
-    }
-  },
-  methods: {
-    userSignIn () {
-      if (!this.$store.isLoading) {
-        this.$store.dispatch('userSignIn', { email: this.email, password: this.password })
-      }
-    },
-    goToReset () {
-      router.push('/reset')
-    },
-    goToSignUp () {
-      router.push('/signup')
-    },
-    goToGoogle () {
-      this.$store.dispatch('userSignInGoogle')
     }
   },
   computed: {
@@ -93,6 +77,22 @@ export default {
       if (!value) {
         this.$store.commit('setError', null)
       }
+    }
+  },
+  methods: {
+    userSignIn () {
+      if (!this.$store.isLoading) {
+        this.$store.dispatch('userSignIn', { email: this.email, password: this.password })
+      }
+    },
+    goToReset () {
+      router.push('/reset')
+    },
+    goToSignUp () {
+      router.push('/signup')
+    },
+    goToGoogle () {
+      this.$store.dispatch('userSignInGoogle')
     }
   }
 }

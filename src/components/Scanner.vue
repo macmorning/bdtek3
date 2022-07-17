@@ -1,6 +1,6 @@
 <template>
     <v-container>
-        <v-quagga :onDetected="onDetected" :readerSize="readerSize" :readerTypes="readerTypes"></v-quagga>
+        <v-quagga :on-detected="onDetected" :reader-size="readerSize" :reader-types="readerTypes"></v-quagga>
     </v-container>
 </template>
 
@@ -9,8 +9,8 @@ import Vue from 'vue'
 import VueQuagga from 'vue-quaggajs'
 Vue.use(VueQuagga)
 export default {
-  props: ['onDetected'],
   name: 'VueBarcode',
+  props: ['onDetected'],
   data () {
     return {
       readerSize: {

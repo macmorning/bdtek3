@@ -9,8 +9,8 @@
                 </v-col>
                 <v-col cols="11">
                     <v-combobox
-                      :disabled="!multiEdit.seriesBool"
                       v-model="multiEdit.series"
+                      :disabled="!multiEdit.seriesBool"
                       :items="series"
                       label="Série"
                     ></v-combobox>
@@ -22,9 +22,10 @@
                 </v-col>
                 <v-col cols="11">
                     <v-text-field
-                      :disabled="!multiEdit.authorBool"
                       v-model="multiEdit.author"
-                      label="Auteur(s)">
+                      :disabled="!multiEdit.authorBool"
+                      label="Auteur(s)"
+>
                     </v-text-field>
                 </v-col>
                 <v-col cols="1">
@@ -34,8 +35,8 @@
                 </v-col>
                 <v-col cols="11">
                     <v-combobox
-                      :disabled="!multiEdit.publisherBool"
                       v-model="multiEdit.publisher"
+                      :disabled="!multiEdit.publisherBool"
                       :items="publishers"
                       label="Editeur"
                     ></v-combobox>
@@ -51,8 +52,6 @@ export default {
     return {
     }
   },
-  methods: {
-  },
   computed: {
     multiEdit () {
       return this.$store.state.multiEdit
@@ -63,6 +62,8 @@ export default {
     publishers () {
       return this.$store.state.publishers
     }
+  },
+  methods: {
   }
 }
 </script>

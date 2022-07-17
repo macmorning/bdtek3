@@ -4,11 +4,12 @@
           style="top:0px;"
           sticky
           single-line
-          class="blue-grey lighten-1  white--text">
-        <v-btn class="white--text" text @click="closeOptions" title="fermer"><v-icon>mdi-close</v-icon></v-btn>
+          class="blue-grey lighten-1  white--text"
+>
+        <v-btn class="white--text" text title="fermer" @click="closeOptions"><v-icon>mdi-close</v-icon></v-btn>
         Vos préférences
-        <template v-slot:actions>
-          <v-btn class="white--text" text @click="saveOptions" title="enregistrer"><v-icon>mdi-floppy</v-icon></v-btn>
+        <template #actions>
+          <v-btn class="white--text" text title="enregistrer" @click="saveOptions"><v-icon>mdi-floppy</v-icon></v-btn>
         </template>
       </v-banner>
 
@@ -33,6 +34,20 @@ export default {
       alert: false
     }
   },
+  computed: {
+    error () {
+      return this.$store.state.error
+    },
+    isLoading () {
+      return this.$store.state.loading
+    },
+    storedUser () {
+      return this.$store.state.user
+    },
+    storedOptions () {
+      return this.$store.state.options
+    }
+  },
   created () {
     this.user = this.storedUser
     this.displayName = this.storedUser.displayName
@@ -49,20 +64,6 @@ export default {
       this.$store.dispatch('userUpdate', this.user)
       this.$store.commit('setOptionBgRandom', this.bgRandom)
       this.closeOptions()
-    }
-  },
-  computed: {
-    error () {
-      return this.$store.state.error
-    },
-    isLoading () {
-      return this.$store.state.loading
-    },
-    storedUser () {
-      return this.$store.state.user
-    },
-    storedOptions () {
-      return this.$store.state.options
     }
   }
 }

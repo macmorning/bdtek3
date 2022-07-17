@@ -6,19 +6,20 @@
           <v-icon class="white--text" top>mdi-lock</v-icon>
         </v-avatar>
         <v-card-text>
-          <v-form v-on:submit.prevent="userResetPwd">
+          <v-form @submit.prevent="userResetPwd">
               <v-text-field
+                id="email"
+                v-model="email"
                 name="email"
                 label="Email"
-                id="email"
                 type="email"
-                v-model="email"
-                required></v-text-field>
+                required
+></v-text-field>
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn class="blue-grey lighten-1 white--text" type="submit"  @click="userResetPwd">Envoyer un lien</v-btn>
+          <v-btn class="blue-grey lighten-1 white--text" type="submit" @click="userResetPwd">Envoyer un lien</v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>
@@ -37,12 +38,12 @@ export default {
       return this.$store.state.loading
     }
   },
+  watch: {
+  },
   methods: {
     userResetPwd () {
       this.$store.dispatch('userResetPwd', { email: this.email })
     }
-  },
-  watch: {
   }
 }
 </script>

@@ -2,19 +2,20 @@
   <v-app>
     <v-app-bar app class="blue-grey lighten-1">
       <v-toolbar-title>
-        <router-link to="/" tag="span" style="cursor: pointer"  class="white--text">
+        <router-link to="/" style="cursor: pointer" class="white--text">
           {{ appTitle }}
         </router-link>
       </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items>
         <v-btn
+          v-for="item in menuItems"
+          :key="item.title"
           text
           :title="item.title"
           class="white--text"
-          v-for="item in menuItems"
-          :key="item.title"
-          :to="item.path">
+          :to="item.path"
+>
           <v-icon dark>{{ item.icon }}</v-icon>
         </v-btn>
         <v-btn
@@ -22,19 +23,22 @@
           text
           title="utilisateurs"
           class="white--text"
-          @click="users">
+          @click="users"
+>
           <v-icon dark>mdi-account-multiple</v-icon>
         </v-btn>
          <v-menu
             v-if="isAuthenticated"
-            bottom>
-            <template v-slot:activator="{ on }">
+            bottom
+>
+            <template #activator="{ on }">
               <v-btn
                 class="white--text"
                 dark
                 icon
                 v-on="on"
-              ><v-icon>mdi-dots-vertical</v-icon>
+              >
+<v-icon>mdi-dots-vertical</v-icon>
               </v-btn>
             </template>
 
@@ -56,8 +60,7 @@
               </v-list-item>
             </v-list>
           </v-menu>
-
-      </v-toolbar-items>
+</v-toolbar-items>
     </v-app-bar>
 
     <v-content>
@@ -86,19 +89,19 @@
       v-model="optionsDialog"
       max-width="500"
     >
-      <options v-on:close-dialog="closeOptions"/>
+      <options @close-dialog="closeOptions" />
     </v-dialog>
     <v-dialog
       v-model="shareDialog"
       max-width="500"
     >
-      <share v-on:close-dialog="closeShare"/>
+      <share @close-dialog="closeShare" />
     </v-dialog>
     <v-dialog
       v-model="usersDialog"
       max-width="700"
     >
-      <users v-on:close-dialog="closeUsers"/>
+      <users @close-dialog="closeUsers" />
     </v-dialog>
   </v-app>
 </template>
@@ -123,8 +126,6 @@ export default {
       optionsDialog: false,
       usersDialog: false
     }
-  },
-  created () {
   },
   computed: {
     error () {
@@ -203,6 +204,8 @@ export default {
         this.$store.commit('setSuccess', null)
       }
     }
+  },
+  created () {
   },
   methods: {
     closeOptions () {
