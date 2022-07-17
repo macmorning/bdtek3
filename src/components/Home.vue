@@ -35,6 +35,7 @@
               ></v-combobox>
           </v-card-title>
             <v-data-table
+              v-model="selectedBooks"
               :loading="isLoading"
               loading-text="chargement de la collection"
               no-data-text="aucun livre dans cette collection"
@@ -42,7 +43,6 @@
               :headers="headers"
               :items="books"
               :items-per-page="100"
-              v-model="selectedBooks"
               :search="search"
               item-key="uid"
               fixed-header

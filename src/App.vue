@@ -1,4 +1,4 @@
-<template>
+<template id="app-template">
   <v-app>
     <v-app-bar app class="blue-grey lighten-1">
       <v-toolbar-title>

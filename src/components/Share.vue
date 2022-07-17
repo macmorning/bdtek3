@@ -23,6 +23,7 @@ export default {
     return {
     }
   },
+  emits: ['close-dialog'],
   computed: {
     error () {
       return this.$store.state.error

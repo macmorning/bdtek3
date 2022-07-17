@@ -1,8 +1,8 @@
-const functions = require('firebase-functions'),
-        admin = require('firebase-admin'),
-        rp =require('request-promise'),
-        htmlparser = require("htmlparser2"),
-        select = require('soupselect').select;
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+const rp = require("request-promise");
+const htmlparser = require("htmlparser2");
+const select = require("soupselect").select;
 
 admin.initializeApp();
 
@@ -15,7 +15,7 @@ const fieldNames = {
     "EAN13": "uid",
     "Éditeur": "publisher",
     "Date de publication": "published"
-}
+};
 const getText = (node) => {
     if(node.type === "text") {
         return node.text.trim();
@@ -31,7 +31,7 @@ const getText = (node) => {
         });
         return (text ? text.trim() : false);
     }
-}
+};
 
 const formatDate = (date) => {
     if (Date.parse(date) > 0) { return date; }
@@ -41,7 +41,7 @@ const formatDate = (date) => {
         console.info("formatDate > converting " + date + " to " + newDate);
         return (newDate);
     }
-}
+};
 
 exports.fetchBookInformations = functions.database.ref('/bd/{user}/{ref}/needLookup').onWrite((snapshot, context) => { 
     // Grab the current value of what was written to the Realtime Database.

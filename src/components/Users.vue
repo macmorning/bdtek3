@@ -57,6 +57,7 @@ export default {
       ]
     }
   },
+  emits: ['close-dialog'],
   computed: {
     error () {
       return this.$store.state.error
