@@ -63,9 +63,9 @@
 </v-toolbar-items>
     </v-app-bar>
 
-    <v-content>
+    <v-main>
       <router-view id="root" :style="backgroundStyle"></router-view>
-    </v-content>
+    </v-main>
     <v-snackbar
       v-model="snackError"
       bottom

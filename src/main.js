@@ -12,7 +12,7 @@ Vue.config.productionTip = false;
 // Vue.use(vuetify);
 /* eslint-disable no-new */
 const auth = firebase.auth;
-/*const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
     new Vue({
       vuetify,
       router,
@@ -25,11 +25,11 @@ const auth = firebase.auth;
       render: h => h(App)
     }).$mount('#app')
     unsubscribe();
-  });*/
+  });
 
-new Vue({
+/*new Vue({
   vuetify,
   router,
   store,
   render: h => h(App)
-}).$mount('#app')
+}).$mount('#app')*/
