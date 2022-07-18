@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import firebase from './initFirebase'
 import { sendPasswordResetEmail, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signOut, GoogleAuthProvider, updateProfile } from 'firebase/auth'
-import { ref, set, off, onValue, query, orderByChild, limitToFirst, get, child } from 'firebase/database'
+import { ref, set, remove, off, onValue, query, orderByChild, get } from 'firebase/database'
 import router from '@/router'
 
 const auth = firebase.auth;
@@ -250,7 +250,7 @@ export default new Vuex.Store({
     },
     fetchFriendBooks ({ commit }, uid) {
       commit('setLoading', true)
-      database.ref(`bd/${uid}`).orderByChild('computedOrderField').limitToFirst(1000).once('value').then((snapshot) => {
+      get(query(ref(database,`bd/${uid}`),orderByChild('computedOrderField'))).then((snapshot) => {
         const booksObj = snapshot.val()
         const booksArray = []
         if (booksObj !== null) {
@@ -319,7 +319,7 @@ export default new Vuex.Store({
     currentBookDelete ({ commit }, book) {
       if (book !== undefined && book.uid !== undefined && book.uid !== '') {
         commit('setLoading', true)
-        database.ref(`bd/${this.state.user.uid}/${book.uid}`).remove().then(() => {
+        remove(ref(database, `bd/${this.state.user.uid}/${book.uid}`)).then(() => {
           commit('setSuccess', 'Livre retiré')
         })
           .catch((error) => {
@@ -340,7 +340,7 @@ export default new Vuex.Store({
       }
       commit('setLoading', true)
       book.computedOrderField = (book.series ? book.series + (book.volume ? '_' + book.volume.toString().padStart(4, '0') : '') : '') + '_' + book.title
-      database.ref(`bd/${this.state.user.uid}/${book.uid}`).update(book).then(() => {
+      set(ref(database, `bd/${this.state.user.uid}/${book.uid}`), book).then(() => {
         commit('setSuccess', 'Livre enregistré')
       })
         .catch((error) => {
@@ -377,7 +377,7 @@ export default new Vuex.Store({
       book.needLookup = 1
       book.dateAdded = new Date().getUTCFullYear() + '-' + (new Date().getUTCMonth() + 1).toString().padStart(2, '0') + '-' + new Date().getUTCDate().toString().padStart(2, '0')
       try {
-        database.ref(`bd/${this.state.user.uid}/${uid}`).set(book).then(() => {
+        set(ref(database, `bd/${this.state.user.uid}/${uid}`), book).then(() => {
           commit('setSuccess', 'Livre ajouté')
           commit('setCurrentBook', book)
         })

@@ -436,6 +436,9 @@ export default {
     clearSearch () {
       this.search = ''
     },
+    setSearch (value) {
+      this.search = value
+    },
     backToHome () {
       this.cached = false
       this.$router.push('/')
@@ -478,11 +481,8 @@ export default {
     saveNew () {
       this.newBookUID = this.newBookUID.trim().replace(/\D/g, '')
       this.$store.dispatch('saveNewBook', this.newBookUID)
-      close()
       setTimeout(() => {
-        if (this.$store.state.currentBook.uid === this.newBookUID) {
-          this.dialogEdit = true
-        }
+        this.setSearch(this.newBookUID);
       }, 500)
     },
     saveMulti () {
