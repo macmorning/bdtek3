@@ -199,6 +199,9 @@ export default new Vuex.Store({
     userSignInGoogle ({ dispatch, commit }) {
       commit('setLoading', true)
       const provider = new GoogleAuthProvider()
+      provider.setCustomParameters({
+        prompt: "select_account"
+      })
       signInWithPopup(auth, provider).then((firebaseUser) => {
         dispatch('doSignIn', firebaseUser.user)
         commit('setError', null)
