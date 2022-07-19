@@ -10,7 +10,9 @@ import VueQuagga from 'vue-quaggajs'
 Vue.use(VueQuagga)
 export default {
   name: 'VueBarcode',
-  props: ['onDetected'],
+  props: {
+    onDetected: Object
+  },
   data () {
     return {
       readerSize: {

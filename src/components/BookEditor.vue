@@ -100,7 +100,9 @@
 
 <script>
 export default {
-  props: ['readonly'],
+  props: {
+    readonly: Boolean
+  },
   data: function () {
     return {
       publishedMenu: false,

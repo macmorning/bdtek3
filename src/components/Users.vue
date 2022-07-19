@@ -44,6 +44,7 @@
 
 <script>
 export default {
+  emits: ['close-dialog'],
   data () {
     return {
       search: '',
@@ -57,7 +58,6 @@ export default {
       ]
     }
   },
-  emits: ['close-dialog'],
   computed: {
     error () {
       return this.$store.state.error
