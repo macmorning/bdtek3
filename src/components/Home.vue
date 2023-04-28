@@ -242,6 +242,10 @@ export default {
       editedIndex: -1,
       headersSM: [
         {
+          value: 'uid',
+          text: 'ISBN',
+          align: ' d-none'
+        }, {
           value: 'title',
           text: 'Titre'
         }, {
@@ -250,6 +254,10 @@ export default {
         }, {
           value: 'volume',
           text: '#'
+        }, {
+          value: 'author',
+          text: 'Auteur(s)',
+          align: ' d-none'
         }
       ],
       headersMD: [
@@ -483,6 +491,7 @@ export default {
       this.$store.dispatch('saveNewBook', this.newBookUID)
       setTimeout(() => {
         this.setSearch(this.newBookUID);
+        this.dialogNew = false;
       }, 500)
     },
     saveMulti () {

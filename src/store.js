@@ -376,6 +376,7 @@ export default new Vuex.Store({
       commit('setLoading', true)
       const book = {}
       book.uid = uid
+      book.title = uid
       book.series = null
       book.needLookup = 1
       book.dateAdded = new Date().getUTCFullYear() + '-' + (new Date().getUTCMonth() + 1).toString().padStart(2, '0') + '-' + new Date().getUTCDate().toString().padStart(2, '0')

@@ -55,75 +55,82 @@ exports.fetchBookInformations = functions.database.ref('/bd/{user}/{ref}/needLoo
     return rp({ url: url, followRedirect: true, simple: false }).then(function(resp) {
         let informations = {};
         let handler = new htmlparser.DomHandler((error, dom) => {
-            if (error)
+            if (error) {
                 console.error(error);
-            else {
-
-                let sel = select(dom,"dd");
-                sel.forEach(item => {
-                    if (item.attribs && item.attribs.itemprop) {
-                        if (item.attribs.itemprop == "publisher") {
-                            informations["publisher"] = getText(item);
-                        } else if (item.attribs.itemprop == "datePublished") {
-                            informations["published"] = formatDate(getText(item));
-                        }
-                    }
-                });
-
-                sel = select(dom, 'dl.dl-horizontal');
-                let currentFieldName;
-                sel[0].children.forEach((elem) => {
-                        if (elem.next === undefined || !elem.next) return;
-                        if (elem.next.name == "dt") {
-                            if (fieldNames[getText(elem.next)]) {
-                                currentFieldName = getText(elem.next);
-                            } else { 
-                                currentFieldName = "";
+                informations["title"] = "error fetching the backend url"
+            } else {
+                try {
+                    let sel = select(dom,"dd");
+                    sel.forEach(item => {
+                        if (item.attribs && item.attribs.itemprop) {
+                            if (item.attribs.itemprop == "publisher") {
+                                informations["publisher"] = getText(item);
+                            } else if (item.attribs.itemprop == "datePublished") {
+                                informations["published"] = formatDate(getText(item));
                             }
                         }
-                        if (elem.next.name == "dd") {
-                            if (currentFieldName) {
-                                let text = getText(elem.next);
-                                // cas particulier de "Collection" ou "Série" qui inclut le numéro du volume entre parenthèses
-                                if (text && (currentFieldName === "Collection" || currentFieldName === "Séries")) {
-                                    const regex = /(\d{1,4})/gm;
-                                    let m = regex.exec(text);
-                                    informations["volume"] = parseInt(m[0]);
-                                    text = text.replace(/\n.*/gm,"");
+                    });
+
+                    sel = select(dom, 'dl.dl-horizontal');
+                    if (sel[0] !== undefined && sel[0]) {
+                        let currentFieldName;
+                        sel[0].children.forEach((elem) => {
+                                if (elem.next === undefined || !elem.next) return;
+                                if (elem.next.name == "dt") {
+                                    if (fieldNames[getText(elem.next)]) {
+                                        currentFieldName = getText(elem.next);
+                                    } else { 
+                                        currentFieldName = "";
+                                    }
                                 }
-                                if (text) {
-                                    informations[fieldNames[currentFieldName]] = text;
+                                if (elem.next.name == "dd") {
+                                    if (currentFieldName) {
+                                        let text = getText(elem.next);
+                                        // cas particulier de "Collection" ou "Série" qui inclut le numéro du volume entre parenthèses
+                                        if (text && (currentFieldName === "Collection" || currentFieldName === "Séries")) {
+                                            const regex = /(\d{1,4})/gm;
+                                            let m = regex.exec(text);
+                                            informations["volume"] = parseInt(m[0]);
+                                            text = text.replace(/\n.*/gm,"");
+                                        }
+                                        if (text) {
+                                            informations[fieldNames[currentFieldName]] = text;
+                                        }
+                                    }
                                 }
-                            }
-                        }
-                });
-
-                sel = select(dom,".main-infos h1 span");
-                if (sel[0] !== undefined) {
-                    informations["title"] = getText(sel[0]);
-                } 
-
-                sel = select(dom, 'div.main-infos h2');
-                if (sel[0] !== undefined && getText(sel[0])) {
-                    informations["title"] = getText(sel[0]);
-                }
-
-                sel = select(dom,"a");
-                let authors = "";
-                sel.forEach(item => {
-                    if (item.attribs && item.attribs.itemprop == "author") {
-                        if (authors) {
-                            authors += ",";
-                        }
-                        authors += getText(item);
+                        });
                     } 
-                });
-                informations["author"] = authors;
 
-                informations["detailsURL"] = url;
-                sel = select(dom,"div.image a div img");
-                if(sel[0] !== undefined && sel[0].attribs !== undefined && sel[0].attribs["src"]) {
-                    informations["imageURL"] = sel[0].attribs["src"];
+                    sel = select(dom,".main-infos h1 span");
+                    if (sel[0] !== undefined) {
+                        informations["title"] = getText(sel[0]);
+                    } 
+
+                    sel = select(dom, 'div.main-infos h2');
+                    if (sel[0] !== undefined && getText(sel[0])) {
+                        informations["title"] = getText(sel[0]);
+                    }
+
+                    sel = select(dom,"a");
+                    let authors = "";
+                    sel.forEach(item => {
+                        if (item.attribs && item.attribs.itemprop == "author") {
+                            if (authors) {
+                                authors += ",";
+                            }
+                            authors += getText(item);
+                        } 
+                    });
+                    informations["author"] = authors;
+
+                    informations["detailsURL"] = url;
+                    sel = select(dom,"div.image a div img");
+                    if(sel[0] !== undefined && sel[0].attribs !== undefined && sel[0].attribs["src"]) {
+                        informations["imageURL"] = sel[0].attribs["src"];
+                    }
+                } catch(err) {
+                    console.error(err)
+                    informations["title"] = "exception while reading the result";
                 }
             }
         });
