@@ -14,7 +14,6 @@
     },
     "users": {
       "$usernode": {
-        ".read": true,
         ".write": "auth != null && auth.uid == $usernode",
         ".indexOn": "displayName"
       }
