@@ -16,7 +16,7 @@
       <v-card-text>
         <v-container>
             <v-text-field v-model="displayName" label="Surnom" hint="C'est sous ce nom que vous apparaissez dans la liste des utilisateurs." persistent-hint></v-text-field>
-            <v-switch v-model="visibleToAll" label="Profil visible de tous" hint="Détermine si votre profil est public ou non. Même dans le cas contraire, tout le monde peut voir à votre bibliothèque à condition d'avoir l'url correcte." persistent-hint></v-switch>
+            <v-switch v-model="visibleToAll" label="Profil visible de tous" hint="Détermine si votre profil et votre bibliothèque sont visibles de tous." persistent-hint></v-switch>
             <v-switch v-model="bgRandom" label="Images de fond aléatoires" hint="Paramètre enregistré localement." persistent-hint></v-switch>
         </v-container>
       </v-card-text>

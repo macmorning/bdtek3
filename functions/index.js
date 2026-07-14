@@ -212,10 +212,16 @@ exports.createUserNode = functions.auth.user().onCreate((userRecord) => {
     } else {
         displayName = userRecord.uid;
     }
-    return admin.database().ref(`/users/${userRecord.uid}`).set({
-        email: userRecord.email,
+    const updates = {};
+    updates[`/users/${userRecord.uid}`] = {
+        email: userRecord.email || "",
+        displayName: displayName,
+        visibleToAll: true
+    };
+    updates[`/usersPublic/${userRecord.uid}`] = {
         displayName: displayName
-    });
+    };
+    return admin.database().ref().update(updates);
 });
 
 exports.deleteUserNode = functions.auth.user().onDelete((userRecord) => {
@@ -223,5 +229,9 @@ exports.deleteUserNode = functions.auth.user().onDelete((userRecord) => {
         console.warn ('Empty user record or uid unspecified!')
     }
     console.info(userRecord);
-    return admin.database().ref(`/users/${userRecord.uid}`).remove().then(() => {admin.database().ref(`/bd/${userRecord.uid}`).remove()});
+    const updates = {};
+    updates[`/users/${userRecord.uid}`] = null;
+    updates[`/usersPublic/${userRecord.uid}`] = null;
+    updates[`/bd/${userRecord.uid}`] = null;
+    return admin.database().ref().update(updates);
 });

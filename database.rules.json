@@ -1,8 +1,9 @@
 {
   "rules": {
-    ".read": "auth !== null",
+    ".read": false,
     "bd": {
       "$usernode": {
+        ".read": "auth != null && (auth.uid == $usernode || root.child('users/' + $usernode + '/visibleToAll').val() == true)",
         ".write": "auth != null && auth.uid == $usernode",
         "$uid": {
           ".write": "auth != null && auth.uid == $usernode",
@@ -12,8 +13,17 @@
     },
     "users": {
       "$usernode": {
+        ".read": "auth != null && auth.uid == $usernode",
         ".write": "auth != null && auth.uid == $usernode",
-        ".indexOn": "displayName"
+        ".validate": "newData.hasChildren(['displayName', 'visibleToAll']) && newData.child('displayName').isString() && newData.child('displayName').val().length > 0 && newData.child('displayName').val().length <= 60 && newData.child('visibleToAll').isBoolean() && (!newData.child('email').exists() || newData.child('email').isString())"
+      }
+    },
+    "usersPublic": {
+      ".read": "auth != null",
+      ".indexOn": ["displayName"],
+      "$usernode": {
+        ".write": "auth != null && auth.uid == $usernode",
+        ".validate": "newData.hasChildren(['displayName']) && newData.child('displayName').isString() && newData.child('displayName').val().length > 0 && newData.child('displayName').val().length <= 60"
       }
     }
   }

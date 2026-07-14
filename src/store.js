@@ -124,13 +124,14 @@ export default new Vuex.Store({
     },
     setUsers (state, payload) {
       state.users = []
+      if (!payload) {
+        return
+      }
       for (const key in payload) {
-        if (payload[key].visibleToAll === undefined || payload[key].visibleToAll === true) {
-          state.users.push({
-            userId: key,
-            displayName: payload[key].displayName
-          })
-        }
+        state.users.push({
+          userId: key,
+          displayName: payload[key].displayName
+        })
       }
     },
     setFriendBooks (state, payload) {
@@ -224,6 +225,11 @@ export default new Vuex.Store({
         if (user.visibleToAll === undefined) {
           user.visibleToAll = true
         }
+        if (user.displayName && user.visibleToAll) {
+          set(ref(database, `usersPublic/${payload.uid}`), { displayName: user.displayName })
+        } else {
+          remove(ref(database, `usersPublic/${payload.uid}`))
+        }
         commit('setUser', user)
       })
     },
@@ -239,14 +245,28 @@ export default new Vuex.Store({
       commit('setUser', payload)
       updateProfile(auth.currentUser, { displayName: payload.displayName }).then(() => {
         commit('setSuccess', 'Vos préférences sont enregistrées')
-        set(ref(database, `users/${payload.uid}`), { displayName: payload.displayName, visibleToAll: payload.visibleToAll })
+        const userData = {
+          displayName: payload.displayName,
+          visibleToAll: payload.visibleToAll
+        }
+        if (payload.email) {
+          userData.email = payload.email
+        }
+
+        const writes = [set(ref(database, `users/${payload.uid}`), userData)]
+        if (payload.visibleToAll) {
+          writes.push(set(ref(database, `usersPublic/${payload.uid}`), { displayName: payload.displayName }))
+        } else {
+          writes.push(remove(ref(database, `usersPublic/${payload.uid}`)))
+        }
+        return Promise.all(writes)
       }).catch((error) => {
         commit('setError', 'Vos préférences n\'ont pas été enregistrées : ' + error.message)
       })
     },
     fetchUsers ({ commit }, payload) {
       commit('setLoading', true)
-      get(query(ref(database,'users'),orderByChild('displayName'))).then((snapshot) => {
+      get(query(ref(database, 'usersPublic'), orderByChild('displayName'))).then((snapshot) => {
         commit('setLoading', false)
         commit('setUsers', snapshot.val())
       })
