@@ -5,9 +5,9 @@
       "$usernode": {
         ".read": "auth != null && (auth.uid == $usernode || root.child('users/' + $usernode + '/visibleToAll').val() == true)",
         ".write": "auth != null && auth.uid == $usernode",
+        ".indexOn": ["computedOrderField"],
         "$uid": {
-          ".write": "auth != null && auth.uid == $usernode",
-          ".indexOn": "computedOrderField"
+          ".write": "auth != null && auth.uid == $usernode"
         }
       }
     },
