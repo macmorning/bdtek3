@@ -11,12 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VUE_APP_API_KEY: ${{ secrets.VUE_APP_API_KEY }}
-      VUE_APP_AUTH_DOMAIN: ${{ secrets.VUE_APP_AUTH_DOMAIN }}
-      VUE_DATABASE_URL: ${{ secrets.VUE_DATABASE_URL }}
-      VUE_PROJECT_ID: ${{ secrets.VUE_PROJECT_ID }}
-      VUE_STORAGE_BUCKET: ${{ secrets.VUE_STORAGE_BUCKET }}
-      VUE_MESSAGING_SENDER_ID: ${{ secrets.VUE_MESSAGING_SENDER_ID }}
-      VUE_APP_ID: ${{ secrets.VUE_APP_ID }}
+      VUE_APP_AUTH_DOMAIN: "blazing-fire-8152.firebaseapp.com"
+      VUE_DATABASE_URL: "https://blazing-fire-8152.firebaseio.com"
+      VUE_PROJECT_ID: "blazing-fire-8152"
+      VUE_STORAGE_BUCKET: "blazing-fire-8152.appspot.com"
+      VUE_MESSAGING_SENDER_ID: "551835990000"
+      VUE_APP_ID: "1:551835990000:web:f2195643e6fcbe90cf0f35"
     steps:
       - uses: actions/checkout@v3
       - run: npm ci && npm run build
