@@ -9,6 +9,7 @@
     "webui": "vue ui"
   },
   "dependencies": {
+    "@zxing/library": "^0.19.0",
     "core-js": "^3.49.0",
     "firebase": "^9.23.0",
     "firebase-functions": "^3.24.1",
@@ -16,7 +17,6 @@
     "register-service-worker": "^1.7.2",
     "sass-loader": "^13.3.3",
     "vue": "^2.7.16",
-    "@zxing/library": "^0.19.0",
     "vue-router": "^3.6.5",
     "vue-tiny-lazyload-img": "^0.1.0",
     "vuetify": "^2.7.2",

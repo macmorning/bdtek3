@@ -1,36 +1,36 @@
 <template>
   <div :style="background">
-    <v-row style="background:white;opacity:0.9;">
-        <v-col cols="10" offset="1" md="8" offset-md="1">
-            <v-row>
+    <v-row no-gutters style="background:white;opacity:0.9;">
+        <v-col cols="10" offset="1" md="8" offset-md="1" class="py-3">
+            <div class="detail-line">
               <span class="blue-grey--text text--lighten-2">ISBN&nbsp;:&nbsp;</span>{{ editedItem.uid }}
-            </v-row>
-            <v-row>
+            </div>
+            <div class="detail-line">
               <span class="blue-grey--text text--lighten-2">Titre&nbsp;:&nbsp;</span>{{ editedItem.title }}
-            </v-row>
-            <v-row v-if="editedItem.series">
+            </div>
+            <div v-if="editedItem.series" class="detail-line">
               <span class="blue-grey--text text--lighten-2">Série&nbsp;:&nbsp;</span>{{ editedItem.series }}
-            </v-row>
-            <v-row v-if="editedItem.volume">
+            </div>
+            <div v-if="editedItem.volume" class="detail-line">
               <span class="blue-grey--text text--lighten-2">Volume&nbsp;:&nbsp;</span>{{ editedItem.volume }}
-            </v-row>
-            <v-row v-if="editedItem.author">
+            </div>
+            <div v-if="editedItem.author" class="detail-line">
               <span class="blue-grey--text text--lighten-2">Auteur(s)&nbsp;:&nbsp;</span>{{ editedItem.author }}
-            </v-row>
-            <v-row v-if="editedItem.published">
+            </div>
+            <div v-if="editedItem.published" class="detail-line">
               <span class="blue-grey--text text--lighten-2">Publié&nbsp;:&nbsp;</span>{{ editedItem.published }}
-            </v-row>
-            <v-row v-if="editedItem.publisher">
+            </div>
+            <div v-if="editedItem.publisher" class="detail-line">
               <span class="blue-grey--text text--lighten-2">Editeur&nbsp;:&nbsp;</span>{{ editedItem.publisher }}
-            </v-row>
-            <v-row v-if="editedItem.edition">
+            </div>
+            <div v-if="editedItem.edition" class="detail-line">
               <span class="blue-grey--text text--lighten-2">Edition&nbsp;:&nbsp;</span>{{ editedItem.edition }}
-            </v-row>
-            <v-row v-if="editedItem.dateAdded">
+            </div>
+            <div v-if="editedItem.dateAdded" class="detail-line">
               <span class="blue-grey--text text--lighten-2">Date d'ajout&nbsp;:&nbsp;</span>{{ editedItem.dateAdded }}
-            </v-row>
+            </div>
         </v-col>
-        <v-col class="d-none d-md-block" cols="2">
+        <v-col class="d-none d-md-block py-3" cols="2">
             <v-img
               v-if="editedItem.imageURL.toString() !== ''"
               :src="editedItem.imageURL.toString()"
@@ -84,3 +84,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.detail-line {
+  padding: 2px 0;
+  line-height: 1.4;
+}
+</style>

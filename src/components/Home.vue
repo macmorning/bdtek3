@@ -129,34 +129,6 @@ chargement trop long ou hors connexion ?<br />
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="dialogNew" width="400px">
-      <v-card>
-        <v-banner
-        style="top:0px"
-        sticky
-        single-line
-        class="blue-grey lighten-1  white--text"
->
-        <v-btn class="white--text" text title="fermer" @click="close"><v-icon>mdi-close</v-icon></v-btn>
-          Nouveau livre
-          <template #actions>
-            <v-btn class="white--text" text title="scanner" @click="scanSwitch"><v-icon>mdi-barcode-scan</v-icon></v-btn>
-            <v-btn class="white--text" text title="créer" @click="saveNew"><v-icon>mdi-floppy</v-icon></v-btn>
-          </template>
-        </v-banner>
-        <v-card-text>
-          <v-container>
-            <v-text-field v-model="newBookUID" autofocus label="ISBN" @keyup.enter="saveNew"></v-text-field>
-          </v-container>
-          <v-dialog v-model="dialogScan" width="690px">
-            <v-card style="height: 500px;">
-              <scanner v-if="dialogScan" :on-detected="scanDetected" />
-            </v-card>
-          </v-dialog>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-
     <v-dialog v-model="dialogMulti" width="600px">
       <v-card>
         <v-banner
@@ -186,10 +158,10 @@ chargement trop long ou hors connexion ?<br />
       fixed
       bottom
       right
-      title="ajouter un livre"
-      @click="newItem"
+      title="scanner un livre"
+      @click="$router.push('/scan')"
     >
-<v-icon>mdi-book-plus</v-icon>
+      <v-icon>mdi-barcode-scan</v-icon>
     </v-btn>
       <v-btn
         v-if="!friendId && !cached && selectedBooks.length>0"
@@ -219,26 +191,20 @@ chargement trop long ou hors connexion ?<br />
 import BookDetails from '@/components/BookDetails'
 import BookEditor from '@/components/BookEditor'
 import MultiBookEditor from '@/components/MultiBookEditor'
-import Scanner from '@/components/Scanner'
 export default {
   components: {
     BookDetails: BookDetails,
     BookEditor: BookEditor,
-    MultiBookEditor: MultiBookEditor,
-    Scanner: Scanner
+    MultiBookEditor: MultiBookEditor
   },
   data () {
     return {
       search: '',
-      scanArray: {},
       cached: false,
-      newBookUID: null,
       alert: false,
       expanded: [],
       dialogEdit: false,
-      dialogNew: false,
       dialogMulti: false,
-      dialogScan: false,
       editedIndex: -1,
       headersSM: [
         {
@@ -411,9 +377,6 @@ export default {
     dialogEdit (val) {
       val || this.close()
     },
-    dialogNew (val) {
-      val || this.close()
-    },
     dialogMulti (val) {
       val || this.close()
     },
@@ -464,11 +427,6 @@ export default {
       this.$store.commit('setCurrentBook', book)
       this.dialogEdit = true
     },
-    newItem () {
-      this.expanded = []
-      this.$store.dispatch('currentBookClear')
-      this.dialogNew = true
-    },
     openMultiEdit () {
       this.expanded = []
       this.$store.dispatch('currentBookClear')
@@ -480,19 +438,8 @@ export default {
     },
     close () {
       this.dialogEdit = false
-      this.dialogNew = false
       this.dialogMulti = false
-      this.dialogScan = false
-      this.scanArray = {}
       this.$store.dispatch('currentBookClear')
-    },
-    saveNew () {
-      this.newBookUID = this.newBookUID.trim().replace(/\D/g, '')
-      this.$store.dispatch('saveNewBook', this.newBookUID)
-      setTimeout(() => {
-        this.setSearch(this.newBookUID);
-        this.dialogNew = false;
-      }, 500)
     },
     saveMulti () {
       if (confirm('Êtes-vous certain de vouloir modifier les ' + this.selectedBooks.length + ' livres sélectionnés ?')) {
@@ -516,18 +463,6 @@ export default {
         value: false
       }
       this.$store.commit('bookSelectedAll', payload)
-    },
-    scanSwitch () {
-      this.dialogScan = !this.dialogScan
-    },
-    scanDetected (data) {
-      this.scanArray[data.codeResult.code] = (this.scanArray[data.codeResult.code] !== undefined ? this.scanArray[data.codeResult.code] + 1 : 1)
-      if (this.scanArray[data.codeResult.code] >= 5) {
-        this.dialogScan = false
-        delete this.scanArray
-        this.scanArray = {}
-        this.newBookUID = data.codeResult.code
-      }
     },
     askLookup () {
       if (confirm('Êtes-vous sûr de vouloir remplacer les informations actuelles par celles qui seront trouvées sur Internet ?')) {
