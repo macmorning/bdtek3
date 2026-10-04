@@ -32,11 +32,12 @@
         </v-col>
         <v-col class="d-none d-md-block py-3" cols="2">
             <v-img
-              v-if="editedItem.imageURL.toString() !== ''"
+              v-if="editedItem.imageURL.toString() !== '' && !imageError"
               :src="editedItem.imageURL.toString()"
               aspect-ratio="1"
               class="grey lighten-2"
               @click.stop="openImage"
+              @error="imageError = true"
             >
               <template #placeholder>
                 <v-row
@@ -48,6 +49,19 @@
                 </v-row>
               </template>
             </v-img>
+            <v-row
+              v-else-if="editedItem.imageURL.toString() !== '' && imageError"
+              class="ma-0 grey lighten-2"
+              align="center"
+              justify="center"
+              style="aspect-ratio:1"
+              title="Image indisponible"
+            >
+              <div class="text-center grey--text">
+                <v-icon color="grey">mdi-image-broken-variant</v-icon>
+                <div class="caption">Image indisponible</div>
+              </div>
+            </v-row>
         </v-col>
     </v-row>
   </div>
@@ -60,6 +74,7 @@ export default {
   },
   data: function () {
     return {
+      imageError: false
     }
   },
   computed: {
@@ -72,6 +87,12 @@ export default {
     },
     editedItem () {
       return this.$store.state.currentBook
+    }
+  },
+  watch: {
+    'editedItem.imageURL' () {
+      // nouvelle image : on repart d'un etat sain pour reafficher le loader
+      this.imageError = false
     }
   },
   methods: {

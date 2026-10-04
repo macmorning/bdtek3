@@ -4,6 +4,7 @@ import firebase from './initFirebase'
 import { sendPasswordResetEmail, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signOut, GoogleAuthProvider, updateProfile } from 'firebase/auth'
 import { ref, set, remove, off, onValue, query, orderByChild, get } from 'firebase/database'
 import router from '@/router'
+import { normalizeDate, todayISO } from '@/utils/date'
 
 const auth = firebase.auth;
 const database = firebase.database;
@@ -315,6 +316,17 @@ export default new Vuex.Store({
           booksArray.push(book)
         }
         commit('setBooks', booksArray)
+
+        // resynchroniser le livre affiché dans la modale avec les données fraiches
+        // (notamment apres une recherche Internet declenchee via needLookup)
+        const current = this.state.currentBook
+        if (current && current.uid) {
+          const updated = booksArray.find(b => b.uid === current.uid)
+          if (updated) {
+            commit('setCurrentBook', updated)
+          }
+        }
+
         dispatch('cacheBooks')
         newItems = true
         commit('setLoading', false)
@@ -362,6 +374,9 @@ export default new Vuex.Store({
         return false
       }
       commit('setLoading', true)
+      // Homogeneise les dates en base au format YYYY-MM-DD (nettoie aussi le legacy)
+      book.published = normalizeDate(book.published)
+      book.dateAdded = normalizeDate(book.dateAdded)
       book.computedOrderField = (book.series ? book.series + (book.volume ? '_' + book.volume.toString().padStart(4, '0') : '') : '') + '_' + book.title
       set(ref(database, `bd/${this.state.user.uid}/${book.uid}`), book).then(() => {
         commit('setSuccess', 'Livre enregistré')
@@ -399,7 +414,7 @@ export default new Vuex.Store({
       book.title = uid
       book.series = null
       book.needLookup = 1
-      book.dateAdded = new Date().getUTCFullYear() + '-' + (new Date().getUTCMonth() + 1).toString().padStart(2, '0') + '-' + new Date().getUTCDate().toString().padStart(2, '0')
+      book.dateAdded = todayISO()
       try {
         set(ref(database, `bd/${this.state.user.uid}/${uid}`), book).then(() => {
           commit('setSuccess', 'Livre ajouté')

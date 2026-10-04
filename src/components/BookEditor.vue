@@ -26,7 +26,7 @@
         <v-col cols="12" lg="6">
           <v-text-field
             v-if="readonly"
-            v-model="editedItem.published"
+            v-model="publishedDate"
             label="Date de publication"
             prepend-icon="mdi-calendar"
             readonly
@@ -42,14 +42,14 @@
           >
             <template #activator="{ on }">
               <v-text-field
-                v-model="editedItem.published"
+                v-model="publishedDate"
                 label="Date de publication"
                 prepend-icon="mdi-calendar"
                 readonly
                 v-on="on"
               ></v-text-field>
             </template>
-            <v-date-picker v-model="editedItem.published" @input="publishedMenu = false"></v-date-picker>
+            <v-date-picker v-model="publishedDate" @input="publishedMenu = false"></v-date-picker>
           </v-menu>
         </v-col>
         <v-col cols="12" lg="6">
@@ -66,7 +66,7 @@
         <v-col cols="12" lg="6">
           <v-text-field
             v-if="readonly"
-            v-model="editedItem.dateAdded"
+            v-model="addedDate"
             label="Date d'ajout"
             prepend-icon="mdi-calendar"
             readonly
@@ -82,14 +82,14 @@
           >
             <template #activator="{ on }">
               <v-text-field
-                v-model="editedItem.dateAdded"
+                v-model="addedDate"
                 label="Date d'ajout"
                 prepend-icon="mdi-calendar"
                 readonly
                 v-on="on"
               ></v-text-field>
             </template>
-            <v-date-picker v-model="editedItem.dateAdded" @input="dateAddedMenu = false"></v-date-picker>
+            <v-date-picker v-model="addedDate" @input="dateAddedMenu = false"></v-date-picker>
           </v-menu>
         </v-col>
         <v-col cols="12" lg="6">
@@ -99,6 +99,8 @@
 </template>
 
 <script>
+import { normalizeDate } from '../utils/date'
+
 export default {
   props: {
     readonly: Boolean
@@ -113,16 +115,30 @@ export default {
     editedItem () {
       return this.$store.state.currentBook
     },
+    // Date de parution normalisee YYYY-MM-DD pour le v-date-picker.
+    // Le getter nettoie les valeurs legacy, le setter re-normalise la saisie.
+    publishedDate: {
+      get () {
+        return normalizeDate(this.editedItem.published)
+      },
+      set (val) {
+        this.editedItem.published = normalizeDate(val)
+      }
+    },
+    // Date d'ajout normalisee YYYY-MM-DD pour le v-date-picker.
+    addedDate: {
+      get () {
+        return normalizeDate(this.editedItem.dateAdded)
+      },
+      set (val) {
+        this.editedItem.dateAdded = normalizeDate(val)
+      }
+    },
     series () {
       return this.$store.state.series
     },
     publishers () {
       return this.$store.state.publishers
-    }
-  },
-  watch: {
-    editemItem (val) {
-      console.log(val)
     }
   },
   methods: {

@@ -1,17 +1,26 @@
 <template>
-  <v-container fluid>
-    <v-row justify="center">
-      <v-col cols="12" sm="10" md="8" lg="6">
+  <v-dialog
+    :value="value"
+    max-width="800px"
+    scrollable
+    @input="$emit('input', $event)"
+  >
+    <v-card>
+      <v-banner
+        style="top:0px"
+        sticky
+        single-line
+        class="blue-grey lighten-1 white--text"
+      >
+        <v-btn class="white--text" text title="fermer" @click="closeDialog">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+        Fiche livre
+      </v-banner>
 
+      <v-card-text>
         <!-- Section bibliographique -->
         <v-card>
-          <v-card-title class="blue-grey lighten-1 white--text">
-            <v-btn icon dark title="retour à la bibliothèque" class="mr-2" @click="$router.push('/')">
-              <v-icon>mdi-arrow-left</v-icon>
-            </v-btn>
-            Fiche livre
-          </v-card-title>
-
           <!-- Indicateur de chargement -->
           <v-card-text v-if="bioLoading" class="text-center py-8">
             <v-progress-circular indeterminate color="blue-grey" size="48"></v-progress-circular>
@@ -43,10 +52,12 @@
               <!-- Couverture -->
               <v-col v-if="bookInfo.imageURL" cols="4" sm="3" class="d-flex align-start">
                 <v-img
+                  v-if="!coverError"
                   :src="bookInfo.imageURL"
                   max-height="200"
                   contain
                   class="grey lighten-3 rounded"
+                  @error="coverError = true"
                 >
                   <template #placeholder>
                     <v-row class="fill-height ma-0" align="center" justify="center">
@@ -54,6 +65,19 @@
                     </v-row>
                   </template>
                 </v-img>
+                <v-row
+                  v-else
+                  class="ma-0 grey lighten-3 rounded text-center"
+                  align="center"
+                  justify="center"
+                  style="min-height:120px;width:100%"
+                  title="Image indisponible"
+                >
+                  <div class="grey--text">
+                    <v-icon color="grey">mdi-image-broken-variant</v-icon>
+                    <div class="caption">Image indisponible</div>
+                  </div>
+                </v-row>
               </v-col>
 
               <!-- Détails -->
@@ -152,16 +176,16 @@
             </v-btn>
           </v-card-text>
         </v-card>
-
-      </v-col>
-    </v-row>
-  </v-container>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
 import firebase from '@/initFirebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import BookEditor from '@/components/BookEditor'
+import { normalizeDate, todayISO } from '@/utils/date'
 
 export default {
   name: 'BookLookup',
@@ -170,13 +194,29 @@ export default {
     BookEditor
   },
 
+  props: {
+    // v-model : etat ouvert/ferme de la modale
+    value: {
+      type: Boolean,
+      default: false
+    },
+    // ISBN du livre a afficher
+    isbn: {
+      type: String,
+      default: ''
+    }
+  },
+
+  emits: ['input'],
+
   data () {
     return {
-      isbn: '',
       // Données bibliographiques
       bookInfo: null,
       bioLoading: true,
       bioError: null,
+      // true si la couverture n'a pas pu etre chargee (lien mort, site injoignable)
+      coverError: false,
       // État collection
       addSuccess: false,
       addDialog: false
@@ -226,9 +266,20 @@ export default {
     }
   },
 
-  created () {
-    this.isbn = this.$route.params.isbn || ''
-    this.loadBioData()
+  watch: {
+    value (open) {
+      if (open && this.isbn) {
+        // Ouverture de la modale : (re)charger la fiche du livre scanne
+        this.addDialog = false
+        this.addSuccess = false
+        this.loadBioData()
+      } else if (!open) {
+        // Fermeture : annuler toute requete en cours et nettoyer
+        if (this._bioController) {
+          this._bioController.abort()
+        }
+      }
+    }
   },
 
   // eslint-disable-next-line vue/no-deprecated-destroyed-lifecycle
@@ -244,6 +295,10 @@ export default {
   },
 
   methods: {
+    closeDialog () {
+      this.$emit('input', false)
+    },
+
     /**
      * Recupere le jeton d'identite Firebase de l'utilisateur courant.
      * Attend la resolution de l'etat d'auth si currentUser n'est pas encore pret.
@@ -272,10 +327,7 @@ export default {
      * ouvre la modale d'edition (BookEditor).
      */
     openAddDialog () {
-      const today = new Date()
-      const dateAdded = today.getUTCFullYear() + '-' +
-        (today.getUTCMonth() + 1).toString().padStart(2, '0') + '-' +
-        today.getUTCDate().toString().padStart(2, '0')
+      const dateAdded = todayISO()
 
       const info = this.bookInfo || {}
       this.$store.commit('setCurrentBook', {
@@ -286,7 +338,7 @@ export default {
         author: info.author || '',
         imageURL: info.imageURL || '',
         publisher: info.publisher || '',
-        published: info.published || '',
+        published: normalizeDate(info.published),
         detailsURL: info.detailsURL || '',
         edition: '',
         dateAdded,
@@ -313,6 +365,7 @@ export default {
      */
     async loadBioData () {
       this.bioLoading = true
+      this.coverError = false
       this.bioError = null
       this.bookInfo = null
 
@@ -343,7 +396,7 @@ export default {
           author: data.author || '',
           imageURL: data.imageURL || '',
           publisher: data.publisher || '',
-          published: data.published || '',
+          published: normalizeDate(data.published),
           series: data.series || null,
           volume: data.volume || null,
           detailsURL: data.detailsURL || '',

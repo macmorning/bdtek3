@@ -150,6 +150,10 @@ chargement trop long ou hors connexion ?<br />
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <scan-dialog v-model="dialogScan" @detected="onScanDetected" />
+
+    <book-lookup v-model="dialogLookup" :isbn="lookupIsbn" />
     <v-btn
       v-if="!friendId && !cached && selectedBooks.length==0"
       fab
@@ -159,7 +163,7 @@ chargement trop long ou hors connexion ?<br />
       bottom
       right
       title="scanner un livre"
-      @click="$router.push('/scan')"
+      @click="dialogScan = true"
     >
       <v-icon>mdi-barcode-scan</v-icon>
     </v-btn>
@@ -191,11 +195,15 @@ chargement trop long ou hors connexion ?<br />
 import BookDetails from '@/components/BookDetails'
 import BookEditor from '@/components/BookEditor'
 import MultiBookEditor from '@/components/MultiBookEditor'
+import ScanDialog from '@/components/ScanDialog'
+import BookLookup from '@/components/BookLookup'
 export default {
   components: {
     BookDetails: BookDetails,
     BookEditor: BookEditor,
-    MultiBookEditor: MultiBookEditor
+    MultiBookEditor: MultiBookEditor,
+    ScanDialog: ScanDialog,
+    BookLookup: BookLookup
   },
   data () {
     return {
@@ -205,6 +213,9 @@ export default {
       expanded: [],
       dialogEdit: false,
       dialogMulti: false,
+      dialogScan: false,
+      dialogLookup: false,
+      lookupIsbn: '',
       editedIndex: -1,
       headersSM: [
         {
@@ -469,6 +480,12 @@ export default {
         this.book.needLookup = 1
         this.$store.dispatch('currentBookSave')
       }
+    },
+    onScanDetected (isbn) {
+      this.dialogScan = false
+      this.lookupIsbn = isbn
+      // Ouvrir la fiche livre en modale (le watch de BookLookup declenche le chargement)
+      this.dialogLookup = true
     }
   }
 }

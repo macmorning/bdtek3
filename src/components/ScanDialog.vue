@@ -1,33 +1,37 @@
 <template>
-  <v-container fluid>
-    <v-row justify="center">
-      <v-col cols="12" sm="10" md="8" lg="6">
-        <v-card>
-          <v-card-title class="blue-grey lighten-1 white--text">
-            <v-btn icon dark title="retour à la bibliothèque" class="mr-2" @click="$router.push('/')">
-              <v-icon>mdi-arrow-left</v-icon>
-            </v-btn>
-            Scanner un code barre
-          </v-card-title>
+  <v-dialog
+    :value="value"
+    max-width="500px"
+    @input="$emit('input', $event)"
+  >
+    <v-card>
+      <v-banner
+        style="top:0px"
+        sticky
+        single-line
+        class="blue-grey lighten-1 white--text"
+      >
+        <v-btn class="white--text" text title="fermer" @click="closeDialog"><v-icon>mdi-close</v-icon></v-btn>
+        Scanner un code barre
+      </v-banner>
 
-          <v-alert
-            v-if="cameraError"
-            type="error"
-            class="ma-3"
-            outlined
-          >
-            {{ cameraError }}
-          </v-alert>
+      <v-alert
+        v-if="cameraError"
+        type="error"
+        class="ma-3"
+        outlined
+      >
+        {{ cameraError }}
+      </v-alert>
 
-          <scanner
-            ref="scanner"
-            :on-detected="onBarcodeDetected"
-            :on-error="onCameraError"
-          />
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+      <scanner
+        v-if="value"
+        ref="scanner"
+        :on-detected="onBarcodeDetected"
+        :on-error="onCameraError"
+      />
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -54,11 +58,21 @@ export function stabilizeBarcode (lastScanned, scanCount, code, threshold) {
 }
 
 export default {
-  name: 'ScanPage',
+  name: 'ScanDialog',
 
   components: {
     Scanner
   },
+
+  props: {
+    // v-model : etat ouvert/ferme de la modale
+    value: {
+      type: Boolean,
+      default: false
+    }
+  },
+
+  emits: ['input', 'detected'],
 
   data () {
     return {
@@ -66,13 +80,28 @@ export default {
       scanCount: 0,
       STABLE_THRESHOLD: 3,
       cameraError: null,
-      navigating: false
+      detecting: false
+    }
+  },
+
+  watch: {
+    value (open) {
+      if (open) {
+        // Reinitialiser l'etat de detection a chaque ouverture
+        this.lastScanned = null
+        this.scanCount = 0
+        this.cameraError = null
+        this.detecting = false
+      } else {
+        // Fermeture : couper la camera proprement
+        this.stopScannerSafely()
+      }
     }
   },
 
   mounted () {
     // Filet de securite : couper la camera si l'onglet passe en arriere-plan
-    // ou si la page est masquee (navigation arriere, changement d'app mobile).
+    // ou si la page est masquee (changement d'app mobile, verrouillage).
     this._onHidden = () => {
       if (document.hidden) {
         this.stopScannerSafely()
@@ -80,12 +109,6 @@ export default {
     }
     document.addEventListener('visibilitychange', this._onHidden)
     window.addEventListener('pagehide', this.stopScannerSafely)
-  },
-
-  // Hook Vue Router : plus fiable que beforeDestroy pour les changements de route
-  beforeRouteLeave (to, from, next) {
-    this.stopScannerSafely()
-    next()
   },
 
   // eslint-disable-next-line vue/no-deprecated-destroyed-lifecycle
@@ -102,9 +125,14 @@ export default {
       }
     },
 
+    closeDialog () {
+      this.stopScannerSafely()
+      this.$emit('input', false)
+    },
+
     onBarcodeDetected (payload) {
-      // Ignorer les detections apres declenchement de la navigation
-      if (this.navigating) return
+      // Ignorer les detections une fois qu'un code stable a ete retenu
+      if (this.detecting) return
 
       const code = payload.codeResult.code
       const result = stabilizeBarcode(
@@ -117,10 +145,11 @@ export default {
       this.scanCount = result.scanCount
 
       if (result.navigate) {
-        this.navigating = true
-        // Arreter la camera AVANT de naviguer
+        this.detecting = true
+        // Arreter la camera AVANT de signaler la detection
         this.stopScannerSafely()
-        this.$router.push('/scan/' + code)
+        this.$emit('input', false)
+        this.$emit('detected', code)
       }
     },
 

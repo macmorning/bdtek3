@@ -120,6 +120,12 @@ export default {
     return {
       appTitle: 'BDTek',
       maxImgNum: 10,
+      // Image de fond figee pour toute la session de page (jusqu'au prochain reload).
+      // null tant qu'elle n'a pas encore ete tiree.
+      bgImage: null,
+      // true une fois qu'une couverture de la bibliotheque a ete retenue :
+      // empeche tout nouveau tirage ensuite.
+      bgLockedToCover: false,
       snackSuccess: false,
       snackError: false,
       shareDialog: false,
@@ -154,7 +160,7 @@ export default {
           'background-position': 'center',
           'background-size': 'cover',
           'background-attachment': 'fixed',
-          'background-image': 'url(' + this.imgUrl + ')',
+          'background-image': 'url(' + this.bgImage + ')',
           'min-height': '100%'
         }
       } else {
@@ -163,22 +169,6 @@ export default {
           'min-height': '100%'
         }
       }
-    },
-    imgUrl () {
-      let url = ''
-      url = '/img/' + this.getRandomNumber(this.maxImgNum).toString().padStart(2, '0') + '.webp'
-      if (this.$store.state.books.length > 0) {
-        let iterations = 0
-        let randURL = ''
-        do {
-          iterations++
-          randURL = this.$store.state.books[this.getRandomNumber(this.$store.state.books.length)].imageURL
-          if (randURL !== '') {
-            return randURL
-          }
-        } while (iterations < 5)
-      }
-      return url
     }
   },
   watch: {
@@ -203,9 +193,22 @@ export default {
       if (!value) {
         this.$store.commit('setSuccess', null)
       }
+    },
+    // Des que les livres arrivent, on fige une couverture (une seule fois).
+    '$store.state.books.length' (len) {
+      if (len > 0 && !this.bgLockedToCover) {
+        this.setBackgroundFromCover()
+      }
     }
   },
   created () {
+    // Image de fond figee pour toute la session de page.
+    // On pose d'abord une image par defaut (au cas ou les livres ne chargent pas),
+    // puis le watch sur books la remplace par une couverture des qu'elles arrivent.
+    this.bgImage = this.defaultImage()
+    if (this.$store.state.books.length > 0) {
+      this.setBackgroundFromCover()
+    }
   },
   methods: {
     closeOptions () {
@@ -231,6 +234,30 @@ export default {
     },
     getRandomNumber (max) {
       return Math.floor(Math.random() * Math.floor(max)) + 1
+    },
+    // Une des images statiques /img/NN.webp (fallback quand aucune couverture).
+    defaultImage () {
+      return '/img/' + this.getRandomNumber(this.maxImgNum).toString().padStart(2, '0') + '.webp'
+    },
+    // Tente de retourner l'URL d'une couverture non vide de la bibliotheque,
+    // ou null si aucune n'est trouvee apres quelques essais.
+    pickCover () {
+      const books = this.$store.state.books
+      for (let iterations = 0; iterations < 5; iterations++) {
+        const randURL = books[this.getRandomNumber(books.length) - 1].imageURL
+        if (randURL) {
+          return randURL
+        }
+      }
+      return null
+    },
+    // Fige une couverture comme image de fond, definitivement pour la session.
+    setBackgroundFromCover () {
+      const cover = this.pickCover()
+      if (cover) {
+        this.bgImage = cover
+        this.bgLockedToCover = true
+      }
     }
   }
 }

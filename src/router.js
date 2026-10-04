@@ -9,8 +9,6 @@ const routerOptions = [
   { path: '/signup', component: 'Signup' },
   { path: '/reset', component: 'PasswordForget' },
   { path: '/scanner', component: 'Scanner' },
-  { path: '/scan', component: 'ScanPage', meta: { requiresAuth: true } },
-  { path: '/scan/:isbn', component: 'BookLookup', meta: { requiresAuth: true } },
   { path: '*', component: 'Notfound' }
 ]
 
