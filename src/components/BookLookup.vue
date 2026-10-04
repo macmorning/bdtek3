@@ -1,22 +1,17 @@
 <template>
   <v-dialog
-    :value="value"
+    :model-value="modelValue"
     max-width="800px"
     scrollable
-    @input="$emit('input', $event)"
+    @update:model-value="$emit('update:modelValue', $event)"
   >
     <v-card>
-      <v-banner
-        style="top:0px"
-        sticky
-        single-line
-        class="blue-grey lighten-1 white--text"
-      >
-        <v-btn class="white--text" text title="fermer" @click="closeDialog">
+      <v-toolbar color="blue-grey-lighten-1" density="comfortable">
+        <v-btn icon title="fermer" @click="closeDialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
-        Fiche livre
-      </v-banner>
+        <v-toolbar-title>Fiche livre</v-toolbar-title>
+      </v-toolbar>
 
       <v-card-text>
         <!-- Section bibliographique -->
@@ -24,26 +19,26 @@
           <!-- Indicateur de chargement -->
           <v-card-text v-if="bioLoading" class="text-center py-8">
             <v-progress-circular indeterminate color="blue-grey" size="48"></v-progress-circular>
-            <div class="mt-3 grey--text">Chargement des informations bibliographiques…</div>
+            <div class="mt-3 text-grey">Chargement des informations bibliographiques…</div>
           </v-card-text>
 
           <!-- Erreur bibliographique -->
           <v-card-text v-else-if="bioError">
-            <v-alert type="warning" outlined>
+            <v-alert type="warning" variant="outlined">
               Œuvre non trouvée
             </v-alert>
-            <div class="mt-2 grey--text text--darken-1">
+            <div class="mt-2 text-grey-darken-1">
               <span class="font-weight-medium">ISBN :</span> {{ isbn }}
             </div>
-            <div class="caption grey--text mt-1">{{ bioError }}</div>
+            <div class="text-caption text-grey mt-1">{{ bioError }}</div>
           </v-card-text>
 
           <!-- Données bibliographiques -->
           <v-card-text v-else-if="bookInfo">
             <!-- Badge discret "deja dans la collection" -->
             <div v-if="alreadyInCollectionComputed" class="mb-2">
-              <v-chip x-small color="info" outlined>
-                <v-icon left x-small>mdi-check-circle</v-icon>
+              <v-chip size="x-small" color="info" variant="outlined">
+                <v-icon start size="x-small">mdi-check-circle</v-icon>
                 Déjà dans votre collection
               </v-chip>
             </div>
@@ -56,51 +51,51 @@
                   :src="bookInfo.imageURL"
                   max-height="200"
                   contain
-                  class="grey lighten-3 rounded"
+                  class="bg-grey-lighten-3 rounded"
                   @error="coverError = true"
                 >
                   <template #placeholder>
                     <v-row class="fill-height ma-0" align="center" justify="center">
-                      <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                      <v-progress-circular indeterminate color="grey-lighten-5"></v-progress-circular>
                     </v-row>
                   </template>
                 </v-img>
                 <v-row
                   v-else
-                  class="ma-0 grey lighten-3 rounded text-center"
+                  class="ma-0 bg-grey-lighten-3 rounded text-center"
                   align="center"
                   justify="center"
                   style="min-height:120px;width:100%"
                   title="Image indisponible"
                 >
-                  <div class="grey--text">
+                  <div class="text-grey">
                     <v-icon color="grey">mdi-image-broken-variant</v-icon>
-                    <div class="caption">Image indisponible</div>
+                    <div class="text-caption">Image indisponible</div>
                   </div>
                 </v-row>
               </v-col>
 
               <!-- Détails -->
               <v-col :cols="bookInfo.imageURL ? 8 : 12" :sm="bookInfo.imageURL ? 9 : 12">
-                <div class="title mb-1">{{ bookInfo.title }}</div>
+                <div class="text-h6 mb-1">{{ bookInfo.title }}</div>
 
-                <div v-if="bookInfo.author" class="body-2 mb-1">
-                  <span class="blue-grey--text text--lighten-2">Auteur(s) : </span>{{ bookInfo.author }}
+                <div v-if="bookInfo.author" class="text-body-2 mb-1">
+                  <span class="text-blue-grey-lighten-2">Auteur(s) : </span>{{ formatAuthor(bookInfo.author) }}
                 </div>
-                <div v-if="bookInfo.published" class="body-2 mb-1">
-                  <span class="blue-grey--text text--lighten-2">Année : </span>{{ bookInfo.published }}
+                <div v-if="bookInfo.published" class="text-body-2 mb-1">
+                  <span class="text-blue-grey-lighten-2">Année : </span>{{ bookInfo.published }}
                 </div>
-                <div v-if="bookInfo.publisher" class="body-2 mb-1">
-                  <span class="blue-grey--text text--lighten-2">Éditeur : </span>{{ bookInfo.publisher }}
+                <div v-if="bookInfo.publisher" class="text-body-2 mb-1">
+                  <span class="text-blue-grey-lighten-2">Éditeur : </span>{{ bookInfo.publisher }}
                 </div>
-                <div v-if="bookInfo.series" class="body-2 mb-1">
-                  <span class="blue-grey--text text--lighten-2">Série : </span>{{ bookInfo.series }}
+                <div v-if="bookInfo.series" class="text-body-2 mb-1">
+                  <span class="text-blue-grey-lighten-2">Série : </span>{{ bookInfo.series }}
                 </div>
-                <div v-if="bookInfo.volume" class="body-2 mb-1">
-                  <span class="blue-grey--text text--lighten-2">Volume : </span>{{ bookInfo.volume }}
+                <div v-if="bookInfo.volume" class="text-body-2 mb-1">
+                  <span class="text-blue-grey-lighten-2">Volume : </span>{{ bookInfo.volume }}
                 </div>
-                <div class="caption grey--text mt-2">
-                  <span class="blue-grey--text text--lighten-2">ISBN : </span>{{ isbn }}
+                <div class="text-caption text-grey mt-2">
+                  <span class="text-blue-grey-lighten-2">ISBN : </span>{{ isbn }}
                 </div>
               </v-col>
             </v-row>
@@ -113,11 +108,11 @@
           class="mt-3"
         >
           <v-card-text>
-            <v-btn color="blue-grey" dark @click="openAddDialog">
-              <v-icon left>mdi-plus</v-icon>
+            <v-btn color="blue-grey" @click="openAddDialog">
+              <v-icon start>mdi-plus</v-icon>
               Ajouter à ma collection
             </v-btn>
-            <v-alert v-if="addSuccess" type="success" outlined dense class="mt-2 mb-0">
+            <v-alert v-if="addSuccess" type="success" variant="outlined" density="compact" class="mt-2 mb-0">
               Livre ajouté à votre collection !
             </v-alert>
           </v-card-text>
@@ -126,22 +121,17 @@
         <!-- Modale d'ajout : editeur pre-rempli -->
         <v-dialog v-model="addDialog" width="800px" scrollable>
           <v-card>
-            <v-banner
-              style="top:0px"
-              sticky
-              single-line
-              class="blue-grey lighten-1 white--text"
-            >
-              <v-btn class="white--text" text title="fermer" @click="addDialog = false">
+            <v-toolbar color="blue-grey-lighten-1" density="comfortable">
+              <v-btn icon title="fermer" @click="addDialog = false">
                 <v-icon>mdi-close</v-icon>
               </v-btn>
-              Ajouter à ma collection
-              <template #actions>
-                <v-btn class="white--text" text title="enregistrer" @click="confirmAdd">
+              <v-toolbar-title>Ajouter à ma collection</v-toolbar-title>
+              <template #append>
+                <v-btn icon title="enregistrer" @click="confirmAdd">
                   <v-icon>mdi-floppy</v-icon>
                 </v-btn>
               </template>
-            </v-banner>
+            </v-toolbar>
             <v-card-text>
               <v-container>
                 <book-editor />
@@ -152,26 +142,26 @@
 
         <!-- Section liens externes vers les sites de critiques -->
         <v-card v-if="bookInfo || bioError" class="mt-3">
-          <v-card-title class="blue-grey lighten-2 white--text subtitle-1">
-            <v-icon left class="white--text">mdi-star-outline</v-icon>
+          <v-card-title class="bg-blue-grey-lighten-2 text-white text-subtitle-1">
+            <v-icon start class="text-white">mdi-star-outline</v-icon>
             Rechercher des avis
           </v-card-title>
           <v-card-text>
-            <div class="mb-2 caption grey--text">
+            <div class="mb-2 text-caption text-grey">
               Consultez les avis sur les sites de référence :
             </div>
             <v-btn
               v-for="site in reviewSites"
               :key="site.name"
-              small
-              outlined
+              size="small"
+              variant="outlined"
               color="blue-grey"
               class="mr-2 mb-2"
               :href="site.url"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <v-icon left small>mdi-open-in-new</v-icon>
+              <v-icon start size="small">mdi-open-in-new</v-icon>
               {{ site.name }}
             </v-btn>
           </v-card-text>
@@ -186,6 +176,7 @@ import firebase from '@/initFirebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import BookEditor from '@/components/BookEditor'
 import { normalizeDate, todayISO } from '@/utils/date'
+import { formatAuthor } from '@/utils/author'
 
 export default {
   name: 'BookLookup',
@@ -195,8 +186,8 @@ export default {
   },
 
   props: {
-    // v-model : etat ouvert/ferme de la modale
-    value: {
+    // v-model : etat ouvert/ferme de la modale (convention Vue 3)
+    modelValue: {
       type: Boolean,
       default: false
     },
@@ -207,7 +198,7 @@ export default {
     }
   },
 
-  emits: ['input'],
+  emits: ['update:modelValue'],
 
   data () {
     return {
@@ -267,7 +258,7 @@ export default {
   },
 
   watch: {
-    value (open) {
+    modelValue (open) {
       if (open && this.isbn) {
         // Ouverture de la modale : (re)charger la fiche du livre scanne
         this.addDialog = false
@@ -282,8 +273,7 @@ export default {
     }
   },
 
-  // eslint-disable-next-line vue/no-deprecated-destroyed-lifecycle
-  beforeDestroy () {
+  beforeUnmount () {
     if (this._bioController) {
       this._bioController.abort()
     }
@@ -295,8 +285,9 @@ export default {
   },
 
   methods: {
+    formatAuthor,
     closeDialog () {
-      this.$emit('input', false)
+      this.$emit('update:modelValue', false)
     },
 
     /**

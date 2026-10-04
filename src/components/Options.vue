@@ -1,17 +1,12 @@
 <template>
     <v-card>
-      <v-banner
-          style="top:0px;"
-          sticky
-          single-line
-          class="blue-grey lighten-1  white--text"
->
-        <v-btn class="white--text" text title="fermer" @click="closeOptions"><v-icon>mdi-close</v-icon></v-btn>
-        Vos préférences
-        <template #actions>
-          <v-btn class="white--text" text title="enregistrer" @click="saveOptions"><v-icon>mdi-floppy</v-icon></v-btn>
+      <v-toolbar color="blue-grey-lighten-1" density="comfortable">
+        <v-btn icon title="fermer" @click="closeOptions"><v-icon>mdi-close</v-icon></v-btn>
+        <v-toolbar-title>Vos préférences</v-toolbar-title>
+        <template #append>
+          <v-btn icon title="enregistrer" @click="saveOptions"><v-icon>mdi-floppy</v-icon></v-btn>
         </template>
-      </v-banner>
+      </v-toolbar>
 
       <v-card-text>
         <v-container>

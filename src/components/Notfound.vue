@@ -3,15 +3,10 @@
     <v-row>
       <v-col cols="12" lg="8" xl="6" offset-lg="2" offset-xl="3">
         <v-card>
-          <v-banner
-              style="top:0px;"
-              sticky
-              single-line
-              class="blue-grey lighten-1  white--text"
->
-            <v-btn class="white--text" text title="retour" @click="returnToHome"><v-icon>mdi-backburger</v-icon></v-btn>
-            Page non trouvée
-            </v-banner>
+          <v-toolbar color="blue-grey-lighten-1" density="comfortable">
+            <v-btn icon title="retour" @click="returnToHome"><v-icon>mdi-backburger</v-icon></v-btn>
+            <v-toolbar-title>Page non trouvée</v-toolbar-title>
+          </v-toolbar>
 
           <v-card-text>
             <v-container>

@@ -1,26 +1,22 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createStore } from 'vuex'
 import firebase from './initFirebase'
 import { sendPasswordResetEmail, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signOut, GoogleAuthProvider, updateProfile } from 'firebase/auth'
 import { ref, set, remove, off, onValue, query, orderByChild, get } from 'firebase/database'
 import router from '@/router'
 import { normalizeDate, todayISO } from '@/utils/date'
+import { formatAuthor } from '@/utils/author'
 
 const auth = firebase.auth;
 const database = firebase.database;
-Vue.use(Vuex)
 
-export default new Vuex.Store({
-  data () {
-    return {
-    }
-  },
+export default createStore({
   state: {
     users: [],
     user: null,
     error: null,
     success: null,
     loading: false,
+    usersLoading: false,
     friendBooks: [],
     books: [],
     series: [],
@@ -51,6 +47,9 @@ export default new Vuex.Store({
     },
     setLoading (state, payload) {
       state.loading = payload
+    },
+    setUsersLoading (state, payload) {
+      state.usersLoading = payload
     },
     setSeries (state, payload) {
       if (payload.length > 1) {
@@ -266,9 +265,11 @@ export default new Vuex.Store({
       })
     },
     fetchUsers ({ commit }, payload) {
-      commit('setLoading', true)
+      // Etat de chargement dedie : ne pas toucher le `loading` global, sinon
+      // le tableau des livres (Home) afficherait son overlay de chargement.
+      commit('setUsersLoading', true)
       get(query(ref(database, 'usersPublic'), orderByChild('displayName'))).then((snapshot) => {
-        commit('setLoading', false)
+        commit('setUsersLoading', false)
         commit('setUsers', snapshot.val())
       })
     },
@@ -377,6 +378,8 @@ export default new Vuex.Store({
       // Homogeneise les dates en base au format YYYY-MM-DD (nettoie aussi le legacy)
       book.published = normalizeDate(book.published)
       book.dateAdded = normalizeDate(book.dateAdded)
+      // Normalise l'auteur en chaine "A, B" (nettoie les tableaux JSON legacy)
+      book.author = formatAuthor(book.author)
       book.computedOrderField = (book.series ? book.series + (book.volume ? '_' + book.volume.toString().padStart(4, '0') : '') : '') + '_' + book.title
       set(ref(database, `bd/${this.state.user.uid}/${book.uid}`), book).then(() => {
         commit('setSuccess', 'Livre enregistré')

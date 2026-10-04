@@ -3,31 +3,31 @@
     <v-row no-gutters style="background:white;opacity:0.9;">
         <v-col cols="10" offset="1" md="8" offset-md="1" class="py-3">
             <div class="detail-line">
-              <span class="blue-grey--text text--lighten-2">ISBN&nbsp;:&nbsp;</span>{{ editedItem.uid }}
+              <span class="text-blue-grey-lighten-2">ISBN&nbsp;:&nbsp;</span>{{ editedItem.uid }}
             </div>
             <div class="detail-line">
-              <span class="blue-grey--text text--lighten-2">Titre&nbsp;:&nbsp;</span>{{ editedItem.title }}
+              <span class="text-blue-grey-lighten-2">Titre&nbsp;:&nbsp;</span>{{ editedItem.title }}
             </div>
             <div v-if="editedItem.series" class="detail-line">
-              <span class="blue-grey--text text--lighten-2">Série&nbsp;:&nbsp;</span>{{ editedItem.series }}
+              <span class="text-blue-grey-lighten-2">Série&nbsp;:&nbsp;</span>{{ editedItem.series }}
             </div>
             <div v-if="editedItem.volume" class="detail-line">
-              <span class="blue-grey--text text--lighten-2">Volume&nbsp;:&nbsp;</span>{{ editedItem.volume }}
+              <span class="text-blue-grey-lighten-2">Volume&nbsp;:&nbsp;</span>{{ editedItem.volume }}
             </div>
             <div v-if="editedItem.author" class="detail-line">
-              <span class="blue-grey--text text--lighten-2">Auteur(s)&nbsp;:&nbsp;</span>{{ editedItem.author }}
+              <span class="text-blue-grey-lighten-2">Auteur(s)&nbsp;:&nbsp;</span>{{ formatAuthor(editedItem.author) }}
             </div>
             <div v-if="editedItem.published" class="detail-line">
-              <span class="blue-grey--text text--lighten-2">Publié&nbsp;:&nbsp;</span>{{ editedItem.published }}
+              <span class="text-blue-grey-lighten-2">Publié&nbsp;:&nbsp;</span>{{ editedItem.published }}
             </div>
             <div v-if="editedItem.publisher" class="detail-line">
-              <span class="blue-grey--text text--lighten-2">Editeur&nbsp;:&nbsp;</span>{{ editedItem.publisher }}
+              <span class="text-blue-grey-lighten-2">Editeur&nbsp;:&nbsp;</span>{{ editedItem.publisher }}
             </div>
             <div v-if="editedItem.edition" class="detail-line">
-              <span class="blue-grey--text text--lighten-2">Edition&nbsp;:&nbsp;</span>{{ editedItem.edition }}
+              <span class="text-blue-grey-lighten-2">Edition&nbsp;:&nbsp;</span>{{ editedItem.edition }}
             </div>
             <div v-if="editedItem.dateAdded" class="detail-line">
-              <span class="blue-grey--text text--lighten-2">Date d'ajout&nbsp;:&nbsp;</span>{{ editedItem.dateAdded }}
+              <span class="text-blue-grey-lighten-2">Date d'ajout&nbsp;:&nbsp;</span>{{ editedItem.dateAdded }}
             </div>
         </v-col>
         <v-col class="d-none d-md-block py-3" cols="2">
@@ -35,7 +35,7 @@
               v-if="editedItem.imageURL.toString() !== '' && !imageError"
               :src="editedItem.imageURL.toString()"
               aspect-ratio="1"
-              class="grey lighten-2"
+              class="bg-grey-lighten-2"
               @click.stop="openImage"
               @error="imageError = true"
             >
@@ -45,21 +45,21 @@
                   align="center"
                   justify="center"
                 >
-                  <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                  <v-progress-circular indeterminate color="grey-lighten-5"></v-progress-circular>
                 </v-row>
               </template>
             </v-img>
             <v-row
               v-else-if="editedItem.imageURL.toString() !== '' && imageError"
-              class="ma-0 grey lighten-2"
+              class="ma-0 bg-grey-lighten-2"
               align="center"
               justify="center"
               style="aspect-ratio:1"
               title="Image indisponible"
             >
-              <div class="text-center grey--text">
+              <div class="text-center text-grey">
                 <v-icon color="grey">mdi-image-broken-variant</v-icon>
-                <div class="caption">Image indisponible</div>
+                <div class="text-caption">Image indisponible</div>
               </div>
             </v-row>
         </v-col>
@@ -68,6 +68,8 @@
 </template>
 
 <script>
+import { formatAuthor } from '@/utils/author'
+
 export default {
   props: {
     readonly: Boolean
@@ -96,6 +98,7 @@ export default {
     }
   },
   methods: {
+    formatAuthor,
     openDetails () {
       window.open(this.$store.state.currentBook.detailsURL, '_blank')
     },

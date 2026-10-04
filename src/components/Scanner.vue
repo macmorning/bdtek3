@@ -327,8 +327,7 @@ export default {
     await this.startScanner()
   },
 
-  // eslint-disable-next-line vue/no-deprecated-destroyed-lifecycle
-  beforeDestroy () {
+  beforeUnmount () {
     this.stopScanner()
   }
 }

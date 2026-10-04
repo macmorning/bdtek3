@@ -21,36 +21,18 @@
             <v-text-field v-model="editedItem.author" label="Auteur(s)" :readonly="readonly"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
-            <v-text-field v-model="editedItem.imageURL" :readonly="readonly" label="Image" append-outer-icon="mdi-link-variant" @click:append-outer="openImage"></v-text-field>
+            <v-text-field v-model="editedItem.imageURL" :readonly="readonly" label="Image" append-icon="mdi-link-variant" @click:append="openImage"></v-text-field>
         </v-col>
         <v-col cols="12" lg="6">
           <v-text-field
-            v-if="readonly"
             v-model="publishedDate"
             label="Date de publication"
             prepend-icon="mdi-calendar"
-            readonly
+            :readonly="readonly"
+            placeholder="AAAA-MM-JJ"
+            :rules="dateRules"
+            @blur="normalizePublished"
           ></v-text-field>
-          <v-menu
-            v-if="!readonly"
-            v-model="publishedMenu"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            transition="scale-transition"
-            offset-y
-            min-width="290px"
-          >
-            <template #activator="{ on }">
-              <v-text-field
-                v-model="publishedDate"
-                label="Date de publication"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-on="on"
-              ></v-text-field>
-            </template>
-            <v-date-picker v-model="publishedDate" @input="publishedMenu = false"></v-date-picker>
-          </v-menu>
         </v-col>
         <v-col cols="12" lg="6">
             <v-combobox
@@ -65,35 +47,17 @@
         </v-col>
         <v-col cols="12" lg="6">
           <v-text-field
-            v-if="readonly"
             v-model="addedDate"
             label="Date d'ajout"
             prepend-icon="mdi-calendar"
-            readonly
+            :readonly="readonly"
+            placeholder="AAAA-MM-JJ"
+            :rules="dateRules"
+            @blur="normalizeAdded"
           ></v-text-field>
-          <v-menu
-            v-if="!readonly"
-            v-model="dateAddedMenu"
-            :close-on-content-click="false"
-            :nudge-right="40"
-            transition="scale-transition"
-            offset-y
-            min-width="290px"
-          >
-            <template #activator="{ on }">
-              <v-text-field
-                v-model="addedDate"
-                label="Date d'ajout"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-on="on"
-              ></v-text-field>
-            </template>
-            <v-date-picker v-model="addedDate" @input="dateAddedMenu = false"></v-date-picker>
-          </v-menu>
         </v-col>
         <v-col cols="12" lg="6">
-            <v-text-field v-model="editedItem.detailsURL" :readonly="readonly" label="Lien externe" append-outer-icon="mdi-link-variant" @click:append-outer="openDetails"></v-text-field>
+            <v-text-field v-model="editedItem.detailsURL" :readonly="readonly" label="Lien externe" append-icon="mdi-link-variant" @click:append="openDetails"></v-text-field>
         </v-col>
     </v-row>
 </template>
@@ -107,32 +71,18 @@ export default {
   },
   data: function () {
     return {
-      publishedMenu: false,
-      dateAddedMenu: false
+      // Saisie brute locale des dates (edition libre, normalisee au blur)
+      publishedDate: '',
+      addedDate: '',
+      // Validation du format de date : vide accepte, sinon YYYY-MM-DD strict
+      dateRules: [
+        v => !v || /^\d{4}-\d{2}-\d{2}$/.test(v) || 'Format attendu : AAAA-MM-JJ'
+      ]
     }
   },
   computed: {
     editedItem () {
       return this.$store.state.currentBook
-    },
-    // Date de parution normalisee YYYY-MM-DD pour le v-date-picker.
-    // Le getter nettoie les valeurs legacy, le setter re-normalise la saisie.
-    publishedDate: {
-      get () {
-        return normalizeDate(this.editedItem.published)
-      },
-      set (val) {
-        this.editedItem.published = normalizeDate(val)
-      }
-    },
-    // Date d'ajout normalisee YYYY-MM-DD pour le v-date-picker.
-    addedDate: {
-      get () {
-        return normalizeDate(this.editedItem.dateAdded)
-      },
-      set (val) {
-        this.editedItem.dateAdded = normalizeDate(val)
-      }
     },
     series () {
       return this.$store.state.series
@@ -141,7 +91,36 @@ export default {
       return this.$store.state.publishers
     }
   },
+  watch: {
+    // (Re)initialise la date locale quand la valeur du store change
+    // (changement de livre, ou resultat de la recherche Internet via la loupe).
+    // On n'ecrase pas la saisie en cours : la data locale ne suit le store que
+    // lorsque ce dernier change reellement.
+    'editedItem.published': {
+      immediate: true,
+      handler (val) {
+        this.publishedDate = normalizeDate(val)
+      }
+    },
+    'editedItem.dateAdded': {
+      immediate: true,
+      handler (val) {
+        this.addedDate = normalizeDate(val)
+      }
+    }
+  },
   methods: {
+    // Normalisation differee : uniquement a la perte de focus, pas a chaque frappe.
+    normalizePublished () {
+      const n = normalizeDate(this.publishedDate)
+      this.publishedDate = n
+      this.editedItem.published = n
+    },
+    normalizeAdded () {
+      const n = normalizeDate(this.addedDate)
+      this.addedDate = n
+      this.editedItem.dateAdded = n
+    },
     openDetails () {
       window.open(this.$store.state.currentBook.detailsURL, '_blank')
     },

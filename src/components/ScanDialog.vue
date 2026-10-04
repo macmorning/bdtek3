@@ -1,31 +1,26 @@
 <template>
   <v-dialog
-    :value="value"
+    :model-value="modelValue"
     max-width="500px"
-    @input="$emit('input', $event)"
+    @update:model-value="$emit('update:modelValue', $event)"
   >
     <v-card>
-      <v-banner
-        style="top:0px"
-        sticky
-        single-line
-        class="blue-grey lighten-1 white--text"
-      >
-        <v-btn class="white--text" text title="fermer" @click="closeDialog"><v-icon>mdi-close</v-icon></v-btn>
-        Scanner un code barre
-      </v-banner>
+      <v-toolbar color="blue-grey-lighten-1" density="comfortable">
+        <v-btn icon title="fermer" @click="closeDialog"><v-icon>mdi-close</v-icon></v-btn>
+        <v-toolbar-title>Scanner un code barre</v-toolbar-title>
+      </v-toolbar>
 
       <v-alert
         v-if="cameraError"
         type="error"
         class="ma-3"
-        outlined
+        variant="outlined"
       >
         {{ cameraError }}
       </v-alert>
 
       <scanner
-        v-if="value"
+        v-if="modelValue"
         ref="scanner"
         :on-detected="onBarcodeDetected"
         :on-error="onCameraError"
@@ -36,26 +31,7 @@
 
 <script>
 import Scanner from '@/components/Scanner'
-
-/**
- * Pure stabilisation function — exported for unit/property-based testing.
- *
- * Returns the new state and whether navigation should be triggered.
- *
- * @param {string|null} lastScanned - Last code that was seen
- * @param {number} scanCount        - Number of consecutive identical reads so far
- * @param {string} code             - Newly detected code
- * @param {number} threshold        - Minimum consecutive reads required to navigate
- * @returns {{ lastScanned: string, scanCount: number, navigate: boolean }}
- */
-export function stabilizeBarcode (lastScanned, scanCount, code, threshold) {
-  if (code === lastScanned) {
-    const newCount = scanCount + 1
-    return { lastScanned: code, scanCount: newCount, navigate: newCount >= threshold }
-  } else {
-    return { lastScanned: code, scanCount: 1, navigate: false }
-  }
-}
+import { stabilizeBarcode } from '@/utils/barcode'
 
 export default {
   name: 'ScanDialog',
@@ -65,14 +41,14 @@ export default {
   },
 
   props: {
-    // v-model : etat ouvert/ferme de la modale
-    value: {
+    // v-model : etat ouvert/ferme de la modale (convention Vue 3)
+    modelValue: {
       type: Boolean,
       default: false
     }
   },
 
-  emits: ['input', 'detected'],
+  emits: ['update:modelValue', 'detected'],
 
   data () {
     return {
@@ -85,7 +61,7 @@ export default {
   },
 
   watch: {
-    value (open) {
+    modelValue (open) {
       if (open) {
         // Reinitialiser l'etat de detection a chaque ouverture
         this.lastScanned = null
@@ -111,8 +87,7 @@ export default {
     window.addEventListener('pagehide', this.stopScannerSafely)
   },
 
-  // eslint-disable-next-line vue/no-deprecated-destroyed-lifecycle
-  beforeDestroy () {
+  beforeUnmount () {
     this.stopScannerSafely()
     document.removeEventListener('visibilitychange', this._onHidden)
     window.removeEventListener('pagehide', this.stopScannerSafely)
@@ -127,7 +102,7 @@ export default {
 
     closeDialog () {
       this.stopScannerSafely()
-      this.$emit('input', false)
+      this.$emit('update:modelValue', false)
     },
 
     onBarcodeDetected (payload) {
@@ -148,7 +123,7 @@ export default {
         this.detecting = true
         // Arreter la camera AVANT de signaler la detection
         this.stopScannerSafely()
-        this.$emit('input', false)
+        this.$emit('update:modelValue', false)
         this.$emit('detected', code)
       }
     },

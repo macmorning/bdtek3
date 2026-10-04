@@ -1,52 +1,54 @@
 <template>
-  <v-layout align-center justify-center>
-    <v-flex xs12 sm8 md4 xl3>
-      <v-card class="elevation-12 text-center">
-        <v-avatar class="blue-grey lighten-1">
-          <v-icon class="white--text" top>mdi-lock</v-icon>
-        </v-avatar>
-        <v-card-text>
-          <v-expansion-panels popout>
-            <v-expansion-panel>
-              <v-expansion-panel-header>S'authentifier avec Google</v-expansion-panel-header>
-              <v-expansion-panel-content class="my-5">
-                <v-btn class="blue-grey lighten-1 white--text" :disabled="isLoading" :loading="isLoading" @click="goToGoogle">Se connecter</v-btn>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-            <v-expansion-panel>
-              <v-expansion-panel-header>Ou avec une adresse email</v-expansion-panel-header>
-              <v-expansion-panel-content class="my-5">
-                <v-form @submit.prevent="userSignIn">
-                  <v-text-field
-                    id="email"
-                    v-model="email"
-                    name="email"
-                    label="Email"
-                    type="email"
-                    required
-                    @keyup.enter="userSignIn"
-></v-text-field>
-                  <v-text-field
-                    id="password"
-                    v-model="password"
-                    name="password"
-                    label="Mot de passe"
-                    type="password"
-                    required
-                    append-outer-icon="mdi-comment-question-outline"
-                    @keyup.enter="userSignIn" @click:append-outer="goToReset"
-                  ></v-text-field>
-                </v-form>
-                <v-btn class="blue-grey lighten-1 white--text" type="submit" :disabled="isLoading" :loading="isLoading" @click="userSignIn">Se connecter</v-btn>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
+  <v-container>
+    <v-row align="center" justify="center">
+      <v-col cols="12" sm="8" md="4" xl="3">
+        <v-card class="elevation-12 text-center">
+          <v-avatar color="blue-grey-lighten-1">
+            <v-icon class="text-white">mdi-lock</v-icon>
+          </v-avatar>
+          <v-card-text>
+            <v-expansion-panels variant="popout">
+              <v-expansion-panel>
+                <v-expansion-panel-title>S'authentifier avec Google</v-expansion-panel-title>
+                <v-expansion-panel-text class="my-5">
+                  <v-btn class="bg-blue-grey-lighten-1 text-white" :disabled="isLoading" :loading="isLoading" @click="goToGoogle">Se connecter</v-btn>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-title>Ou avec une adresse email</v-expansion-panel-title>
+                <v-expansion-panel-text class="my-5">
+                  <v-form @submit.prevent="userSignIn">
+                    <v-text-field
+                      id="email"
+                      v-model="email"
+                      name="email"
+                      label="Email"
+                      type="email"
+                      required
+                      @keyup.enter="userSignIn"
+                    ></v-text-field>
+                    <v-text-field
+                      id="password"
+                      v-model="password"
+                      name="password"
+                      label="Mot de passe"
+                      type="password"
+                      required
+                      append-icon="mdi-comment-question-outline"
+                      @keyup.enter="userSignIn" @click:append="goToReset"
+                    ></v-text-field>
+                  </v-form>
+                  <v-btn class="bg-blue-grey-lighten-1 text-white" type="submit" :disabled="isLoading" :loading="isLoading" @click="userSignIn">Se connecter</v-btn>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
 
-          <p class="mt-8"><a color="secondary" @click="goToSignUp">Pas de compte ? S'enregistrer</a></p>
-</v-card-text>
-      </v-card>
-    </v-flex>
-  </v-layout>
+            <p class="mt-8"><a style="cursor:pointer" @click="goToSignUp">Pas de compte ? S'enregistrer</a></p>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>

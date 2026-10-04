@@ -1,5 +1,4 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import firebase from './initFirebase'
 
 const routerOptions = [
@@ -8,8 +7,8 @@ const routerOptions = [
   { path: '/signin', component: 'Signin' },
   { path: '/signup', component: 'Signup' },
   { path: '/reset', component: 'PasswordForget' },
-  { path: '/scanner', component: 'Scanner' },
-  { path: '*', component: 'Notfound' }
+  // Vue Router 4 : la route attrape-tout n'est plus '*' mais un parametre regex
+  { path: '/:pathMatch(.*)*', component: 'Notfound' }
 ]
 
 const routes = routerOptions.map(route => {
@@ -19,13 +18,12 @@ const routes = routerOptions.map(route => {
   }
 })
 
-Vue.use(Router)
-
-const router = new Router({
-  mode: 'history',
+const router = createRouter({
+  history: createWebHistory(),
   routes
 })
-const auth = firebase.auth;
+
+const auth = firebase.auth
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   const isAuthenticated = auth.currentUser

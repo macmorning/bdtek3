@@ -1,0 +1,51 @@
+tr {
+    cursor: pointer;
+}
+td.expansion {
+    cursor: default;
+    /* Supprime le padding par defaut des cellules pour que le panneau
+       de details occupe toute la largeur. */
+    padding: 0 !important;
+}
+
+/* Panneau de details deploye : barre d'accent coloree a gauche.
+   #78909c = blue-grey lighten-1 de la palette Material. */
+.expansion-panel {
+    border-color: #78909c !important;
+    transform-origin: top;
+}
+
+/* Animation d'apparition : le slot etant monte par la data-table a chaque
+   deploiement, l'animation CSS se rejoue automatiquement au montage. */
+.expansion-panel--enter {
+    animation: expansion-reveal 0.28s ease-out;
+}
+
+@keyframes expansion-reveal {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scaleY(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .expansion-panel--enter {
+        animation: none;
+    }
+}
+
+/* Ligne parente dont le detail est deploye : fond legerement teinte
+   pour la relier visuellement a son panneau.
+   #eceff1 = blue-grey lighten-5. */
+tr.row-expanded > td {
+    background-color: #eceff1 !important;
+    font-weight: 500;
+}
+
+a {
+    text-decoration: none;
+}

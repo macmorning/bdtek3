@@ -1,17 +1,12 @@
 <template>
     <v-card>
-      <v-banner
-          style="top:0px;"
-          sticky
-          single-line
-          class="blue-grey lighten-1  white--text"
->
-        <v-btn class="white--text" text title="fermer" @click="closeShare"><v-icon>mdi-close</v-icon></v-btn>
-        Lien à partager
-      </v-banner>
+      <v-toolbar color="blue-grey-lighten-1" density="comfortable">
+        <v-btn icon title="fermer" @click="closeShare"><v-icon>mdi-close</v-icon></v-btn>
+        <v-toolbar-title>Lien à partager</v-toolbar-title>
+      </v-toolbar>
       <v-card-text>
         <v-container>
-          <v-text-field ref="shareUrlField" readonly :value="shareUrl" append-outer-icon="mdi-clipboard-arrow-down" @click:append-outer="shareUrlCopy"></v-text-field>
+          <v-text-field readonly :model-value="shareUrl" append-icon="mdi-clipboard-arrow-down" @click:append="shareUrlCopy"></v-text-field>
         </v-container>
       </v-card-text>
     </v-card>
@@ -46,10 +41,15 @@ export default {
   },
   methods: {
     shareUrlCopy () {
-      this.$refs.shareUrlField.$refs.input.focus()
-      this.$refs.shareUrlField.$refs.input.select()
-      document.execCommand('copy')
-      this.$store.commit('setSuccess', 'Lien copié dans le presse-papier')
+      const url = this.shareUrl
+      if (!url) { return }
+      navigator.clipboard.writeText(url)
+        .then(() => {
+          this.$store.commit('setSuccess', 'Lien copié dans le presse-papier')
+        })
+        .catch(() => {
+          this.$store.commit('setError', 'Impossible de copier le lien')
+        })
     },
     closeShare () {
       this.$emit('close-dialog')

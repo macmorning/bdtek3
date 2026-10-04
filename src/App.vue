@@ -1,75 +1,68 @@
 <template id="app-template">
   <v-app>
-    <v-app-bar app class="blue-grey lighten-1">
+    <v-app-bar class="bg-blue-grey-lighten-1">
       <v-toolbar-title>
-        <router-link to="/" style="cursor: pointer" class="white--text">
+        <router-link to="/" style="cursor: pointer" class="text-white">
           {{ appTitle }}
         </router-link>
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-items>
-        <v-btn
-          v-for="item in menuItems"
-          :key="item.title"
-          text
-          :title="item.title"
-          class="white--text"
-          :to="item.path"
->
-          <v-icon dark>{{ item.icon }}</v-icon>
-        </v-btn>
-        <v-btn
-          v-if="isAuthenticated"
-          text
-          title="utilisateurs"
-          class="white--text"
-          @click="users"
->
-          <v-icon dark>mdi-account-multiple</v-icon>
-        </v-btn>
-         <v-menu
-            v-if="isAuthenticated"
-            bottom
->
-            <template #activator="{ on }">
-              <v-btn
-                class="white--text"
-                dark
-                icon
-                v-on="on"
-              >
-<v-icon>mdi-dots-vertical</v-icon>
-              </v-btn>
-            </template>
+      <v-btn
+        v-for="item in menuItems"
+        :key="item.title"
+        variant="text"
+        :title="item.title"
+        class="text-white"
+        :to="item.path"
+      >
+        <v-icon>{{ item.icon }}</v-icon>
+      </v-btn>
+      <v-btn
+        v-if="isAuthenticated"
+        variant="text"
+        title="utilisateurs"
+        class="text-white"
+        @click="users"
+      >
+        <v-icon>mdi-account-multiple</v-icon>
+      </v-btn>
+      <v-menu v-if="isAuthenticated" location="bottom">
+        <template #activator="{ props }">
+          <v-btn class="text-white" icon v-bind="props">
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
 
-            <v-list>
-              <v-list-item>
-                <v-btn title="options" text @click="options">
-                  <v-icon class="mr-3">mdi-wrench</v-icon> options
-                </v-btn>
-              </v-list-item>
-              <v-list-item>
-                <v-btn title="partage" text @click="share">
-                  <v-icon class="mr-3">mdi-share</v-icon> partage
-                </v-btn>
-              </v-list-item>
-              <v-list-item>
-                <v-btn title="déconnexion" text @click="userSignOut">
-                  <v-icon class="mr-3">mdi-exit-to-app</v-icon> déconnexion
-                </v-btn>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-</v-toolbar-items>
+        <v-list>
+          <v-list-item title="options" @click="options">
+            <template #prepend>
+              <v-icon>mdi-wrench</v-icon>
+            </template>
+          </v-list-item>
+          <v-list-item title="partage" @click="share">
+            <template #prepend>
+              <v-icon>mdi-share</v-icon>
+            </template>
+          </v-list-item>
+          <v-list-item title="déconnexion" @click="userSignOut">
+            <template #prepend>
+              <v-icon>mdi-exit-to-app</v-icon>
+            </template>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-app-bar>
 
     <v-main>
-      <router-view id="root" :style="backgroundStyle"></router-view>
+      <router-view v-slot="{ Component }">
+        <div id="root" :style="backgroundStyle">
+          <component :is="Component" />
+        </div>
+      </router-view>
     </v-main>
     <v-snackbar
       v-model="snackError"
-      bottom
-      left
+      location="bottom left"
       multi-line
       color="error"
       :timeout="6000"
@@ -78,8 +71,7 @@
     </v-snackbar>
     <v-snackbar
       v-model="snackSuccess"
-      bottom
-      left
+      location="bottom left"
       color="success"
       :timeout="3000"
     >
